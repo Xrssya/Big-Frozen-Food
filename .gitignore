@@ -1,0 +1,30 @@
+# Odoo Configuration Files
+*.conf
+*.cfg
+*.ini
+big_frozen_food.conf
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Log & Dump Files
+*.log
+*.dump
+*.sql
+
+# Virtual Environment
+venv/
+env/
+.venv/
+ENV/
+
+# IDE & OS Files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
