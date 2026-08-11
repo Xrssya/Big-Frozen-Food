@@ -3,15 +3,15 @@ import sys
 import base64
 import os
 import logging
-
-sys.path.insert(0, '/home/rsya/developer/odoo18')
+path
+sys.path.insert(0, '/home/setyo/developer/odoo18')
 import odoo
 from odoo import api, SUPERUSER_ID
 
 DB_NAME = 'big_frozen_food'
 
 def run():
-    odoo.tools.config.parse_config(['-d', DB_NAME])
+    odoo.tools.config.parse_config(['-c', '/home/setyo/developer/odoo/odoo-BigFrozenFood/big_frozen_food.conf', '-d', DB_NAME])
     registry = odoo.registry(DB_NAME)
     with registry.cursor() as cr:
         env = api.Environment(cr, SUPERUSER_ID, {})
@@ -19,6 +19,13 @@ def run():
 
         # 1. Company Setup
         company = env['res.company'].search([], limit=1)
+        idr = env['res.currency'].with_context(active_test=False).search([('name', '=', 'IDR')], limit=1)
+        if idr:
+            idr.write({'active': True, 'symbol': 'Rp', 'position': 'before'})
+            currency_id = idr.id
+        else:
+            currency_id = company.currency_id.id
+
         company.write({
             'name': 'Big Frozen Food',
             'street': 'Jl. Contoh No. 123',
@@ -28,9 +35,9 @@ def run():
             'phone': '08xx-xxxx-xxxx',
             'email': 'info@bigfrozenfood.example',
             'website': 'www.bigfrozenfood.example',
-            'currency_id': env['res.currency'].search([('name', '=', 'IDR')], limit=1).id or company.currency_id.id,
+            'currency_id': currency_id,
         })
-        print(" Company updated: Big Frozen Food")
+        print(f" Company updated: Big Frozen Food (Main Currency: {company.currency_id.name})")
 
         # 1b. Logo
         logo_path = '/home/rsya/.gemini/antigravity-ide/brain/e1380b57-9c9f-4a04-a671-291c8c166c51/big_frozen_food_logo_1786343821764.png'

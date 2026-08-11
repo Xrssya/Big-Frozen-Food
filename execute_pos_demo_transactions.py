@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 import sys
 
-sys.path.insert(0, '/home/rsya/developer/odoo18')
+sys.path.insert(0, '/home/setyo/developer/odoo18')
 import odoo
 from odoo import api, SUPERUSER_ID
 
 DB_NAME = 'big_frozen_food'
 
 def run():
-    odoo.tools.config.parse_config(['-d', DB_NAME])
+    odoo.tools.config.parse_config(['-c', '/home/setyo/developer/odoo/odoo-BigFrozenFood/big_frozen_food.conf', '-d', DB_NAME])
     registry = odoo.registry(DB_NAME)
     with registry.cursor() as cr:
         env = api.Environment(cr, SUPERUSER_ID, {})
@@ -97,6 +97,7 @@ def run():
             })],
         })
         order1.action_pos_order_paid()
+        order1._create_order_picking()
         print(f" Transaction 1 (Pembeli Umum): Order {order1.name} paid Rp 162,000 via Cash.")
 
         # Transaction 2: Reseller (Bank Transfer, Reseller Price)
@@ -120,6 +121,7 @@ def run():
             })],
         })
         order2.action_pos_order_paid()
+        order2._create_order_picking()
         print(f" Transaction 2 (Reseller Pasuruan): Order {order2.name} paid Rp 1,440,000 via Bank Transfer.")
 
         # Transaction 3: Agen (QRIS, Agen Price)
@@ -143,7 +145,10 @@ def run():
             })],
         })
         order3.action_pos_order_paid()
+        order3._create_order_picking()
         print(f" Transaction 3 (Agen Pasuruan): Order {order3.name} paid Rp 3,480,000 via QRIS.")
+
+        session.action_pos_session_closing_control()
 
         cr.commit()
         print("=== POS DEMO TRANSACTIONS COMPLETED CLEANLY ===")

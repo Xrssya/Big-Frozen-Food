@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Configuration paths
-ODOO_PYTHON="/home/rsya/developer/odoo18/venv/bin/python"
-ODOO_BIN="/home/rsya/developer/odoo18/odoo-bin"
-CONFIG_FILE="/home/rsya/developer/odoo/Big-Frozen-Food/big_frozen_food.conf"
+ODOO_PYTHON="/home/setyo/developer/odoo18/venv/bin/python"
+ODOO_BIN="/home/setyo/developer/odoo18/odoo-bin"
+CONFIG_FILE="/home/setyo/developer/odoo/odoo-BigFrozenFood/big_frozen_food.conf"
 
 echo "======================================================="
 echo "        BIG FROZEN FOOD - ODOO 18 SERVER RUNNER        "
