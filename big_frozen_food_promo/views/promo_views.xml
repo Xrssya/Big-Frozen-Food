@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_product_discount_promo_tree" model="ir.ui.view">
+        <field name="name">product.discount.promo.tree</field>
+        <field name="model">product.discount.promo</field>
+        <field name="arch" type="xml">
+            <list string="Diskon &amp; Promo">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="discount_type"/>
+                <field name="discount_value" digits="[16, 0]"/>
+                <field name="apply_on"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_product_discount_promo_form" model="ir.ui.view">
+        <field name="name">product.discount.promo.form</field>
+        <field name="model">product.discount.promo</field>
+        <field name="arch" type="xml">
+            <form string="Diskon &amp; Promo">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-cube" type="object" name="action_view_products">
+                            <field name="product_count" widget="statinfo" string="Produk Promo"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Non-Aktif" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="Nama Diskon / Promo"/>
+                        <h1>
+                            <field name="name" placeholder="misal: Promo Flash Sale Weekend 10%"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Pengaturan Diskon">
+                            <field name="code" placeholder="PROMO10"/>
+                            <field name="discount_type"/>
+                            <field name="discount_value" digits="[16, 0]"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Cakupan &amp; Periode">
+                            <field name="apply_on"/>
+                            <field name="category_id" invisible="apply_on != 'category'" required="apply_on == 'category'"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Daftar Produk Promo" invisible="apply_on != 'product'">
+                            <field name="product_ids" widget="many2many_tags" placeholder="Pilih produk yang mendapatkan diskon..."/>
+                        </page>
+                        <page string="Syarat &amp; Ketentuan / Catatan">
+                            <field name="notes" placeholder="Tuliskan syarat dan ketentuan promo di sini..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_product_discount_promo_search" model="ir.ui.view">
+        <field name="name">product.discount.promo.search</field>
+        <field name="model">product.discount.promo</field>
+        <field name="arch" type="xml">
+            <search string="Cari Diskon &amp; Promo">
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Aktif" name="filter_active" domain="[('active', '=', True)]"/>
+                <filter string="Non-Aktif" name="filter_inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_product_discount_promo" model="ir.actions.act_window">
+        <field name="name">Diskon &amp; Promo</field>
+        <field name="res_model">product.discount.promo</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_product_discount_promo_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada Diskon &amp; Promo yang dibuat!
+            </p>
+            <p>
+                Klik tombol <b>Baru</b> untuk membuat promo atau diskon khusus produk usaha Anda.
+            </p>
+        </field>
+    </record>
+</odoo>
