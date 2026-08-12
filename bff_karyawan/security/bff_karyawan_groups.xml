@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Kategori Keamanan Utama Big Frozen Food -->
+        <record id="category_bff_management" model="ir.module.category">
+            <field name="name">Big Frozen Food Operational Roles</field>
+
+            <field name="description">Manajemen Hak Akses dan Role Operasional Karyawan Big Frozen Food</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Role 1: Kasir Big Frozen Food -->
+        <record id="group_bff_cashier" model="res.groups">
+            <field name="name">Kasir Big Frozen Food</field>
+            <field name="category_id" ref="category_bff_management"/>
+            <field name="comment">Role Kasir: Memiliki akses ke Point of Sale (POS), transaksi penjualan kasir, cetak struk thermal, dan membaca catalog produk &amp; stock.</field>
+            <field name="implied_ids" eval="[(4, ref('point_of_sale.group_pos_user')), (4, ref('hr.group_hr_user'))]"/>
+        </record>
+
+        <!-- Role 2: Orang Gudang / Staf Gudang Big Frozen Food -->
+        <record id="group_bff_warehouse" model="res.groups">
+            <field name="name">Staf Gudang Big Frozen Food</field>
+            <field name="category_id" ref="category_bff_management"/>
+            <field name="comment">Role Staf Gudang: Bertugas mendata barang di gudang, kelola stock opname/adjustment, penerimaan barang dari supplier, transfer barang antar lokasi gudang, dan pemantauan jumlah stock produk.</field>
+            <field name="implied_ids" eval="[(4, ref('stock.group_stock_user')), (4, ref('hr.group_hr_user'))]"/>
+        </record>
+
+    </data>
+</odoo>

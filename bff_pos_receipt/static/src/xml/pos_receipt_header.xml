@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="bff_pos_receipt.ReceiptHeader" t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
+        <!-- Replace the entire contact section with BFF custom header -->
+        <xpath expr="//div[hasclass('pos-receipt-contact')]" position="replace">
+            <div class="pos-receipt-contact w-100">
+                <!-- Company Name -->
+                <div class="bff-receipt-title">BIG FROZEN FOOD</div>
+                <div class="bff-receipt-subtitle">Pusat &amp; Distributor Frozen Food Berkualitas</div>
+                <!-- Company Info from Odoo data -->
+                <div class="bff-receipt-address">
+                    <t t-if="props.data.company.street">
+                        <t t-esc="props.data.company.street"/><br/>
+                    </t>
+                    <t t-if="props.data.company.phone">
+                        Telp: <t t-esc="props.data.company.phone"/><br/>
+                    </t>
+                    <t t-if="props.data.company.vat">
+                        NPWP: <t t-esc="props.data.company.vat"/>
+                    </t>
+                </div>
+                <div class="bff-receipt-divider"/>
+                <!-- Cashier Row -->
+                <t t-if="props.data.cashier">
+                    <div class="cashier bff-meta-row">
+                        <span>Kasir: <t t-esc="props.data.cashier ? ('' + props.data.cashier).replace('Dilayani oleh ', '') : ''"/></span>
+                        <span t-if="props.data.trackingNumber">No. Antrian: #<t t-esc="props.data.trackingNumber"/></span>
+                    </div>
+                </t>
+                <div class="bff-receipt-divider"/>
+            </div>
+        </xpath>
+    </t>
+</templates>

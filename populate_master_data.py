@@ -4,14 +4,14 @@ import base64
 import os
 import logging
 path
-sys.path.insert(0, '/home/setyo/developer/odoo18')
+sys.path.insert(0, '/home/adi-purwanto/developer/odoo18')
 import odoo
 from odoo import api, SUPERUSER_ID
 
 DB_NAME = 'big_frozen_food'
 
 def run():
-    odoo.tools.config.parse_config(['-c', '/home/setyo/developer/odoo/odoo-BigFrozenFood/big_frozen_food.conf', '-d', DB_NAME])
+    odoo.tools.config.parse_config(['-c', '/home/adi-purwanto/developer/odoo/ubig.food/Big-Frozen-Food/big_frozen_food.conf', '-d', DB_NAME])
     registry = odoo.registry(DB_NAME)
     with registry.cursor() as cr:
         env = api.Environment(cr, SUPERUSER_ID, {})
@@ -40,7 +40,7 @@ def run():
         print(f" Company updated: Big Frozen Food (Main Currency: {company.currency_id.name})")
 
         # 1b. Logo
-        logo_path = '/home/rsya/.gemini/antigravity-ide/brain/e1380b57-9c9f-4a04-a671-291c8c166c51/big_frozen_food_logo_1786343821764.png'
+        logo_path = '/home/adi-purwanto/.gemini/antigravity-ide/brain/e1380b57-9c9f-4a04-a671-291c8c166c51/big_frozen_food_logo_1786343821764.png'
         if os.path.exists(logo_path):
             with open(logo_path, 'rb') as f:
                 logo_b64 = base64.b64encode(f.read())

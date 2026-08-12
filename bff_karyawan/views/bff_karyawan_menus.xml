@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Action untuk Karyawan Kasir -->
+        <record id="action_bff_karyawan_cashier" model="ir.actions.act_window">
+            <field name="name">Karyawan Kasir</field>
+            <field name="res_model">hr.employee</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('bff_role', '=', 'cashier')]</field>
+            <field name="context">{'default_bff_role': 'cashier'}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Belum ada data Karyawan Kasir.
+                </p>
+                <p>
+                    Karyawan dengan role Kasir bertugas menangani transaksi POS dan layanan pembayaran kasir.
+                </p>
+            </field>
+        </record>
+
+        <!-- Action untuk Orang Gudang -->
+        <record id="action_bff_karyawan_warehouse" model="ir.actions.act_window">
+            <field name="name">Orang / Staf Gudang</field>
+            <field name="res_model">hr.employee</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('bff_role', '=', 'warehouse')]</field>
+            <field name="context">{'default_bff_role': 'warehouse'}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Belum ada data Staf Gudang.
+                </p>
+                <p>
+                    Orang Gudang bertugas mendata barang yang ada di gudang, kelola stock opname, penerimaan barang, dan mutasi barang.
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu Sub-Items under HR Menu -->
+        <menuitem id="menu_bff_karyawan_cashier"
+                  name="Tim Kasir"
+                  parent="hr.menu_hr_root"
+                  action="action_bff_karyawan_cashier"
+                  sequence="15"/>
+
+        <menuitem id="menu_bff_karyawan_warehouse"
+                  name="Tim Gudang"
+                  parent="hr.menu_hr_root"
+                  action="action_bff_karyawan_warehouse"
+                  sequence="16"/>
+
+    </data>
+</odoo>

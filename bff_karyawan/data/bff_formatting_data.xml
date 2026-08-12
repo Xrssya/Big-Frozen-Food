@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Lock Decimal Precision to 0 Digits (Removes ,00 for Prices & Quantities across Odoo) -->
+        <record id="product.decimal_price" model="decimal.precision">
+            <field name="digits">0</field>
+        </record>
+
+        <record id="product.decimal_product_uom" model="decimal.precision">
+            <field name="digits">0</field>
+        </record>
+
+        <record id="product.decimal_discount" model="decimal.precision">
+            <field name="digits">0</field>
+        </record>
+
+        <record id="product.decimal_stock_weight" model="decimal.precision">
+            <field name="digits">0</field>
+        </record>
+
+        <record id="product.decimal_volume" model="decimal.precision">
+            <field name="digits">0</field>
+        </record>
+
+        <record id="account.decimal_payment" model="decimal.precision">
+            <field name="digits">0</field>
+        </record>
+
+        <!-- Lock Currency IDR Decimal Places to 0 -->
+        <record id="base.IDR" model="res.currency">
+            <field name="decimal_places">0</field>
+            <field name="rounding">1.0</field>
+            <field name="symbol">Rp</field>
+            <field name="position">before</field>
+        </record>
+
+    </data>
+</odoo>

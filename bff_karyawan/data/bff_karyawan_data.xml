@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Departemen Operasional -->
+        <record id="dep_kasir" model="hr.department">
+            <field name="name">Divisi Kasir &amp; Front Store</field>
+        </record>
+
+        <record id="dep_gudang" model="hr.department">
+            <field name="name">Divisi Gudang &amp; Logistik</field>
+        </record>
+
+        <!-- Jabatan Pekerjaan (Job Positions) -->
+        <record id="job_kasir" model="hr.job">
+            <field name="name">Kasir Utama</field>
+            <field name="department_id" ref="dep_kasir"/>
+            <field name="description">Penanggung jawab transaksi pembayaran POS, layanan pelanggan toko, dan pencetakan struk.</field>
+        </record>
+
+        <record id="job_staf_gudang" model="hr.job">
+            <field name="name">Staf Gudang &amp; Stock Control</field>
+            <field name="department_id" ref="dep_gudang"/>
+            <field name="description">Penanggung jawab pendataan barang gudang, penerimaan stock, stock opname fisik freezer, dan penataan barang.</field>
+        </record>
+
+        <record id="job_head_gudang" model="hr.job">
+            <field name="name">Kepala Gudang &amp; Inventaris</field>
+            <field name="department_id" ref="dep_gudang"/>
+            <field name="description">Supervisor persediaan gudang, koordinasi penerimaan produk frozen food dari vendor/supplier, dan pengawasan stock opname.</field>
+        </record>
+
+    </data>
+</odoo>

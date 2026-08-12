@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Inherit Form View Karyawan -->
+        <record id="view_employee_form_inherit_bff" model="ir.ui.view">
+            <field name="name">hr.employee.form.inherit.bff</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='job_id']" position="after">
+                    <field name="bff_role" widget="radio" options="{'horizontal': true}"/>
+                </xpath>
+
+                <xpath expr="//page[@name='public']" position="inside">
+                    <group string="Operasional &amp; Tugas Big Frozen Food">
+                        <group string="Role &amp; Shift Kerja">
+                            <field name="bff_role"/>
+                            <field name="shift_schedule"/>
+                        </group>
+                        <group string="Penugasan Gudang">
+                            <field name="assigned_warehouse_id"/>
+                        </group>
+                    </group>
+                    <group string="Tanggung Jawab &amp; Detail Pendataan Barang">
+                        <field name="warehouse_responsibilities" placeholder="Contoh: Mendata stock barang datang, cek tanggal kadaluarsa nugget/sosis di freezer, input penyesuaian stock..."/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit Tree View Karyawan -->
+        <record id="view_employee_tree_inherit_bff" model="ir.ui.view">
+            <field name="name">hr.employee.tree.inherit.bff</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='job_id']" position="after">
+                    <field name="bff_role" widget="badge" decoration-info="bff_role == 'cashier'" decoration-warning="bff_role == 'warehouse'" decoration-success="bff_role == 'manager'"/>
+                    <field name="shift_schedule" optional="show"/>
+                    <field name="assigned_warehouse_id" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit Filter Search View -->
+        <record id="view_employee_filter_inherit_bff" model="ir.ui.view">
+            <field name="name">hr.employee.filter.inherit.bff</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='group_job']" position="after">
+                    <filter string="Role: Kasir" name="filter_role_cashier" domain="[('bff_role', '=', 'cashier')]"/>
+                    <filter string="Role: Staf Gudang" name="filter_role_warehouse" domain="[('bff_role', '=', 'warehouse')]"/>
+                    <separator/>
+                    <filter string="Role Operasional" name="group_bff_role" context="{'group_by': 'bff_role'}"/>
+                    <filter string="Gudang Penugasan" name="group_assigned_warehouse" context="{'group_by': 'assigned_warehouse_id'}"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
+

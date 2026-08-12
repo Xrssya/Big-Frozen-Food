@@ -1,0 +1,112 @@
+/* Compact & Paper-Saving Custom Styling for Big Frozen Food POS Thermal Receipt */
+.pos-receipt {
+    font-family: 'Courier New', Courier, monospace, sans-serif !important;
+    font-size: 11px !important;
+    color: #000000 !important;
+    line-height: 1.2 !important;
+    padding: 6px 8px !important;
+    background: #ffffff !important;
+    max-width: 300px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+}
+
+.pos-receipt .pos-receipt-logo {
+    max-width: 45px !important;
+    max-height: 45px !important;
+    height: auto !important;
+    margin: 0 auto 2px auto !important;
+    display: block !important;
+}
+
+.pos-receipt .bff-receipt-title {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    color: #000000 !important;
+    text-align: center !important;
+    margin-bottom: 1px !important;
+    line-height: 1.15 !important;
+}
+
+.pos-receipt .bff-receipt-subtitle {
+    font-size: 9.5px !important;
+    font-weight: 600 !important;
+    color: #333333 !important;
+    text-align: center !important;
+    margin-bottom: 2px !important;
+    line-height: 1.1 !important;
+}
+
+.pos-receipt .bff-receipt-address {
+    font-size: 9.5px !important;
+    color: #222222 !important;
+    text-align: center !important;
+    line-height: 1.2 !important;
+}
+
+.pos-receipt .bff-receipt-divider {
+    border-top: 1px dashed #444444 !important;
+    margin: 4px 0 !important;
+    width: 100% !important;
+}
+
+.pos-receipt .bff-receipt-divider-double {
+    border-top: 1.5px solid #000000 !important;
+    margin: 5px 0 !important;
+    width: 100% !important;
+}
+
+.pos-receipt .bff-meta-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    font-size: 10px !important;
+    color: #222222 !important;
+    margin-bottom: 1px !important;
+}
+
+.pos-receipt .pos-receipt-contact {
+    font-size: 10px !important;
+    text-align: center !important;
+    line-height: 1.2 !important;
+}
+
+.pos-receipt .tracking-number {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    letter-spacing: 1px !important;
+    margin: 2px 0 !important;
+}
+
+.pos-receipt .receipt-total {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    padding-top: 2px !important;
+}
+
+.pos-receipt .bff-footer-text {
+    font-size: 9.5px !important;
+    text-align: center !important;
+    color: #222222 !important;
+    margin-top: 4px !important;
+    line-height: 1.25 !important;
+}
+
+.pos-receipt .orderline {
+    padding: 1px 0 !important;
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+}
+
+.pos-receipt .pos-receipt-amount,
+.pos-receipt .pos-receipt-taxes {
+    padding: 1px 0 !important;
+    font-size: 11px !important;
+}
+
+.pos-receipt .pos-receipt-order-data p {
+    display: none !important;
+}

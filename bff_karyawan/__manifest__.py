@@ -1,0 +1,20 @@
+{
+    'name': 'Big Frozen Food - Modul Karyawan & Role Management',
+    'version': '18.0.1.0.0',
+    'category': 'Human Resources',
+    'summary': 'Manajemen karyawan dan definisi role khusus Kasir & Staf Gudang Big Frozen Food',
+    'author': 'Big Frozen Food Team',
+    'depends': ['hr', 'point_of_sale', 'stock'],
+    'data': [
+        'security/bff_karyawan_groups.xml',
+        'security/ir.model.access.csv',
+        'data/bff_karyawan_data.xml',
+        'data/bff_formatting_data.xml',
+        'views/hr_employee_views.xml',
+        'views/bff_karyawan_menus.xml',
+    ],
+    'installable': True,
+    'application': True,
+    'auto_install': False,
+    'license': 'LGPL-3',
+}

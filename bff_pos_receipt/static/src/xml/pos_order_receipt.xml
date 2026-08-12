@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="bff_pos_receipt.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <!-- Remove Powered by Odoo -->
+        <xpath expr="//div[hasclass('pos-receipt-order-data')]/p" position="replace"/>
+
+        <xpath expr="//div[hasclass('before-footer')]" position="after">
+            <div class="bff-receipt-divider"/>
+            <div class="bff-footer-text">
+                <div style="font-weight: 700;">*** TERIMA KASIH ***</div>
+                <div>Barang yang dibeli tidak dapat ditukar/dikembalikan</div>
+                <div style="font-style: italic; font-size: 9px; margin-top: 1px; color: #475569;">Simpan selalu produk frozen food di freezer (-18°C)</div>
+                <div style="font-weight: 600; margin-top: 2px;">www.bigfrozenfood.co.id</div>
+            </div>
+        </xpath>
+    </t>
+</templates>
