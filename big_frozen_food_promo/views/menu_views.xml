@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Submenu item under Penjualan > Produk > Diskon & Promo -->
+    <menuitem id="menu_product_discount_promo"
+              name="Diskon &amp; Promo"
+              action="action_product_discount_promo"
+              parent="sale.product_menu_catalog"
+              sequence="15"/>
+</odoo>
