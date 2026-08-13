@@ -1,0 +1,36 @@
+.pos-stock-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    letter-spacing: 0.3px;
+}
+
+.pos-stock-safe {
+    background-color: #28a745;
+    color: #ffffff;
+}
+
+.pos-stock-warning {
+    background-color: #ff9800;
+    color: #ffffff;
+}
+
+.pos-stock-danger {
+    background-color: #dc3545;
+    color: #ffffff;
+    animation: pulse-stock-danger 1.5s infinite;
+}
+
+@keyframes pulse-stock-danger {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="bff_stock_control.ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
+        <xpath expr="//article" position="inside">
+            <t t-if="props.product">
+                <div class="pos-stock-badge"
+                     t-att-class="{
+                        'pos-stock-danger': (props.product.qty_available || 0) &lt;= 0,
+                        'pos-stock-warning': (props.product.qty_available || 0) &gt; 0 &amp;&amp; (props.product.qty_available || 0) &lt;= (props.product.min_stock_alert_qty || 10),
+                        'pos-stock-safe': (props.product.qty_available || 0) &gt; (props.product.min_stock_alert_qty || 10)
+                     }">
+                    <i class="fa fa-cubes me-1"/>
+                    <t t-if="(props.product.qty_available || 0) &lt;= 0">Stok Habis</t>
+                    <t t-elif="(props.product.qty_available || 0) &lt;= (props.product.min_stock_alert_qty || 10)">
+                        Menipis: <t t-esc="Math.floor(props.product.qty_available || 0)"/>
+                    </t>
+                    <t t-else="">
+                        Stok: <t t-esc="Math.floor(props.product.qty_available || 0)"/>
+                    </t>
+                </div>
+            </t>
+        </xpath>
+    </t>
+</templates>
