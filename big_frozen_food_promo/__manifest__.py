@@ -17,6 +17,11 @@
         'views/promo_views.xml',
         'views/menu_views.xml',
     ],
+    'assets': {
+        'point_of_sale._assets_pos': [
+            'big_frozen_food_promo/static/src/js/pos_promo_validation.js',
+        ],
+    },
     'installable': True,
     'application': True,
     'license': 'LGPL-3',
