@@ -16,6 +16,7 @@
         'security/ir.model.access.csv',
         'views/promo_views.xml',
         'views/menu_views.xml',
+        'views/menu_order.xml',
     ],
     'installable': True,
     'application': True,

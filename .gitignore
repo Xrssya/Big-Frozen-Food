@@ -15,6 +15,7 @@ __pycache__/
 *.dump
 *.sql
 *.zip
+backups/
 
 # Virtual Environment
 venv/
