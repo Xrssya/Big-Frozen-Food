@@ -1,112 +1,306 @@
-/* Compact & Paper-Saving Custom Styling for Big Frozen Food POS Thermal Receipt */
-.pos-receipt {
-    font-family: 'Courier New', Courier, monospace, sans-serif !important;
-    font-size: 11px !important;
-    color: #000000 !important;
-    line-height: 1.2 !important;
-    padding: 6px 8px !important;
-    background: #ffffff !important;
-    max-width: 300px !important;
+/* ============================================================
+   BIG FROZEN FOOD — Thermal Receipt CSS (48mm Thermal Roll)
+   Override Odoo 18 core 266px width constraint
+   ============================================================ */
+
+/* ── 0. Reset & Core Overrides for Odoo 18 POS ───────────── */
+.render-container,
+.render-container-parent,
+.pos-receipt-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.render-container .pos-receipt,
+.pos-receipt,
+.bff-receipt {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 !important;
     margin: 0 auto !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 7.5pt !important;
+    color: #000000 !important;
+}
+
+.bff-receipt * {
     box-sizing: border-box !important;
 }
 
-.pos-receipt .pos-receipt-logo {
-    max-width: 45px !important;
-    max-height: 45px !important;
-    height: auto !important;
-    margin: 0 auto 2px auto !important;
+/* ── 2. Container Struk Utama ────────────────────────────── */
+.bff-receipt {
+    line-height: 1.3 !important;
+    padding: 2mm 1.5mm !important;
+    text-align: left !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+/* ── 3. HEADER ───────────────────────────────────────────── */
+.bff-receipt .bff-logo,
+.pos-receipt .pos-receipt-logo,
+.pos-receipt img.bff-logo {
     display: block !important;
+    max-width: 75px !important;
+    max-height: 75px !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 auto 4px auto !important;
 }
 
-.pos-receipt .bff-receipt-title {
-    font-size: 14px !important;
-    font-weight: 800 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    color: #000000 !important;
-    text-align: center !important;
-    margin-bottom: 1px !important;
-    line-height: 1.15 !important;
-}
-
-.pos-receipt .bff-receipt-subtitle {
-    font-size: 9.5px !important;
-    font-weight: 600 !important;
-    color: #333333 !important;
+.bff-receipt .bff-header {
     text-align: center !important;
     margin-bottom: 2px !important;
-    line-height: 1.1 !important;
+    width: 100% !important;
 }
 
-.pos-receipt .bff-receipt-address {
-    font-size: 9.5px !important;
-    color: #222222 !important;
+.bff-receipt .bff-store-name {
+    font-size: 9pt !important;
+    font-weight: 700 !important;
     text-align: center !important;
     line-height: 1.2 !important;
-}
-
-.pos-receipt .bff-receipt-divider {
-    border-top: 1px dashed #444444 !important;
-    margin: 4px 0 !important;
-    width: 100% !important;
-}
-
-.pos-receipt .bff-receipt-divider-double {
-    border-top: 1.5px solid #000000 !important;
-    margin: 5px 0 !important;
-    width: 100% !important;
-}
-
-.pos-receipt .bff-meta-row {
-    display: flex !important;
-    justify-content: space-between !important;
-    font-size: 10px !important;
-    color: #222222 !important;
     margin-bottom: 1px !important;
+    color: #000000 !important;
 }
 
-.pos-receipt .pos-receipt-contact {
-    font-size: 10px !important;
+.bff-receipt .bff-store-info {
+    font-size: 7pt !important;
+    font-weight: 400 !important;
     text-align: center !important;
-    line-height: 1.2 !important;
+    line-height: 1.25 !important;
+    color: #000000 !important;
 }
 
-.pos-receipt .tracking-number {
-    font-size: 22px !important;
-    font-weight: 800 !important;
+.bff-receipt .bff-ref-code {
+    font-size: 7pt !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    margin-top: 2px !important;
+    letter-spacing: 0.2px !important;
     color: #000000 !important;
-    letter-spacing: 1px !important;
-    margin: 2px 0 !important;
 }
 
-.pos-receipt .receipt-total {
-    font-size: 14px !important;
-    font-weight: 800 !important;
-    color: #000000 !important;
+/* ── 4. Divider ──────────────────────────────────────────── */
+.bff-receipt .bff-divider {
+    border: none !important;
+    border-top: 1px dashed #000000 !important;
+    margin: 3px 0 !important;
+    width: 100% !important;
+    height: 0 !important;
+}
+
+.bff-receipt .bff-spacer {
+    height: 2px !important;
+}
+
+/* ── 5. INFORMASI TRANSAKSI ──────────────────────────────── */
+.bff-receipt .bff-info-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    font-size: 7.5pt !important;
+}
+
+.bff-receipt .bff-info-table td {
+    padding: 0.5px 0 !important;
+    vertical-align: top !important;
+}
+
+.bff-receipt .bff-info-label {
+    width: 38% !important;
+    font-weight: 400 !important;
+    white-space: nowrap !important;
+    text-align: left !important;
+}
+
+.bff-receipt .bff-info-sep {
+    width: 6% !important;
+    text-align: center !important;
+    font-weight: 400 !important;
+}
+
+.bff-receipt .bff-info-val {
+    width: 56% !important;
+    font-weight: 600 !important;
+    word-break: break-word !important;
+    text-align: left !important;
+}
+
+/* ── 6. DAFTAR PRODUK ────────────────────────────────────── */
+.bff-receipt .bff-items-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+}
+
+.bff-receipt .bff-items-table td {
+    padding: 0 !important;
+    vertical-align: top !important;
+}
+
+.bff-receipt .bff-item-name {
+    width: 60% !important;
+    font-size: 7.5pt !important;
+    font-weight: 700 !important;
+    text-align: left !important;
+    word-break: break-word !important;
     padding-top: 2px !important;
 }
 
-.pos-receipt .bff-footer-text {
-    font-size: 9.5px !important;
+.bff-receipt .bff-item-total {
+    width: 40% !important;
+    font-size: 7.5pt !important;
+    font-weight: 700 !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+    padding-top: 2px !important;
+}
+
+.bff-receipt .bff-item-detail {
+    font-size: 7pt !important;
+    font-weight: 400 !important;
+    text-align: left !important;
+    padding-left: 6px !important;
+    padding-bottom: 1px !important;
+}
+
+.bff-receipt .bff-item-note {
+    font-size: 6.5pt !important;
+    font-style: italic !important;
+    padding-left: 6px !important;
+    padding-bottom: 1px !important;
+}
+
+/* ── 7. TOTAL QTY ────────────────────────────────────────── */
+.bff-receipt .bff-total-qty {
+    font-size: 7.5pt !important;
+    font-weight: 600 !important;
+    text-align: left !important;
+    margin: 2px 0 !important;
+}
+
+/* ── 8. TABEL TOTALS (Strict 3-Column Layout) ───────────── */
+.bff-receipt .bff-totals-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+}
+
+.bff-receipt .bff-totals-table td {
+    padding: 0.5px 0 !important;
+    vertical-align: middle !important;
+}
+
+.bff-receipt .bff-tot-label {
+    width: 46% !important;
+    font-size: 7.5pt !important;
+    font-weight: 400 !important;
+    text-align: left !important;
+    word-break: break-word !important;
+    line-height: 1.2 !important;
+}
+
+.bff-receipt .bff-tot-rp {
+    width: 14% !important;
+    font-size: 7.5pt !important;
+    font-weight: 400 !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+}
+
+.bff-receipt .bff-tot-num {
+    width: 40% !important;
+    font-size: 7.5pt !important;
+    font-weight: 400 !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+}
+
+.bff-receipt .bff-grand-total td {
+    font-size: 8.5pt !important;
+    font-weight: 700 !important;
+    padding: 1px 0 !important;
+}
+
+/* ── 9. FOOTER ───────────────────────────────────────────── */
+.bff-receipt .bff-footer {
     text-align: center !important;
-    color: #222222 !important;
     margin-top: 4px !important;
-    line-height: 1.25 !important;
 }
 
-.pos-receipt .orderline {
-    padding: 1px 0 !important;
-    font-size: 11px !important;
-    line-height: 1.15 !important;
+.bff-receipt .bff-footer-thanks {
+    font-size: 8pt !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    margin-bottom: 1px !important;
 }
 
-.pos-receipt .pos-receipt-amount,
-.pos-receipt .pos-receipt-taxes {
-    padding: 1px 0 !important;
-    font-size: 11px !important;
+.bff-receipt .bff-footer-sub {
+    font-size: 7pt !important;
+    font-weight: 400 !important;
+    text-align: center !important;
 }
 
-.pos-receipt .pos-receipt-order-data p {
-    display: none !important;
+.bff-receipt .bff-footer-link {
+    font-size: 6.5pt !important;
+    text-align: center !important;
+    word-break: break-all !important;
+    margin-top: 2px !important;
+}
+
+/* ── 10. PRINT MEDIA OVERRIDES ───────────────────────────── */
+@media print {
+    @page {
+        size: 48mm auto;
+        margin: 0mm !important;
+    }
+
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background: #ffffff !important;
+    }
+
+    .render-container {
+        position: static !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .render-container .pos-receipt,
+    .pos-receipt,
+    .bff-receipt {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    .bff-receipt {
+        width: 100% !important;
+        padding: 1.5mm 1mm !important;
+        font-size: 7.5pt !important;
+        background: #ffffff !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .bff-receipt .bff-divider {
+        border-top: 1px dashed #000000 !important;
+    }
 }

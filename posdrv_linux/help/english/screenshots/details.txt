@@ -1,0 +1,18 @@
+01.Install the filter (no error indicate that the installation was successful)
+02.Enter the system settings
+03.Click the printer on the left mouse button to enter the printer configuration interface
+04.Select Add Printer will pops up the interface of Add Printer wizard
+05.a.If the connection is parallel port, then select the parallel port, click forward to enter the next step.
+  b.If the connection is serial port, select the serial port, and configure the baud rate, click forward to enter the next step
+  c.Select the USB port and click forward to enter the next step
+  d.Select the USB virtual serial port, click forward and enter to the next step. (If the printer’s interface is a USB virtual serial port, then after connect the computer, will be out of a device, as shown, if it doesn’t appear immediately, please wait a few seconds.)
+  e. Select the network printer, click forward to enter the next step. (If the printer is connected to the network port, then you can choose this way to add the printer)
+06.Select the driver to provide the PPD file, and select the corresponding PPD file under the  PPD directory.
+07.Select the File and click forward to enter the next step.
+08.Fill out the printer description as you like,then click on the application.
+09.If there is prompted to print a test page or not, click the print test page, you will see that the printer will print a test page.
+10.You will see the test page, and it has only one section, because the paper size is wrong, then you need to modify the printer paper size
+11.Right-click the printer you just added and select the printer properties
+12.Inside the printer options, modify the paper size, 2-inch printer selected 48mmxXXmm, 3-inch printer selected 72mmxXXmm, Click application.
+13.Print the test page again after modify the paper size.
+14.Complete Self-test page will be seen here.

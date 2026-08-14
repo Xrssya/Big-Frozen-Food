@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import sys
-sys.path.insert(0, '/home/rsya/developer/odoo18')
+sys.path.insert(0, '/home/adi-purwanto/developer/odoo18')
 import odoo
 from odoo import api, SUPERUSER_ID
 
 DB_NAME = 'odoo-big-frozen'
-CONFIG_PATH = '/home/rsya/developer/odoo/Big-Frozen-Food/big_frozen_food.conf'
+CONFIG_PATH = '/home/adi-purwanto/developer/odoo/ubig.food/Big-Frozen-Food/big_frozen_food.conf'
 
 def run():
     odoo.tools.config.parse_config(['-c', CONFIG_PATH, '-d', DB_NAME])
@@ -34,9 +34,8 @@ def run():
         ]
 
         for p in products:
-            # Set default min stock alert qty to 10
-            if not p.min_stock_alert_qty:
-                p.min_stock_alert_qty = 10.0
+            p.min_stock_alert_qty = 10.0
+            alert_qty = 10.0
 
             # Determine target quantity
             is_low_target = any(target.lower() in p.name.lower() for target in low_stock_target_names)
@@ -55,7 +54,7 @@ def run():
                 }).action_apply_inventory()
 
             status_str = "LOW STOCK (ALERT)" if is_low_target else "OK"
-            print(f"• {p.name}: Set Stock = {target_qty} (Min Limit: {p.min_stock_alert_qty}) -> [{status_str}]")
+            print(f"• {p.name}: Set Stock = {target_qty} (Min Limit: {alert_qty}) -> [{status_str}]")
 
         cr.commit()
         print("\nAll negative stock fixed and low stock demo data applied successfully!")

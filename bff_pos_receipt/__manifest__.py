@@ -12,6 +12,7 @@
             'bff_pos_receipt/static/src/xml/pos_receipt_header.xml',
             'bff_pos_receipt/static/src/xml/pos_order_receipt.xml',
             'bff_pos_receipt/static/src/js/pos_order_line_patch.js',
+            'bff_pos_receipt/static/src/js/pos_receipt_patch.js',
         ],
         'web.assets_backend': [
             'bff_pos_receipt/static/src/js/price_no_decimals_patch.js',

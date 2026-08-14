@@ -1,16 +1,223 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
     <t t-name="bff_pos_receipt.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
-        <!-- Remove Powered by Odoo -->
-        <xpath expr="//div[hasclass('pos-receipt-order-data')]/p" position="replace"/>
+        <xpath expr="//div[hasclass('pos-receipt')]" position="replace">
+            <div class="pos-receipt bff-receipt">
 
-        <xpath expr="//div[hasclass('before-footer')]" position="after">
-            <div class="bff-receipt-divider"/>
-            <div class="bff-footer-text">
-                <div style="font-weight: 700;">*** TERIMA KASIH ***</div>
-                <div>Barang yang dibeli tidak dapat ditukar/dikembalikan</div>
-                <div style="font-style: italic; font-size: 9px; margin-top: 1px; color: #475569;">Simpan selalu produk frozen food di freezer (-18°C)</div>
-                <div style="font-weight: 600; margin-top: 2px;">www.bigfrozenfood.co.id</div>
+                <!-- ══════════════════════════════════════
+                     1. HEADER
+                ══════════════════════════════════════ -->
+                <ReceiptHeader data="props.data.headerData || props.data"/>
+
+                <div class="bff-divider"/>
+
+                <!-- ══════════════════════════════════════
+                     2. INFORMASI TRANSAKSI
+                ══════════════════════════════════════ -->
+                <table class="bff-info-table">
+                    <colgroup>
+                        <col style="width: 38%;"/>
+                        <col style="width: 6%;"/>
+                        <col style="width: 56%;"/>
+                    </colgroup>
+                    <tr>
+                        <td class="bff-info-label">Tanggal</td>
+                        <td class="bff-info-sep">:</td>
+                        <td class="bff-info-val"><t t-esc="props.data.formatted_date || props.data.date"/></td>
+                    </tr>
+                    <tr>
+                        <td class="bff-info-label">Waktu</td>
+                        <td class="bff-info-sep">:</td>
+                        <td class="bff-info-val"><t t-esc="props.data.formatted_time || ''"/></td>
+                    </tr>
+                    <tr>
+                        <td class="bff-info-label">No. Order</td>
+                        <td class="bff-info-sep">:</td>
+                        <td class="bff-info-val"><t t-esc="props.data.tracking_number || props.data.order_ref || '-'"/></td>
+                    </tr>
+                    <tr>
+                        <td class="bff-info-label">Kasir</td>
+                        <td class="bff-info-sep">:</td>
+                        <td class="bff-info-val"><t t-esc="props.data.cashier_name || props.data.cashier_login || '-'"/></td>
+                    </tr>
+                    <t t-if="props.data.customer_name">
+                        <tr>
+                            <td class="bff-info-label">Pelanggan</td>
+                            <td class="bff-info-sep">:</td>
+                            <td class="bff-info-val"><t t-esc="props.data.customer_name"/></td>
+                        </tr>
+                    </t>
+                    <t t-if="props.data.customer_address">
+                        <tr>
+                            <td class="bff-info-label">Alamat</td>
+                            <td class="bff-info-sep">:</td>
+                            <td class="bff-info-val"><t t-esc="props.data.customer_address"/></td>
+                        </tr>
+                    </t>
+                </table>
+
+                <div class="bff-divider"/>
+
+                <!-- ══════════════════════════════════════
+                     3. DAFTAR PRODUK
+                ══════════════════════════════════════ -->
+                <table class="bff-items-table">
+                    <colgroup>
+                        <col style="width: 60%;"/>
+                        <col style="width: 40%;"/>
+                    </colgroup>
+                    <t t-foreach="props.data.orderlines || []" t-as="line" t-key="line_index">
+                        <!-- Baris 1: Nama produk + Total harga line -->
+                        <tr class="bff-item-name-row">
+                            <td class="bff-item-name">
+                                <t t-esc="line_index + 1"/>. <t t-esc="line.productName || line.product_name || line.name"/>
+                            </td>
+                            <td class="bff-item-total">
+                                <t t-if="line.line_total_num !== undefined">
+                                    <t t-esc="props.formatCurrency(line.line_total_num)"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-esc="line.price_display || line.price || ''"/>
+                                </t>
+                            </td>
+                        </tr>
+                        <!-- Baris 2: Qty x Harga Satuan -->
+                        <tr class="bff-item-detail-row">
+                            <td class="bff-item-detail" colspan="2">
+                                <t t-esc="line.qty_str || line.qty"/>
+                                <t t-if="line.unit_name"> <t t-esc="line.unit_name"/></t>
+                                × <t t-if="line.unit_price_num !== undefined">
+                                    <t t-esc="props.formatCurrency(line.unit_price_num)"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-esc="line.unitPrice || ''"/>
+                                </t>
+                            </td>
+                        </tr>
+                        <!-- Catatan pelanggan jika ada -->
+                        <t t-if="line.customerNote">
+                            <tr>
+                                <td class="bff-item-note" colspan="2">
+                                    * <t t-esc="line.customerNote"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </table>
+
+                <div class="bff-divider"/>
+
+                <!-- ══════════════════════════════════════
+                     4. RINGKASAN PEMBAYARAN
+                ══════════════════════════════════════ -->
+
+                <!-- Total QTY -->
+                <div class="bff-total-qty">
+                    Total QTY : <t t-esc="props.data.total_qty || 0"/>
+                </div>
+
+                <!-- Tabel totals: 3 Kolom Fixed (Label | Rp | Angka) -->
+                <table class="bff-totals-table">
+                    <colgroup>
+                        <col style="width: 46%;"/>
+                        <col style="width: 14%;"/>
+                        <col style="width: 40%;"/>
+                    </colgroup>
+
+                    <!-- Sub Total -->
+                    <tr>
+                        <td class="bff-tot-label">Sub Total</td>
+                        <td class="bff-tot-rp">Rp</td>
+                        <td class="bff-tot-num">
+                            <t t-esc="(props.data.total_without_tax_num !== undefined ? props.data.total_without_tax_num : props.data.amount_total_num || 0).toLocaleString('id-ID', {maximumFractionDigits:0})"/>
+                        </td>
+                    </tr>
+
+                    <!-- Pajak per group -->
+                    <t t-if="props.data.taxTotals and props.data.taxTotals.has_tax_groups">
+                        <t t-foreach="props.data.taxTotals.subtotals || []" t-as="subtotal" t-key="subtotal.name || subtotal_index">
+                            <t t-foreach="subtotal.tax_groups || []" t-as="tax_group" t-key="tax_group.id || tax_group_index">
+                                <t t-if="tax_group.tax_amount_currency > 0">
+                                    <tr>
+                                        <td class="bff-tot-label"><t t-esc="tax_group.group_name || 'Pajak'"/></td>
+                                        <td class="bff-tot-rp">Rp</td>
+                                        <td class="bff-tot-num">
+                                            <t t-esc="(typeof tax_group.tax_amount_currency === 'number' ? tax_group.tax_amount_currency : 0).toLocaleString('id-ID', {maximumFractionDigits:0})"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </t>
+                    </t>
+                    <t t-elif="props.data.amount_tax and props.data.amount_tax > 0">
+                        <tr>
+                            <td class="bff-tot-label">Pajak</td>
+                            <td class="bff-tot-rp">Rp</td>
+                            <td class="bff-tot-num">
+                                <t t-esc="(props.data.amount_tax || 0).toLocaleString('id-ID', {maximumFractionDigits:0})"/>
+                            </td>
+                        </tr>
+                    </t>
+                </table>
+
+                <div class="bff-divider"/>
+
+                <!-- TOTAL (Menonjol) -->
+                <table class="bff-totals-table bff-grand-total">
+                    <colgroup>
+                        <col style="width: 46%;"/>
+                        <col style="width: 14%;"/>
+                        <col style="width: 40%;"/>
+                    </colgroup>
+                    <tr>
+                        <td class="bff-tot-label">TOTAL</td>
+                        <td class="bff-tot-rp">Rp</td>
+                        <td class="bff-tot-num">
+                            <t t-esc="(props.data.amount_total_num || 0).toLocaleString('id-ID', {maximumFractionDigits:0})"/>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="bff-spacer"/>
+
+                <!-- Pembayaran & Kembalian -->
+                <table class="bff-totals-table">
+                    <colgroup>
+                        <col style="width: 46%;"/>
+                        <col style="width: 14%;"/>
+                        <col style="width: 40%;"/>
+                    </colgroup>
+                    <t t-foreach="props.data.paymentlines || []" t-as="pm" t-key="pm_index">
+                        <tr>
+                            <td class="bff-tot-label">Bayar (<t t-esc="pm.name"/>)</td>
+                            <td class="bff-tot-rp">Rp</td>
+                            <td class="bff-tot-num">
+                                <t t-esc="(typeof pm.amount === 'number' ? pm.amount : 0).toLocaleString('id-ID', {maximumFractionDigits:0})"/>
+                            </td>
+                        </tr>
+                    </t>
+                    <tr>
+                        <td class="bff-tot-label">Kembali</td>
+                        <td class="bff-tot-rp">Rp</td>
+                        <td class="bff-tot-num">
+                            <t t-esc="(props.data.change_num !== undefined ? props.data.change_num : (props.data.show_change ? props.data.change_num : 0)).toLocaleString('id-ID', {maximumFractionDigits:0})"/>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="bff-divider"/>
+
+                <!-- ══════════════════════════════════════
+                     5. FOOTER
+                ══════════════════════════════════════ -->
+                <div class="bff-footer">
+                    <div class="bff-footer-thanks">TERIMA KASIH</div>
+                    <div class="bff-footer-sub">Selamat berbelanja kembali</div>
+                    <t t-if="props.data.e_receipt_url">
+                        <div class="bff-footer-link"><t t-esc="props.data.e_receipt_url"/></div>
+                    </t>
+                </div>
+
             </div>
         </xpath>
     </t>

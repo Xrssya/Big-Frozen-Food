@@ -1,33 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
     <t t-name="bff_pos_receipt.ReceiptHeader" t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
-        <!-- Replace the entire contact section with BFF custom header -->
+
+        <!-- Replace logo with controlled wrapper -->
+        <xpath expr="//img[hasclass('pos-receipt-logo')]" position="replace">
+            <t t-if="props.data.company and props.data.company.id">
+                <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.company.id}}&amp;field=logo"
+                     alt="Logo" class="bff-logo"/>
+            </t>
+        </xpath>
+
+        <!-- Replace contact block entirely -->
         <xpath expr="//div[hasclass('pos-receipt-contact')]" position="replace">
-            <div class="pos-receipt-contact w-100">
+            <div class="bff-header">
                 <!-- Company Name -->
-                <div class="bff-receipt-title">BIG FROZEN FOOD</div>
-                <div class="bff-receipt-subtitle">Pusat &amp; Distributor Frozen Food Berkualitas</div>
-                <!-- Company Info from Odoo data -->
-                <div class="bff-receipt-address">
-                    <t t-if="props.data.company.street">
-                        <t t-esc="props.data.company.street"/><br/>
-                    </t>
-                    <t t-if="props.data.company.phone">
-                        Telp: <t t-esc="props.data.company.phone"/><br/>
-                    </t>
-                    <t t-if="props.data.company.vat">
-                        NPWP: <t t-esc="props.data.company.vat"/>
-                    </t>
+                <div class="bff-store-name">
+                    <t t-esc="props.data.company.name"/>
                 </div>
-                <div class="bff-receipt-divider"/>
-                <!-- Cashier Row -->
-                <t t-if="props.data.cashier">
-                    <div class="cashier bff-meta-row">
-                        <span>Kasir: <t t-esc="props.data.cashier ? ('' + props.data.cashier).replace('Dilayani oleh ', '') : ''"/></span>
-                        <span t-if="props.data.trackingNumber">No. Antrian: #<t t-esc="props.data.trackingNumber"/></span>
-                    </div>
+
+                <!-- Address line -->
+                <t t-if="props.data.company.street">
+                    <div class="bff-store-info"><t t-esc="props.data.company.street"/></div>
                 </t>
-                <div class="bff-receipt-divider"/>
+                <t t-if="props.data.company.city">
+                    <div class="bff-store-info"><t t-esc="props.data.company.city"/></div>
+                </t>
+
+                <!-- Phone -->
+                <t t-if="props.data.company.phone">
+                    <div class="bff-store-info">Telp: <t t-esc="props.data.company.phone"/></div>
+                </t>
+
+                <!-- NPWP -->
+                <t t-if="props.data.company.vat">
+                    <div class="bff-store-info">NPWP: <t t-esc="props.data.company.vat"/></div>
+                </t>
+
+                <!-- Transaction ref code -->
+                <t t-if="props.data.ref_code">
+                    <div class="bff-ref-code"><t t-esc="props.data.ref_code"/></div>
+                </t>
             </div>
         </xpath>
     </t>

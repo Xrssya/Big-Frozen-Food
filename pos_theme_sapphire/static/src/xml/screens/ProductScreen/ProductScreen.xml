@@ -76,7 +76,7 @@
                                        debounceMillis="100"/>
                                 <div class="home-category-button lg-screen-cat">
 									<span class="breadcrumb-button breadcrumb-home"
-                                          t-on-click="(id) => this.pos.setSelectedCategory(id)">
+                                          t-on-click="() => this.pos.setSelectedCategory(0)">
 										<i class="fa fa-home" role="img"
                                            aria-label="Home" title="Home"
                                            style="font-size: 30px;"/>
@@ -93,7 +93,7 @@
                                    debounceMillis="100"/>
                             <div class="home-category-button sm-screen-cat">
 								<span class="breadcrumb-button breadcrumb-home"
-                                      t-on-click="(id) => this.pos.setSelectedCategory(id)">
+                                      t-on-click="() => this.pos.setSelectedCategory(0)">
 									<i class="fa fa-home" role="img"
                                        aria-label="Home" title="Home"
                                        style="font-size: 30px;"/>
