@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="bff_expiry_control.ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
+        <xpath expr="//article" position="inside">
+            <t t-if="props.product &amp;&amp; props.product.is_near_expiry">
+                <div class="pos-expiry-badge near-expiry">
+                    <i class="fa fa-fire me-1"/> Cuci Gudang
+                </div>
+            </t>
+        </xpath>
+    </t>
+</templates>

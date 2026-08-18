@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Product Template Form View Inherit -->
+    <record id="product_template_form_view_inherit_expiry" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.expiry</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Cold-Chain &amp; Expiry Control" name="expiry_control">
+                    <group>
+                        <group string="Konfigurasi Masa Simpan">
+                            <field name="shelf_life_days"/>
+                            <field name="near_expiry_alert_days"/>
+                        </group>
+                        <group string="Diskon Cuci Gudang (Clearance Sale)">
+                            <field name="auto_clearance_promo"/>
+                            <field name="clearance_discount_percent" invisible="not auto_clearance_promo"/>
+                        </group>
+                    </group>
+                    <group string="Status Kadaluarsa Terdekat">
+                        <group>
+                            <field name="earliest_expiry_date" readonly="1"/>
+                            <field name="expiry_status" readonly="1" widget="badge"
+                                   decoration-success="expiry_status == 'safe'"
+                                   decoration-warning="expiry_status == 'near_expiry'"
+                                   decoration-danger="expiry_status == 'expired'"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Product Template Search View Inherit -->
+    <record id="product_template_search_view_inherit_expiry" model="ir.ui.view">
+        <field name="name">product.template.search.inherit.expiry</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='favorites']" position="after">
+                <separator/>
+                <filter string="⚠️ Mendekati Expired (Cuci Gudang)" name="filter_near_expiry" domain="[('is_near_expiry', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

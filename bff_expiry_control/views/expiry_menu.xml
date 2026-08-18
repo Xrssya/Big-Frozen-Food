@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action Near Expiry Products -->
+    <record id="action_near_expiry_products" model="ir.actions.act_window">
+        <field name="name">⚠️ Stok Mendekati Expired (Cuci Gudang)</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_near_expiry', '=', True)]</field>
+        <field name="context">{'search_default_filter_near_expiry': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Tidak ada produk frozen food yang mendekati tanggal kadaluarsa!
+            </p>
+            <p>
+                Sistem akan secara otomatis mencatat dan memberikan notifikasi di menu ini apabila terdapat stok lot/batch yang memasuki masa ambang hari kadaluarsa (Near-Expiry).
+            </p>
+        </field>
+    </record>
+
+    <!-- Submenu in Inventory -->
+    <menuitem id="menu_inventory_near_expiry"
+              name="Stok Mendekati Expired"
+              parent="stock.menu_stock_inventory_control"
+              action="action_near_expiry_products"
+              sequence="15"/>
+</odoo>
