@@ -131,6 +131,10 @@ patch(PosStore.prototype, {
                             } else if (promo.discount_type === "fixed" && line.price > 0) {
                                 discPct = ((promo.discount_value || 0) / line.price) * 100;
                             }
+                            if (product.is_near_expiry && product.auto_clearance_promo) {
+                                const clearanceDisc = product.clearance_discount_percent || 25.0;
+                                discPct = Math.max(discPct, clearanceDisc);
+                            }
                             if (discPct > 0) {
                                 if (typeof line.set_discount === "function") {
                                     line.set_discount(discPct);
@@ -261,6 +265,22 @@ patch(PosStore.prototype, {
                                 freeQtyToDistribute -= freeOnThisLine;
                             }
                         }
+                    }
+                }
+            }
+            // Ensure near-expiry products get clearance discount if not already higher
+            for (const line of order.lines) {
+                if (!line.product_id) continue;
+                const product = line.product_id;
+                if (product.is_near_expiry && product.auto_clearance_promo) {
+                    const clearanceDisc = product.clearance_discount_percent || 25.0;
+                    if ((line.discount || 0) < clearanceDisc) {
+                        if (typeof line.set_discount === "function") {
+                            line.set_discount(clearanceDisc);
+                        } else {
+                            line.discount = clearanceDisc;
+                        }
+                        line._auto_promo_applied = true;
                     }
                 }
             }

@@ -13,5 +13,15 @@ patch(PosOrderline.prototype, {
             return Math.max(baseDiscount, clearanceDiscount);
         }
         return baseDiscount;
+    },
+
+    get_discount_str() {
+        const disc = this.get_discount();
+        if (disc && disc > 0) {
+            return Number.isInteger(disc) || Math.abs(disc - Math.round(disc)) < 1e-6
+                ? String(Math.round(disc))
+                : String(disc);
+        }
+        return super.get_discount_str ? super.get_discount_str(...arguments) : "";
     }
 });
