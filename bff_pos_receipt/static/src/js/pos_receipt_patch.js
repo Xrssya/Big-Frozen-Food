@@ -49,6 +49,7 @@ patch(PosOrder.prototype, {
         // ─── Orderlines enrichment ────────────────────────────────────
         const orderlines_raw = typeof this.get_orderlines === "function" ? this.get_orderlines() : [];
         let total_qty = 0;
+        let total_discount_num = 0;
 
         const enriched_lines = (result.orderlines || []).map((line, index) => {
             const orig = orderlines_raw[index];
@@ -85,6 +86,19 @@ patch(PosOrder.prototype, {
                 line_total_num = orig.get_price_with_tax() || 0;
             }
 
+            // Discount calculation
+            const discount_percent = orig
+                ? (typeof orig.get_discount === "function" ? orig.get_discount() : (orig.discount || 0))
+                : parseFloat(line.discount || 0);
+
+            const unit_price_lst = orig && typeof orig.get_unit_price === "function"
+                ? orig.get_unit_price()
+                : (typeof line.price_lst === "number" ? line.price_lst : unit_price_num);
+
+            const total_before_disc = unit_price_lst * rawQty;
+            const discount_amount_num = discount_percent > 0 ? Math.max(0, total_before_disc - line_total_num) : 0;
+            total_discount_num += discount_amount_num;
+
             // Legacy string fallback (only if number not available)
             const price_display = typeof line.price === "string" ? line.price : null;
 
@@ -92,9 +106,12 @@ patch(PosOrder.prototype, {
                 ...line,
                 qty_str,
                 unit_name,
-                unit_price_num,
+                unit_price_num: discount_percent > 0 ? unit_price_lst : unit_price_num,
                 line_total_num,
                 price_display,
+                discount_percent,
+                discount_amount_num,
+                total_before_disc,
             };
         });
 
@@ -135,6 +152,7 @@ patch(PosOrder.prototype, {
             // Lines
             orderlines: enriched_lines,
             total_qty: total_qty_final,
+            total_discount_num: Math.round(total_discount_num),
             // Totals (safe numbers)
             amount_total_num,
             total_without_tax_num,

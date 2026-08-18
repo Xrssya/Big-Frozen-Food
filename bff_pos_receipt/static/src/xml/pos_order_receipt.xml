@@ -94,6 +94,14 @@
                                 </t>
                             </td>
                         </tr>
+                        <!-- Baris Diskon jika ada -->
+                        <t t-if="line.discount_percent and line.discount_percent > 0">
+                            <tr class="bff-item-discount-row">
+                                <td class="bff-item-discount" colspan="2">
+                                    Diskon <t t-esc="Math.round(line.discount_percent)"/>% (Hemat Rp <t t-esc="Math.round(line.discount_amount_num || 0).toLocaleString('id-ID', {maximumFractionDigits:0})"/>)
+                                </td>
+                            </tr>
+                        </t>
                         <!-- Catatan pelanggan jika ada -->
                         <t t-if="line.customerNote">
                             <tr>
@@ -132,6 +140,17 @@
                             <t t-esc="(props.data.total_without_tax_num !== undefined ? props.data.total_without_tax_num : props.data.amount_total_num || 0).toLocaleString('id-ID', {maximumFractionDigits:0})"/>
                         </td>
                     </tr>
+
+                    <!-- Total Diskon / Hemat -->
+                    <t t-if="props.data.total_discount_num and props.data.total_discount_num > 0">
+                        <tr>
+                            <td class="bff-tot-label">Total Hemat</td>
+                            <td class="bff-tot-rp">-Rp</td>
+                            <td class="bff-tot-num">
+                                <t t-esc="(props.data.total_discount_num || 0).toLocaleString('id-ID', {maximumFractionDigits:0})"/>
+                            </td>
+                        </tr>
+                    </t>
 
                     <!-- Pajak per group -->
                     <t t-if="props.data.taxTotals and props.data.taxTotals.has_tax_groups">

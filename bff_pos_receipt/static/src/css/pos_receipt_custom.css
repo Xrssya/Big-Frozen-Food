@@ -171,6 +171,15 @@
     padding-bottom: 1px !important;
 }
 
+.bff-receipt .bff-item-discount {
+    font-size: 6.8pt !important;
+    font-weight: 400 !important;
+    text-align: left !important;
+    padding-left: 6px !important;
+    padding-bottom: 1px !important;
+    font-style: italic !important;
+}
+
 .bff-receipt .bff-item-note {
     font-size: 6.5pt !important;
     font-style: italic !important;
