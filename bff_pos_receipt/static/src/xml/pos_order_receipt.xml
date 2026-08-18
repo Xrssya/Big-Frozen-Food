@@ -94,8 +94,8 @@
                                 </t>
                             </td>
                         </tr>
-                        <!-- Baris Diskon jika ada -->
-                        <t t-if="line.discount_percent and line.discount_percent > 0">
+                        <!-- Baris Diskon jika ada (Hanya jika nominal hemat > 0) -->
+                        <t t-if="line.discount_percent and line.discount_percent > 0 and line.discount_amount_num and Math.round(line.discount_amount_num) &gt; 0">
                             <tr class="bff-item-discount-row">
                                 <td class="bff-item-discount" colspan="2">
                                     Diskon <t t-esc="Math.round(line.discount_percent)"/>% (Hemat Rp <t t-esc="Math.round(line.discount_amount_num || 0).toLocaleString('id-ID', {maximumFractionDigits:0})"/>)
