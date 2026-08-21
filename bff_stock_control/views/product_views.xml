@@ -21,8 +21,8 @@
             <xpath expr="//templates//t[@t-name='card']" position="inside">
                 <div t-if="record.is_storable.raw_value"
                      class="position-absolute top-0 end-0 m-2 rounded-circle border border-2 border-white"
-                     t-att-title="'Status Stok: ' + (record.stock_status.value || '')"
-                     t-attf-style="width: 20px; height: 20px; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.35); background-color: {{ record.stock_status.raw_value == 'empty' ? '#dc3545' : (record.stock_status.raw_value == 'low' ? '#ffc107' : '#28a745') }};">
+                     t-att-title="'Status Stok: ' + (record.stock_status ? record.stock_status.value || '' : '')"
+                     t-attf-style="width: 20px; height: 20px; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.35); background-color: {{ record.stock_status &amp;&amp; record.stock_status.raw_value == 'empty' ? '#dc3545' : (record.stock_status &amp;&amp; record.stock_status.raw_value == 'low' ? '#ffc107' : '#28a745') }};">
                 </div>
             </xpath>
         </field>

@@ -17,6 +17,7 @@
         'security/ir.model.access.csv',
         'views/product_views.xml',
         'views/inventory_low_stock_views.xml',
+        'views/stock_transfer_request_views.xml',
     ],
     'assets': {
         'point_of_sale._assets_pos': [

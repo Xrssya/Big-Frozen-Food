@@ -1,11 +1,30 @@
 /** @odoo-module **/
 
 import { patch } from "@web/core/utils/patch";
+import { useState } from "@odoo/owl";
 import { PosOrder } from "@point_of_sale/app/models/pos_order";
+import { OrderReceipt } from "@point_of_sale/app/screens/receipt_screen/receipt/order_receipt";
+
+patch(OrderReceipt.prototype, {
+    setup() {
+        super.setup();
+        this.receiptState = useState({
+            mode: localStorage.getItem("bff_receipt_mode") || "thermal"
+        });
+    },
+    setReceiptMode(mode) {
+        this.receiptState.mode = mode;
+        localStorage.setItem("bff_receipt_mode", mode);
+    },
+    get isInkMode() {
+        return this.receiptState.mode === "ink";
+    }
+});
 
 patch(PosOrder.prototype, {
     export_for_printing(baseUrl, headerData) {
         const result = super.export_for_printing(...arguments);
+        const receipt_mode = localStorage.getItem("bff_receipt_mode") || "thermal";
 
         // ─── Date & Time ────────────────────────────────────────────
         let dateObj = new Date();
@@ -144,6 +163,7 @@ patch(PosOrder.prototype, {
 
         return {
             ...result,
+            receipt_mode,
             // Date / time
             formatted_date,
             formatted_time,

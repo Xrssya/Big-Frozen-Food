@@ -25,6 +25,15 @@
                     <group string="Tanggung Jawab &amp; Detail Pendataan Barang">
                         <field name="warehouse_responsibilities" placeholder="Contoh: Mendata stock barang datang, cek tanggal kadaluarsa nugget/sosis di freezer, input penyesuaian stock..."/>
                     </group>
+                    <group string="Konfigurasi Komisi &amp; Bonus Kasir (Big Frozen Food)" invisible="bff_role != 'cashier'">
+                        <group>
+                            <field name="commission_rate_percent"/>
+                            <field name="clearance_bonus_percent"/>
+                        </group>
+                        <group>
+                            <field name="total_commission_earned" widget="monetary"/>
+                        </group>
+                    </group>
                 </xpath>
             </field>
         </record>

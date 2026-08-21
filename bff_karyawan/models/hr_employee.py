@@ -21,6 +21,40 @@ class HrEmployee(models.Model):
         help='Detail tanggung jawab (contoh: mendata stock fisik, penerimaan barang supplier, penataan freezer, pencatatan expired date, dll.)'
     )
 
+    commission_rate_percent = fields.Float(
+        string='Rate Komisi Omset (%)',
+        default=1.0,
+        digits=(16, 2),
+        help='Persentase komisi kasir dari total omset transaksi POS.'
+    )
+
+    clearance_bonus_percent = fields.Float(
+        string='Bonus Produk Cuci Gudang (%)',
+        default=5.0,
+        digits=(16, 2),
+        help='Persentase bonus ekstra dari omset produk Mendekati Expired / Cuci Gudang yang berhasil dijual.'
+    )
+
+    total_commission_earned = fields.Monetary(
+        string='Total Komisi Diperoleh',
+        compute='_compute_total_commission_earned',
+        currency_field='currency_id'
+    )
+
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Mata Uang',
+        default=lambda self: self.env.company.currency_id
+    )
+
+    def _compute_total_commission_earned(self):
+        for emp in self:
+            reports = self.env['cashier.commission.report'].search([
+                ('employee_id', '=', emp.id),
+                ('state', 'in', ['approved', 'paid'])
+            ])
+            emp.total_commission_earned = sum(reports.mapped('total_commission_payout'))
+
     @api.model_create_multi
     def create(self, vals_list):
         employees = super(HrEmployee, self).create(vals_list)

@@ -11,6 +11,7 @@
         'data/bff_karyawan_data.xml',
         'data/bff_formatting_data.xml',
         'views/hr_employee_views.xml',
+        'views/cashier_commission_views.xml',
         'views/bff_karyawan_menus.xml',
     ],
     'installable': True,

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sequence for Cashier Commission Report -->
+    <record id="seq_cashier_commission_report" model="ir.sequence">
+        <field name="name">Rekap Komisi Kasir</field>
+        <field name="code">cashier.commission.report</field>
+        <field name="prefix">COMM/%(year)s/%(month)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Form View Cashier Commission Report -->
+    <record id="view_cashier_commission_report_form" model="ir.ui.view">
+        <field name="name">cashier.commission.report.form</field>
+        <field name="model">cashier.commission.report</field>
+        <field name="arch" type="xml">
+            <form string="Rekapitulasi Komisi &amp; Bonus Kasir">
+                <header>
+                    <button name="action_calculate_commission" string="⚡ Hitung Komisi Otomatis" type="object" class="btn-primary" invisible="state not in ('draft', 'calculated')"/>
+                    <button name="action_approve" string="Setujui Rekap" type="object" class="btn-success" invisible="state != 'calculated'"/>
+                    <button name="action_pay" string="Tandai Dibayarkan" type="object" class="btn-info" invisible="state != 'approved'"/>
+                    <button name="action_reset_draft" string="Reset ke Draft" type="object" class="btn-secondary" invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,calculated,approved,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informasi Kasir &amp; Periode">
+                            <field name="employee_id" readonly="state != 'draft'"/>
+                            <field name="user_id"/>
+                            <field name="date_from" readonly="state != 'draft'"/>
+                            <field name="date_to" readonly="state != 'draft'"/>
+                        </group>
+                        <group string="Aturan % Komisi &amp; Bonus">
+                            <field name="commission_rate_percent"/>
+                            <field name="clearance_bonus_percent"/>
+                            <field name="total_pos_orders"/>
+                        </group>
+                    </group>
+
+                    <group string="Ringkasan Hasil Perhitungan Komisi" name="summary">
+                        <group>
+                            <field name="total_omset" widget="monetary"/>
+                            <field name="total_clearance_sales" widget="monetary"/>
+                        </group>
+                        <group>
+                            <field name="general_commission_amount" widget="monetary"/>
+                            <field name="clearance_bonus_amount" widget="monetary"/>
+                            <field name="total_commission_payout" widget="monetary" class="oe_subtotal_footer_separator text-primary font-weight-bold"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Detail Transaksi POS" name="lines">
+                            <field name="line_ids" readonly="1">
+                                <list editable="bottom" create="false" delete="false">
+                                    <field name="order_id"/>
+                                    <field name="date_order"/>
+                                    <field name="product_id"/>
+                                    <field name="qty"/>
+                                    <field name="price_subtotal" widget="monetary"/>
+                                    <field name="is_near_expiry" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Catatan / Keterangan" name="notes">
+                            <field name="notes" placeholder="Catatan tambahan pembayaran komisi kasir..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View Cashier Commission Report -->
+    <record id="view_cashier_commission_report_tree" model="ir.ui.view">
+        <field name="name">cashier.commission.report.tree</field>
+        <field name="model">cashier.commission.report</field>
+        <field name="arch" type="xml">
+            <list string="Rekapitulasi Komisi Kasir">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="total_pos_orders"/>
+                <field name="total_omset" widget="monetary"/>
+                <field name="total_clearance_sales" widget="monetary"/>
+                <field name="total_commission_payout" widget="monetary" class="fw-bold text-success"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'calculated'"
+                       decoration-primary="state == 'approved'"
+                       decoration-success="state == 'paid'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View Cashier Commission Report -->
+    <record id="view_cashier_commission_report_search" model="ir.ui.view">
+        <field name="name">cashier.commission.report.search</field>
+        <field name="model">cashier.commission.report</field>
+        <field name="arch" type="xml">
+            <search string="Cari Rekap Komisi">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <separator/>
+                <filter string="⏳ Menunggu Persetujuan" name="filter_calculated" domain="[('state', '=', 'calculated')]"/>
+                <filter string="✅ Disetujui" name="filter_approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="💰 Sudah Dibayar" name="filter_paid" domain="[('state', '=', 'paid')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Kasir" name="group_employee" domain="[]" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Status" name="group_state" domain="[]" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action Cashier Commission Report -->
+    <record id="action_cashier_commission_report" model="ir.actions.act_window">
+        <field name="name">Rekap Komisi &amp; Bonus Kasir</field>
+        <field name="res_model">cashier.commission.report</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_cashier_commission_report_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat Rekap Komisi Kasir Baru!
+            </p>
+            <p>
+                Fitur ini menghitung otomatis komisi omset reguler dan bonus ekstra penjualan barang cuci gudang (near-expiry) untuk kasir toko Anda.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item in Karyawan Menu -->
+    <menuitem id="menu_cashier_commission_root"
+              name="💰 Komisi &amp; Bonus Kasir"
+              parent="hr.menu_hr_root"
+              sequence="25"/>
+
+    <menuitem id="menu_cashier_commission_report"
+              name="Rekap Komisi Kasir"
+              parent="menu_cashier_commission_root"
+              action="action_cashier_commission_report"
+              sequence="10"/>
+</odoo>
