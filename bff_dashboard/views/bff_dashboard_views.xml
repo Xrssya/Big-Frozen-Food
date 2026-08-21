@@ -1,16 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Executive Dashboard Client Action -->
+    <!-- 1. Executive Dashboard Client Action (Main / Combined) -->
     <record id="action_bff_dashboard_main" model="ir.actions.client">
         <field name="name">Dashboard Eksekutif</field>
         <field name="tag">bff_dashboard_main</field>
         <field name="target">main</field>
+        <field name="context">{'default_mode': 'all'}</field>
     </record>
 
-    <!-- Main Root Menu Item for Executive Dashboard - sequence=1 agar tampil pertama -->
+    <!-- 2. Sales Dashboard Client Action (Penjualan) -->
+    <record id="action_bff_dashboard_sales" model="ir.actions.client">
+        <field name="name">Dashboard Penjualan</field>
+        <field name="tag">bff_dashboard_sales</field>
+        <field name="target">main</field>
+        <field name="context">{'default_mode': 'sales'}</field>
+    </record>
+
+    <!-- 3. Stock & Expiry Dashboard Client Action (Inventaris) -->
+    <record id="action_bff_dashboard_stock" model="ir.actions.client">
+        <field name="name">Dashboard Stok &amp; Kadaluarsa</field>
+        <field name="tag">bff_dashboard_stock</field>
+        <field name="target">main</field>
+        <field name="context">{'default_mode': 'stock'}</field>
+    </record>
+
+    <!-- 4. Purchase Dashboard Client Action (Pembelian) -->
+    <record id="action_bff_dashboard_purchase" model="ir.actions.client">
+        <field name="name">Dashboard Pembelian</field>
+        <field name="tag">bff_dashboard_purchase</field>
+        <field name="target">main</field>
+        <field name="context">{'default_mode': 'purchase'}</field>
+    </record>
+
+
+    <!-- ======================================================= -->
+    <!-- MENU PLACEMENTS IN RESPECTIVE MODULES                   -->
+    <!-- ======================================================= -->
+
+    <!-- Main Executive Dashboard Root App Menu (Sequence=1) -->
     <menuitem id="menu_bff_dashboard_root"
               name="Dashboard Eksekutif"
               action="action_bff_dashboard_main"
               web_icon="bff_dashboard,static/description/icon.png"
               sequence="1"/>
+
+    <!-- Dashboard Penjualan in Sales Module (sale.sale_menu_root) -->
+    <menuitem id="menu_bff_dashboard_sales_item"
+              name="Dashboard Penjualan"
+              parent="sale.sale_menu_root"
+              action="action_bff_dashboard_sales"
+              sequence="1"/>
+
+    <!-- Dashboard Stok & Kadaluarsa in Stock Module (stock.menu_stock_root) -->
+    <menuitem id="menu_bff_dashboard_stock_item"
+              name="Dashboard Stok &amp; FEFO"
+              parent="stock.menu_stock_root"
+              action="action_bff_dashboard_stock"
+              sequence="1"/>
+
+    <!-- Dashboard Pembelian in Purchase Module (purchase.menu_purchase_root) -->
+    <menuitem id="menu_bff_dashboard_purchase_item"
+              name="Dashboard Pembelian"
+              parent="purchase.menu_purchase_root"
+              action="action_bff_dashboard_purchase"
+              sequence="1"/>
+
 </odoo>

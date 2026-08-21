@@ -9,7 +9,18 @@ export class BffDashboardComponent extends Component {
     setup() {
         this.orm = useService("orm");
         this.actionService = useService("action");
+
+        let defaultMode = 'all';
+        if (this.props.action && this.props.action.context && this.props.action.context.default_mode) {
+            defaultMode = this.props.action.context.default_mode;
+        } else if (this.props.action && this.props.action.tag) {
+            if (this.props.action.tag === 'bff_dashboard_sales') defaultMode = 'sales';
+            else if (this.props.action.tag === 'bff_dashboard_stock') defaultMode = 'stock';
+            else if (this.props.action.tag === 'bff_dashboard_purchase') defaultMode = 'purchase';
+        }
+
         this.state = useState({
+            mode: defaultMode,
             period: 'month',
             salesView: 'daily',
             loading: true,
@@ -18,6 +29,7 @@ export class BffDashboardComponent extends Component {
 
         this.salesChartCanvas = useRef("salesChartCanvas");
         this.channelChartCanvas = useRef("channelChartCanvas");
+        this.supplierChartCanvas = useRef("supplierChartCanvas");
 
         onWillStart(async () => {
             await loadJS("/web/static/lib/Chart/Chart.js");
@@ -53,6 +65,11 @@ export class BffDashboardComponent extends Component {
         }
     }
 
+    changeMode(mode) {
+        this.state.mode = mode;
+        this.renderCharts();
+    }
+
     async reloadDashboard() {
         await this.loadData();
         this.renderCharts();
@@ -66,8 +83,13 @@ export class BffDashboardComponent extends Component {
     renderCharts() {
         if (this.state.loading || !this.state.data) return;
         setTimeout(() => {
-            this.renderSalesChart();
-            this.renderChannelChart();
+            if (this.state.mode === 'all' || this.state.mode === 'sales') {
+                this.renderSalesChart();
+                this.renderChannelChart();
+            }
+            if (this.state.mode === 'all' || this.state.mode === 'purchase') {
+                this.renderSupplierChart();
+            }
         }, 100);
     }
 
@@ -167,6 +189,63 @@ export class BffDashboardComponent extends Component {
         });
     }
 
+    renderSupplierChart() {
+        const canvas = this.supplierChartCanvas ? this.supplierChartCanvas.el : null;
+        if (!canvas) return;
+
+        if (this.supplierChartInstance) {
+            this.supplierChartInstance.destroy();
+        }
+
+        const supplierData = this.state.data.purchase.supplier_breakdown || [];
+        const labels = supplierData.map(s => s.supplier);
+        const totals = supplierData.map(s => s.total);
+
+        const ctx = canvas.getContext('2d');
+        this.supplierChartInstance = new window.Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Belanja (Rp)',
+                    data: totals,
+                    backgroundColor: 'rgba(71, 118, 230, 0.8)',
+                    borderColor: '#4776e6',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let val = context.raw || 0;
+                                return ' Rp ' + val.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1000000) {
+                                    return 'Rp ' + (value / 1000000).toFixed(1) + ' Jt';
+                                }
+                                return 'Rp ' + value.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     formatCurrency(value) {
         if (value === undefined || value === null) return 'Rp 0';
         return 'Rp ' + Math.round(value).toLocaleString('id-ID');
@@ -194,3 +273,6 @@ export class BffDashboardComponent extends Component {
 }
 
 registry.category("actions").add("bff_dashboard_main", BffDashboardComponent);
+registry.category("actions").add("bff_dashboard_sales", BffDashboardComponent);
+registry.category("actions").add("bff_dashboard_stock", BffDashboardComponent);
+registry.category("actions").add("bff_dashboard_purchase", BffDashboardComponent);
