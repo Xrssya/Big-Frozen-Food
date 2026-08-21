@@ -11,7 +11,7 @@
         - Batas Periode Promo & Kategori Produk
     """,
     'author': 'Big Frozen Food',
-    'depends': ['sale', 'point_of_sale'],
+    'depends': ['sale', 'point_of_sale', 'contacts'],
     'data': [
         'security/ir.model.access.csv',
         'views/promo_views.xml',

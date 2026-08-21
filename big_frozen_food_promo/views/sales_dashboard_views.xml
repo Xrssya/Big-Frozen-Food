@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- 1. Custom Graph View for Sales Turnover & Daily Trend -->
+        <record id="view_bff_sale_report_graph_turnover" model="ir.ui.view">
+            <field name="name">bff.sale.report.graph.turnover</field>
+            <field name="model">sale.report</field>
+            <field name="arch" type="xml">
+                <graph string="Grafik Omset Penjualan (Harian/Bulanan)" type="bar" sample="1">
+                    <field name="date" interval="day"/>
+                    <field name="price_subtotal" type="measure" string="Omset (Rp)"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- 2. Custom Graph View for Top Selling Products -->
+        <record id="view_bff_sale_report_graph_top_products" model="ir.ui.view">
+            <field name="name">bff.sale.report.graph.top.products</field>
+            <field name="model">sale.report</field>
+            <field name="arch" type="xml">
+                <graph string="Top Produk Terlaris" type="pie" sample="1">
+                    <field name="product_id"/>
+                    <field name="product_uom_qty" type="measure" string="Jumlah Terjual (Unit)"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- 3. Custom Pivot View for Sales Channel Breakdown -->
+        <record id="view_bff_sale_report_pivot_channel" model="ir.ui.view">
+            <field name="name">bff.sale.report.pivot.channel</field>
+            <field name="model">sale.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Analisis Penjualan Agen vs Reseller per Kategori" sample="1">
+                    <field name="categ_id" type="row"/>
+                    <field name="partner_id" type="row"/>
+                    <field name="date" interval="month" type="col"/>
+                    <field name="product_uom_qty" type="measure"/>
+                    <field name="price_subtotal" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Action: Dashboard Penjualan Omset & Trend -->
+        <record id="action_bff_sales_turnover_dashboard" model="ir.actions.act_window">
+            <field name="name">📊 Dashboard Omset Penjualan Harian/Bulanan</field>
+            <field name="res_model">sale.report</field>
+            <field name="view_mode">graph,pivot,list</field>
+            <field name="view_id" ref="view_bff_sale_report_graph_turnover"/>
+            <field name="context">{'search_default_FilterOrderDate': 1, 'group_by': ['date:day']}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Grafik Omset Penjualan Harian &amp; Bulanan Big Frozen Food.
+                </p>
+            </field>
+        </record>
+
+        <!-- Action: Top 5 Produk Terlaris -->
+        <record id="action_bff_sales_top_products" model="ir.actions.act_window">
+            <field name="name">🏆 Top Produk Terlaris</field>
+            <field name="res_model">sale.report</field>
+            <field name="view_mode">graph,pivot</field>
+            <field name="view_id" ref="view_bff_sale_report_graph_top_products"/>
+            <field name="context">{'group_by': ['product_id']}</field>
+        </record>
+
+        <!-- Action: POS Direct Sales Analytics -->
+        <record id="action_bff_pos_sales_analytics" model="ir.actions.act_window">
+            <field name="name">🏪 Dashboard Penjualan Toko / POS</field>
+            <field name="res_model">pos.order.report</field>
+            <field name="view_mode">graph,pivot,list</field>
+            <field name="context">{'group_by': ['date:day', 'product_id']}</field>
+        </record>
+
+        <!-- Menu Entries under Sales -->
+        <menuitem id="menu_bff_sales_dashboard_root"
+                  name="📊 Dashboard Analytics"
+                  parent="sale.sale_menu_root"
+                  sequence="1"/>
+
+        <menuitem id="menu_bff_sales_turnover"
+                  name="Grafik Omset Penjualan"
+                  parent="menu_bff_sales_dashboard_root"
+                  action="action_bff_sales_turnover_dashboard"
+                  sequence="10"/>
+
+        <menuitem id="menu_bff_sales_top_products"
+                  name="Top Produk Terlaris"
+                  parent="menu_bff_sales_dashboard_root"
+                  action="action_bff_sales_top_products"
+                  sequence="20"/>
+
+        <menuitem id="menu_bff_pos_sales"
+                  name="Penjualan Toko / POS"
+                  parent="menu_bff_sales_dashboard_root"
+                  action="action_bff_pos_sales_analytics"
+                  sequence="30"/>
+    </data>
+</odoo>

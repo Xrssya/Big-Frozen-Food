@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Graph View: Rekap Pembelian per Supplier/Vendor -->
+        <record id="view_bff_purchase_report_graph" model="ir.ui.view">
+            <field name="name">bff.purchase.report.graph</field>
+            <field name="model">purchase.report</field>
+            <field name="arch" type="xml">
+                <graph string="Grafik Total Pembelian ke Supplier" type="bar" sample="1">
+                    <field name="partner_id"/>
+                    <field name="price_total" type="measure" string="Total Belanja (Rp)"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pivot View: Analisis Pembelian per Kategori Produk & Supplier -->
+        <record id="view_bff_purchase_report_pivot" model="ir.ui.view">
+            <field name="name">bff.purchase.report.pivot</field>
+            <field name="model">purchase.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Analisis Belanja Supplier per Kategori" sample="1">
+                    <field name="category_id" type="row"/>
+                    <field name="partner_id" type="row"/>
+                    <field name="date_approve" interval="month" type="col"/>
+                    <field name="qty_ordered" type="measure"/>
+                    <field name="price_total" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Action: Dashboard Pembelian Supplier -->
+        <record id="action_bff_purchase_analytics_dashboard" model="ir.actions.act_window">
+            <field name="name">📊 Dashboard Belanja Supplier &amp; Pembelian</field>
+            <field name="res_model">purchase.report</field>
+            <field name="view_mode">graph,pivot,list</field>
+            <field name="view_id" ref="view_bff_purchase_report_graph"/>
+            <field name="context">{'group_by': ['partner_id']}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Grafik Belanja ke Supplier Frozen Food Bulan ini &amp; Analisis Kebutuhan Stok.
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu Entries under Purchase -->
+        <menuitem id="menu_bff_purchase_dashboard_root"
+                  name="📊 Dashboard Analytics"
+                  parent="purchase.menu_purchase_root"
+                  sequence="1"/>
+
+        <menuitem id="menu_bff_purchase_analytics"
+                  name="Grafik Belanja Supplier"
+                  parent="menu_bff_purchase_dashboard_root"
+                  action="action_bff_purchase_analytics_dashboard"
+                  sequence="10"/>
+    </data>
+</odoo>

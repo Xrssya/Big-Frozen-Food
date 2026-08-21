@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Custom Root Menu Order -->
+        <!-- Custom Root Menu Order - hanya referensi menu dari modul yang pasti terpasang -->
         <record id="mail.menu_root_discuss" model="ir.ui.menu">
             <field name="sequence">10</field>
-        </record>
-        <record id="spreadsheet_dashboard.spreadsheet_dashboard_menu_root" model="ir.ui.menu">
-            <field name="sequence">15</field>
-        </record>
-        <record id="contacts.menu_contacts" model="ir.ui.menu">
-            <field name="sequence">20</field>
         </record>
         <record id="point_of_sale.menu_point_root" model="ir.ui.menu">
             <field name="sequence">30</field>
@@ -25,12 +19,6 @@
         </record>
         <record id="account.menu_finance" model="ir.ui.menu">
             <field name="sequence">70</field>
-        </record>
-        <record id="hr.menu_hr_root" model="ir.ui.menu">
-            <field name="sequence">75</field>
-        </record>
-        <record id="utm.menu_link_tracker_root" model="ir.ui.menu">
-            <field name="sequence">80</field>
         </record>
         <record id="base.menu_management" model="ir.ui.menu">
             <field name="sequence">90</field>

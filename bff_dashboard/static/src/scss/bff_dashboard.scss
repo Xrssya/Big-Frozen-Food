@@ -1,0 +1,62 @@
+/* Big Frozen Food Executive Dashboard Styles */
+.o_bff_dashboard {
+    background-color: #f4f6f9;
+    min-height: 100vh;
+    font-family: inherit;
+
+    .fs-7 {
+        font-size: 0.75rem;
+    }
+
+    .col-xl-2-4 {
+        @media (min-width: 1200px) {
+            flex: 0 0 auto;
+            width: 20%;
+        }
+    }
+
+    .bff-kpi-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12) !important;
+        }
+    }
+
+    .bg-gradient-sales {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    }
+
+    .bg-gradient-stock {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    .bg-gradient-warning {
+        background: linear-gradient(135deg, #f89b29 0%, #ff0f7b 100%);
+        color: #ffffff !important;
+        .icon-circle {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+        }
+    }
+
+    .bg-gradient-expiry {
+        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    }
+
+    .bg-gradient-purchase {
+        background: linear-gradient(135deg, #4776e6 0%, #8e54e9 100%);
+    }
+
+    .table {
+        th {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+        }
+        td {
+            font-size: 0.9rem;
+        }
+    }
+}

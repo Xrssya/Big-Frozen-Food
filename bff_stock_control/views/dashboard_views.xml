@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Graph View: Stok per Kategori Produk -->
+        <record id="view_bff_product_stock_graph" model="ir.ui.view">
+            <field name="name">bff.product.stock.graph</field>
+            <field name="model">product.template</field>
+            <field name="arch" type="xml">
+                <graph string="Grafik Level Stok per Kategori Produk" type="bar" sample="1">
+                    <field name="categ_id"/>
+                    <field name="qty_available" type="measure" string="Total Stok Fisik"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pivot View: Analisis Status Stok (Hijau, Kuning, Merah) -->
+        <record id="view_bff_product_stock_pivot" model="ir.ui.view">
+            <field name="name">bff.product.stock.pivot</field>
+            <field name="model">product.template</field>
+            <field name="arch" type="xml">
+                <pivot string="Analisis Status Stok &amp; Min Reserve" sample="1">
+                    <field name="categ_id" type="row"/>
+                    <field name="stock_status" type="col"/>
+                    <field name="qty_available" type="measure" string="Total Qty Stok"/>
+                    <field name="min_stock_alert_qty" type="measure" string="Min Alert Qty"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Action: Dashboard Level & Nilai Stok -->
+        <record id="action_bff_stock_level_dashboard" model="ir.actions.act_window">
+            <field name="name">📊 Dashboard Level &amp; Sebaran Stok Produk</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">graph,pivot,kanban,list</field>
+            <field name="view_id" ref="view_bff_product_stock_graph"/>
+            <field name="context">{'search_default_filter_to_sell': 1, 'group_by': ['categ_id']}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Grafik &amp; Analisis Sebaran Stok Produk Cold-Chain Big Frozen Food.
+                </p>
+            </field>
+        </record>
+
+        <!-- Action: Dashboard Stok Menipis (Alert Batch) -->
+        <record id="action_bff_low_stock_dashboard" model="ir.actions.act_window">
+            <field name="name">⚠️ Dashboard Warning Stok Menipis (Low Stock)</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">list,kanban,graph,form</field>
+            <field name="context">{'search_default_filter_stock_low': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Daftar Produk dengan Stok Menipis di bawah Batas Minimum Alert.
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu Entries under Inventory -->
+        <menuitem id="menu_bff_stock_dashboard_root"
+                  name="📊 Dashboard Analytics"
+                  parent="stock.menu_stock_root"
+                  sequence="1"/>
+
+        <menuitem id="menu_bff_stock_level_analytics"
+                  name="Grafik Level Stok Produk"
+                  parent="menu_bff_stock_dashboard_root"
+                  action="action_bff_stock_level_dashboard"
+                  sequence="10"/>
+
+        <menuitem id="menu_bff_low_stock_analytics"
+                  name="⚠️ Alert Stok Menipis"
+                  parent="menu_bff_stock_dashboard_root"
+                  action="action_bff_low_stock_dashboard"
+                  sequence="20"/>
+    </data>
+</odoo>
