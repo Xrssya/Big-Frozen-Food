@@ -122,13 +122,13 @@
 
     <!-- Action Cashier Commission Report -->
     <record id="action_cashier_commission_report" model="ir.actions.act_window">
-        <field name="name">Rekap Komisi &amp; Bonus Kasir</field>
+        <field name="name">Rekap Gaji &amp; Komisi</field>
         <field name="res_model">cashier.commission.report</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_cashier_commission_report_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Buat Rekap Komisi Kasir Baru!
+                Buat Rekap Gaji &amp; Komisi Kasir Baru!
             </p>
             <p>
                 Fitur ini menghitung otomatis komisi omset reguler dan bonus ekstra penjualan barang cuci gudang (near-expiry) untuk kasir toko Anda.
@@ -138,12 +138,12 @@
 
     <!-- Menu Item in Karyawan Menu -->
     <menuitem id="menu_cashier_commission_root"
-              name="💰 Komisi &amp; Bonus Kasir"
+              name="💰 Gaji &amp; Komisi"
               parent="hr.menu_hr_root"
               sequence="25"/>
 
     <menuitem id="menu_cashier_commission_report"
-              name="Rekap Komisi Kasir"
+              name="Rekap Gaji &amp; Komisi"
               parent="menu_cashier_commission_root"
               action="action_cashier_commission_report"
               sequence="10"/>
