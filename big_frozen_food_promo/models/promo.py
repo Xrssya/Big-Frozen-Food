@@ -34,15 +34,15 @@ class ProductDiscountPromo(models.Model):
 
     discount_value = fields.Float(string='Nilai Diskon', digits=(16, 0), default=0.0)
 
-    min_qty_buy = fields.Float(
+    min_qty_buy = fields.Integer(
         string='Syarat Beli (Qty X)',
-        default=2.0,
+        default=2,
         help='Jumlah minimum unit yang harus dibeli untuk mendapatkan item gratis.'
     )
 
-    free_qty = fields.Float(
+    free_qty = fields.Integer(
         string='Jumlah Gratis (Qty Y)',
-        default=1.0,
+        default=1,
         help='Jumlah unit yang didapatkan secara gratis per syarat kuantitas.'
     )
 

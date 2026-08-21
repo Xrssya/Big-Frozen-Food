@@ -30,3 +30,8 @@ ENV/
 *.swo
 .DS_Store
 Thumbs.db
+
+# POS Drivers & Temp
+posdrv_temp/
+install_pos_driver.sh
+
