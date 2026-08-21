@@ -106,44 +106,60 @@ export class BffDashboardComponent extends Component {
         const totalData = isDaily ? this.state.data.sales.daily_total : this.state.data.sales.monthly_revenue;
 
         const ctx = canvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, 'rgba(37, 99, 235, 0.35)');
+        gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+
         this.salesChartInstance = new window.Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: labels,
                 datasets: [{
                     label: isDaily ? 'Omset Harian (Rp)' : 'Omset Bulanan (Rp)',
                     data: totalData,
-                    backgroundColor: 'rgba(37, 99, 235, 0.85)',
                     borderColor: '#2563eb',
-                    borderWidth: 1,
-                    borderRadius: 6,
+                    borderWidth: 3,
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#2563eb',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: true, position: 'top' },
+                    legend: { display: false },
                     tooltip: {
                         backgroundColor: '#0f172a',
-                        padding: 10,
-                        cornerRadius: 6,
+                        titleFont: { size: 12, weight: 'bold' },
+                        bodyFont: { size: 13 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
                         callbacks: {
                             label: function(context) {
                                 let val = context.raw || 0;
-                                return ' Rp ' + val.toLocaleString('id-ID');
+                                return 'Omset: Rp ' + val.toLocaleString('id-ID');
                             }
                         }
                     }
                 },
                 scales: {
                     x: {
-                        grid: { display: false }
+                        grid: { display: false },
+                        ticks: { color: '#64748b', font: { size: 11 } }
                     },
                     y: {
                         beginAtZero: true,
                         grid: { color: '#f1f5f9' },
                         ticks: {
+                            color: '#64748b',
+                            font: { size: 11 },
                             callback: function(value) {
                                 if (value >= 1000000) {
                                     return 'Rp ' + (value / 1000000).toFixed(1) + ' Jt';
@@ -173,21 +189,22 @@ export class BffDashboardComponent extends Component {
                 labels: ['Agen & Reseller (B2B)', 'POS Toko Retail'],
                 datasets: [{
                     data: [channelData.agen_sales, channelData.pos_sales],
-                    backgroundColor: ['#1e3a8a', '#06b6d4'],
-                    borderWidth: 2,
+                    backgroundColor: ['#2563eb', '#06b6d4'],
+                    borderWidth: 3,
                     borderColor: '#ffffff',
-                    hoverOffset: 4
+                    hoverOffset: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '72%',
                 plugins: {
-                    legend: { position: 'bottom' },
+                    legend: { display: false },
                     tooltip: {
                         backgroundColor: '#0f172a',
-                        padding: 10,
-                        cornerRadius: 6,
+                        padding: 12,
+                        cornerRadius: 8,
                         callbacks: {
                             label: function(context) {
                                 let val = context.raw || 0;
@@ -213,6 +230,10 @@ export class BffDashboardComponent extends Component {
         const totals = supplierData.map(s => s.total);
 
         const ctx = canvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, '#6366f1');
+        gradient.addColorStop(1, '#4338ca');
+
         this.supplierChartInstance = new window.Chart(ctx, {
             type: 'bar',
             data: {
@@ -220,10 +241,9 @@ export class BffDashboardComponent extends Component {
                 datasets: [{
                     label: 'Total Belanja (Rp)',
                     data: totals,
-                    backgroundColor: 'rgba(79, 70, 229, 0.85)',
-                    borderColor: '#4f46e5',
-                    borderWidth: 1,
-                    borderRadius: 6,
+                    backgroundColor: gradient,
+                    borderRadius: 8,
+                    borderSkipped: false,
                 }]
             },
             options: {
@@ -233,8 +253,8 @@ export class BffDashboardComponent extends Component {
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: '#0f172a',
-                        padding: 10,
-                        cornerRadius: 6,
+                        padding: 12,
+                        cornerRadius: 8,
                         callbacks: {
                             label: function(context) {
                                 let val = context.raw || 0;
@@ -245,12 +265,15 @@ export class BffDashboardComponent extends Component {
                 },
                 scales: {
                     x: {
-                        grid: { display: false }
+                        grid: { display: false },
+                        ticks: { color: '#64748b', font: { size: 11 } }
                     },
                     y: {
                         beginAtZero: true,
                         grid: { color: '#f1f5f9' },
                         ticks: {
+                            color: '#64748b',
+                            font: { size: 11 },
                             callback: function(value) {
                                 if (value >= 1000000) {
                                     return 'Rp ' + (value / 1000000).toFixed(1) + ' Jt';

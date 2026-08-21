@@ -1,13 +1,14 @@
-/* Big Frozen Food Executive Dashboard - Minimalist Executive Theme */
-.o_bff_dashboard {
-    background-color: #f8fafc;
-    min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: #1e293b;
+/* Big Frozen Food - Modern Executive Dashboard Styles */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-    .fs-7 {
-        font-size: 0.75rem;
-    }
+.o_bff_dashboard {
+    background: #f1f5f9;
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #0f172a;
+
+    .fs-7 { font-size: 0.75rem; }
+    .fs-8 { font-size: 0.7rem; }
 
     .col-xl-2-4 {
         @media (min-width: 1200px) {
@@ -16,145 +17,238 @@
         }
     }
 
-    /* Executive KPI Cards - Clean White with Color Accents */
-    .bff-kpi-card {
-        background-color: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 12px !important;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 12px -2px rgba(15, 23, 42, 0.02) !important;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        position: relative;
-        overflow: hidden;
+    /* Floating Glassmorphism Cards */
+    .bff-card {
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08) !important;
-        }
-
-        /* Top Accent Bars */
-        &.bff-card-sales {
-            border-top: 4px solid #3b82f6 !important;
-            .icon-circle { background-color: #eff6ff !important; color: #2563eb !important; }
-        }
-        &.bff-card-stock {
-            border-top: 4px solid #10b981 !important;
-            .icon-circle { background-color: #ecfdf5 !important; color: #059669 !important; }
-        }
-        &.bff-card-warning {
-            border-top: 4px solid #f59e0b !important;
-            .icon-circle { background-color: #fffbeb !important; color: #d97706 !important; }
-        }
-        &.bff-card-expiry {
-            border-top: 4px solid #f43f5e !important;
-            .icon-circle { background-color: #fff1f2 !important; color: #e11d48 !important; }
-        }
-        &.bff-card-purchase {
-            border-top: 4px solid #6366f1 !important;
-            .icon-circle { background-color: #eef2ff !important; color: #4f46e5 !important; }
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+            border-color: rgba(203, 213, 225, 1);
         }
     }
 
-    /* Segmented Control Pill Toggles */
-    .bff-segmented-control {
+    /* Gradient Icon Boxes */
+    .icon-box {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .icon-box-sales {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: #ffffff;
+    }
+    .icon-box-stock {
+        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        color: #ffffff;
+    }
+    .icon-box-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: #ffffff;
+    }
+    .icon-box-expiry {
+        background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+        color: #ffffff;
+    }
+    .icon-box-purchase {
+        background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+        color: #ffffff;
+    }
+
+    /* Trend Badges */
+    .trend-badge {
+        font-size: 0.725rem;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .trend-badge-up {
+        background-color: #dcfce7;
+        color: #15803d;
+    }
+    .trend-badge-neutral {
         background-color: #f1f5f9;
-        border-radius: 8px;
-        padding: 3px;
+        color: #475569;
+    }
+    .trend-badge-warn {
+        background-color: #fef3c7;
+        color: #b45309;
+    }
+
+    /* Live Pulse Indicator */
+    .live-indicator {
         display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #059669;
+        background: #ecfdf5;
+        padding: 4px 10px;
+        border-radius: 9999px;
 
-        .btn-segment {
-            border: 0;
-            background: transparent;
-            color: #64748b;
-            font-size: 0.825rem;
-            font-weight: 500;
-            padding: 5px 12px;
-            border-radius: 6px;
-            transition: all 0.15s ease;
-
-            &:hover {
-                color: #0f172a;
-            }
-
-            &.active {
-                background-color: #ffffff;
-                color: #0f172a;
-                font-weight: 600;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            }
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-ring 2s infinite;
         }
     }
 
-    /* Period Filter Pills */
-    .bff-period-control {
-        background-color: #e2e8f0;
-        border-radius: 8px;
-        padding: 3px;
-        display: inline-flex;
+    @keyframes pulse-ring {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
 
-        .btn-period {
+    /* Pill Segmented Controls */
+    .bff-pill-group {
+        background: #e2e8f0;
+        border-radius: 9999px;
+        padding: 4px;
+        display: inline-flex;
+        gap: 3px;
+
+        .btn-pill {
             border: 0;
             background: transparent;
-            color: #475569;
+            color: #64748b;
             font-size: 0.8rem;
-            font-weight: 500;
-            padding: 4px 10px;
-            border-radius: 6px;
-            transition: all 0.15s ease;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
 
-            &:hover {
-                color: #0f172a;
-            }
+            &:hover { color: #0f172a; }
 
             &.active {
-                background-color: #2563eb;
+                background: #0f172a;
                 color: #ffffff;
-                font-weight: 600;
-                box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+                box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
             }
         }
     }
 
-    /* Modern Card Container */
-    .card {
-        border-radius: 12px;
-        background-color: #ffffff;
-        border: 1px solid #e2e8f0;
+    .bff-period-group {
+        background: #cbd5e1;
+        border-radius: 9999px;
+        padding: 3px;
+        display: inline-flex;
+        gap: 2px;
+
+        .btn-period-pill {
+            border: 0;
+            background: transparent;
+            color: #334155;
+            font-size: 0.775rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+
+            &:hover { color: #000000; }
+
+            &.active {
+                background: #2563eb;
+                color: #ffffff;
+                box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+            }
+        }
     }
 
-    /* Table Styling */
-    .table {
-        th {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #64748b;
-            font-weight: 600;
-            background-color: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        td {
-            font-size: 0.875rem;
-            color: #334155;
-            padding: 10px 12px;
-            border-bottom: 1px solid #f1f5f9;
+    /* Rank Medals */
+    .rank-medal {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+    .rank-1 { background: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+    .rank-2 { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .rank-3 { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+    .rank-other { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+
+    /* Progress Bar */
+    .progress-bar-thin {
+        height: 6px;
+        border-radius: 9999px;
+        background-color: #f1f5f9;
+        overflow: hidden;
+        .fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.6s ease;
         }
     }
 
     /* Soft Pill Badges */
-    .badge-soft-danger {
+    .badge-pill-danger {
         background-color: #ffe4e6;
-        color: #9f1239;
+        color: #e11d48;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 9999px;
     }
-    .badge-soft-warning {
+    .badge-pill-warning {
         background-color: #fef3c7;
-        color: #92400e;
+        color: #d97706;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 9999px;
     }
-    .badge-soft-success {
+    .badge-pill-success {
         background-color: #dcfce7;
-        color: #166534;
+        color: #15803d;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 9999px;
     }
-    .badge-soft-primary {
-        background-color: #e0e7ff;
-        color: #3730a3;
+
+    /* Table Enhancements */
+    .table {
+        margin-bottom: 0;
+        th {
+            font-size: 0.725rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            font-weight: 700;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 14px;
+        }
+        td {
+            font-size: 0.875rem;
+            color: #1e293b;
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        tbody tr {
+            transition: background-color 0.15s ease;
+            &:hover {
+                background-color: #f8fafc;
+            }
+        }
     }
 }
