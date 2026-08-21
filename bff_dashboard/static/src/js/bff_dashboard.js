@@ -1,28 +1,36 @@
+/** @odoo-module **/
+
 import { registry } from "@web/core/registry";
-import { Component, onWillStart, onMounted, useRef, useState } from "@odoo/owl";
+import { Component, onWillStart, onMounted, onPatched, useRef, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
-import { loadJS } from "@web/core/assets";
 
 export class BffDashboardComponent extends Component {
     static template = "bff_dashboard.BffDashboardTemplate";
+    static props = {
+        action: { type: Object, optional: true },
+        "*": true,
+    };
 
     setup() {
         this.orm = useService("orm");
         this.actionService = useService("action");
 
-        let defaultMode = 'all';
-        if (this.props.action && this.props.action.context && this.props.action.context.default_mode) {
+        let defaultMode = "all";
+        if (this.props.action?.context?.default_mode) {
             defaultMode = this.props.action.context.default_mode;
-        } else if (this.props.action && this.props.action.tag) {
-            if (this.props.action.tag === 'bff_dashboard_sales') defaultMode = 'sales';
-            else if (this.props.action.tag === 'bff_dashboard_stock') defaultMode = 'stock';
-            else if (this.props.action.tag === 'bff_dashboard_purchase') defaultMode = 'purchase';
+        } else if (this.props.action?.tag) {
+            const tagMap = {
+                bff_dashboard_sales: "sales",
+                bff_dashboard_stock: "stock",
+                bff_dashboard_purchase: "purchase",
+            };
+            defaultMode = tagMap[this.props.action.tag] || "all";
         }
 
         this.state = useState({
             mode: defaultMode,
-            period: 'month',
-            salesView: 'daily',
+            period: "month",
+            salesView: "daily",
             loading: true,
             data: null,
         });
@@ -31,12 +39,19 @@ export class BffDashboardComponent extends Component {
         this.channelChartCanvas = useRef("channelChartCanvas");
         this.supplierChartCanvas = useRef("supplierChartCanvas");
 
+        this.salesChartInstance = null;
+        this.channelChartInstance = null;
+        this.supplierChartInstance = null;
+
         onWillStart(async () => {
-            await loadJS("/web/static/lib/Chart/Chart.js");
             await this.loadData();
         });
 
         onMounted(() => {
+            this.renderCharts();
+        });
+
+        onPatched(() => {
             this.renderCharts();
         });
     }
@@ -51,7 +66,8 @@ export class BffDashboardComponent extends Component {
             );
             this.state.data = data;
         } catch (err) {
-            console.error("Failed to load Executive Dashboard data:", err);
+            console.error("BFF Dashboard: Failed to load data:", err);
+            this.state.data = null;
         } finally {
             this.state.loading = false;
         }
@@ -60,74 +76,101 @@ export class BffDashboardComponent extends Component {
     async changePeriod(period) {
         if (this.state.period !== period) {
             this.state.period = period;
+            this.destroyCharts();
             await this.loadData();
-            this.renderCharts();
         }
     }
 
     changeMode(mode) {
+        this.destroyCharts();
         this.state.mode = mode;
-        this.renderCharts();
     }
 
     async reloadDashboard() {
+        this.destroyCharts();
         await this.loadData();
-        this.renderCharts();
     }
 
     toggleSalesView(view) {
         this.state.salesView = view;
+        this.destroyChartInstance("sales");
         this.renderSalesChart();
+    }
+
+    destroyChartInstance(type) {
+        if (type === "sales" && this.salesChartInstance) {
+            this.salesChartInstance.destroy();
+            this.salesChartInstance = null;
+        } else if (type === "channel" && this.channelChartInstance) {
+            this.channelChartInstance.destroy();
+            this.channelChartInstance = null;
+        } else if (type === "supplier" && this.supplierChartInstance) {
+            this.supplierChartInstance.destroy();
+            this.supplierChartInstance = null;
+        }
+    }
+
+    destroyCharts() {
+        ["sales", "channel", "supplier"].forEach((t) => this.destroyChartInstance(t));
     }
 
     renderCharts() {
         if (this.state.loading || !this.state.data) return;
-        setTimeout(() => {
-            if (this.state.mode === 'all' || this.state.mode === 'sales') {
-                this.renderSalesChart();
-                this.renderChannelChart();
-            }
-            if (this.state.mode === 'all' || this.state.mode === 'purchase') {
-                this.renderSupplierChart();
-            }
-        }, 100);
+        const mode = this.state.mode;
+        if (mode === "all" || mode === "sales") {
+            this.renderSalesChart();
+            this.renderChannelChart();
+        }
+        if (mode === "all" || mode === "purchase") {
+            this.renderSupplierChart();
+        }
+    }
+
+    _getChart() {
+        return window.Chart;
     }
 
     renderSalesChart() {
+        const Chart = this._getChart();
+        if (!Chart) return;
         const canvas = this.salesChartCanvas.el;
         if (!canvas) return;
 
-        if (this.salesChartInstance) {
-            this.salesChartInstance.destroy();
-        }
+        this.destroyChartInstance("sales");
 
-        const isDaily = this.state.salesView === 'daily';
-        const labels = isDaily ? this.state.data.sales.daily_labels : this.state.data.sales.monthly_labels;
-        const totalData = isDaily ? this.state.data.sales.daily_total : this.state.data.sales.monthly_revenue;
+        const isDaily = this.state.salesView === "daily";
+        const labels = isDaily
+            ? this.state.data.sales.daily_labels
+            : this.state.data.sales.monthly_labels;
+        const values = isDaily
+            ? this.state.data.sales.daily_total
+            : this.state.data.sales.monthly_revenue;
 
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext("2d");
         const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-        gradient.addColorStop(0, 'rgba(37, 99, 235, 0.35)');
-        gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+        gradient.addColorStop(0, "rgba(37, 99, 235, 0.28)");
+        gradient.addColorStop(1, "rgba(37, 99, 235, 0.0)");
 
-        this.salesChartInstance = new window.Chart(ctx, {
-            type: 'line',
+        this.salesChartInstance = new Chart(ctx, {
+            type: "line",
             data: {
-                labels: labels,
-                datasets: [{
-                    label: isDaily ? 'Omset Harian (Rp)' : 'Omset Bulanan (Rp)',
-                    data: totalData,
-                    borderColor: '#2563eb',
-                    borderWidth: 3,
-                    backgroundColor: gradient,
-                    fill: true,
-                    tension: 0.35,
-                    pointBackgroundColor: '#2563eb',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 7,
-                }]
+                labels: labels || [],
+                datasets: [
+                    {
+                        label: isDaily ? "Omset Harian (Rp)" : "Omset Bulanan (Rp)",
+                        data: values || [],
+                        borderColor: "#2563eb",
+                        borderWidth: 2.5,
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: "#2563eb",
+                        pointBorderColor: "#ffffff",
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 7,
+                    },
+                ],
             },
             options: {
                 responsive: true,
@@ -135,116 +178,109 @@ export class BffDashboardComponent extends Component {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#0f172a',
-                        titleFont: { size: 12, weight: 'bold' },
+                        backgroundColor: "#0f172a",
+                        titleFont: { size: 12, weight: "bold" },
                         bodyFont: { size: 13 },
                         padding: 12,
                         cornerRadius: 8,
                         displayColors: false,
                         callbacks: {
-                            label: function(context) {
-                                let val = context.raw || 0;
-                                return 'Omset: Rp ' + val.toLocaleString('id-ID');
-                            }
-                        }
-                    }
+                            label: (context) =>
+                                "Omset: Rp " + (context.raw || 0).toLocaleString("id-ID"),
+                        },
+                    },
                 },
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { color: '#64748b', font: { size: 11 } }
+                        ticks: { color: "#64748b", font: { size: 11 } },
                     },
                     y: {
                         beginAtZero: true,
-                        grid: { color: '#f1f5f9' },
+                        grid: { color: "#f1f5f9" },
                         ticks: {
-                            color: '#64748b',
+                            color: "#64748b",
                             font: { size: 11 },
-                            callback: function(value) {
-                                if (value >= 1000000) {
-                                    return 'Rp ' + (value / 1000000).toFixed(1) + ' Jt';
-                                }
-                                return 'Rp ' + value.toLocaleString('id-ID');
-                            }
-                        }
-                    }
-                }
-            }
+                            callback: (v) =>
+                                v >= 1000000
+                                    ? "Rp " + (v / 1000000).toFixed(1) + " Jt"
+                                    : "Rp " + v.toLocaleString("id-ID"),
+                        },
+                    },
+                },
+            },
         });
     }
 
     renderChannelChart() {
+        const Chart = this._getChart();
+        if (!Chart) return;
         const canvas = this.channelChartCanvas.el;
         if (!canvas) return;
 
-        if (this.channelChartInstance) {
-            this.channelChartInstance.destroy();
-        }
+        this.destroyChartInstance("channel");
 
-        const channelData = this.state.data.sales.channel_comparison;
-        const ctx = canvas.getContext('2d');
-        this.channelChartInstance = new window.Chart(ctx, {
-            type: 'doughnut',
+        const ch = this.state.data.sales.channel_comparison || {};
+        this.channelChartInstance = new Chart(canvas.getContext("2d"), {
+            type: "doughnut",
             data: {
-                labels: ['Agen & Reseller (B2B)', 'POS Toko Retail'],
-                datasets: [{
-                    data: [channelData.agen_sales, channelData.pos_sales],
-                    backgroundColor: ['#2563eb', '#06b6d4'],
-                    borderWidth: 3,
-                    borderColor: '#ffffff',
-                    hoverOffset: 6
-                }]
+                labels: ["Agen & Reseller (B2B)", "POS Toko Retail"],
+                datasets: [
+                    {
+                        data: [ch.agen_sales || 0, ch.pos_sales || 0],
+                        backgroundColor: ["#2563eb", "#06b6d4"],
+                        borderWidth: 3,
+                        borderColor: "#ffffff",
+                        hoverOffset: 6,
+                    },
+                ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '72%',
+                cutout: "72%",
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#0f172a',
+                        backgroundColor: "#0f172a",
                         padding: 12,
                         cornerRadius: 8,
                         callbacks: {
-                            label: function(context) {
-                                let val = context.raw || 0;
-                                return ' Rp ' + val.toLocaleString('id-ID');
-                            }
-                        }
-                    }
-                }
-            }
+                            label: (c) => " Rp " + (c.raw || 0).toLocaleString("id-ID"),
+                        },
+                    },
+                },
+            },
         });
     }
 
     renderSupplierChart() {
-        const canvas = this.supplierChartCanvas ? this.supplierChartCanvas.el : null;
+        const Chart = this._getChart();
+        if (!Chart) return;
+        const canvas = this.supplierChartCanvas.el;
         if (!canvas) return;
 
-        if (this.supplierChartInstance) {
-            this.supplierChartInstance.destroy();
-        }
+        this.destroyChartInstance("supplier");
 
-        const supplierData = this.state.data.purchase.supplier_breakdown || [];
-        const labels = supplierData.map(s => s.supplier);
-        const totals = supplierData.map(s => s.total);
-
-        const ctx = canvas.getContext('2d');
+        const suppliers = this.state.data.purchase.supplier_breakdown || [];
+        const ctx = canvas.getContext("2d");
         const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-        gradient.addColorStop(0, '#6366f1');
-        gradient.addColorStop(1, '#4338ca');
+        gradient.addColorStop(0, "#818cf8");
+        gradient.addColorStop(1, "#4338ca");
 
-        this.supplierChartInstance = new window.Chart(ctx, {
-            type: 'bar',
+        this.supplierChartInstance = new Chart(ctx, {
+            type: "bar",
             data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Total Belanja (Rp)',
-                    data: totals,
-                    backgroundColor: gradient,
-                    borderRadius: 8,
-                    borderSkipped: false,
-                }]
+                labels: suppliers.map((s) => s.supplier),
+                datasets: [
+                    {
+                        label: "Total Belanja (Rp)",
+                        data: suppliers.map((s) => s.total),
+                        backgroundColor: gradient,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    },
+                ],
             },
             options: {
                 responsive: true,
@@ -252,44 +288,39 @@ export class BffDashboardComponent extends Component {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#0f172a',
+                        backgroundColor: "#0f172a",
                         padding: 12,
                         cornerRadius: 8,
                         callbacks: {
-                            label: function(context) {
-                                let val = context.raw || 0;
-                                return ' Rp ' + val.toLocaleString('id-ID');
-                            }
-                        }
-                    }
+                            label: (c) => " Rp " + (c.raw || 0).toLocaleString("id-ID"),
+                        },
+                    },
                 },
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { color: '#64748b', font: { size: 11 } }
+                        ticks: { color: "#64748b", font: { size: 11 } },
                     },
                     y: {
                         beginAtZero: true,
-                        grid: { color: '#f1f5f9' },
+                        grid: { color: "#f1f5f9" },
                         ticks: {
-                            color: '#64748b',
+                            color: "#64748b",
                             font: { size: 11 },
-                            callback: function(value) {
-                                if (value >= 1000000) {
-                                    return 'Rp ' + (value / 1000000).toFixed(1) + ' Jt';
-                                }
-                                return 'Rp ' + value.toLocaleString('id-ID');
-                            }
-                        }
-                    }
-                }
-            }
+                            callback: (v) =>
+                                v >= 1000000
+                                    ? "Rp " + (v / 1000000).toFixed(1) + " Jt"
+                                    : "Rp " + v.toLocaleString("id-ID"),
+                        },
+                    },
+                },
+            },
         });
     }
 
     formatCurrency(value) {
-        if (value === undefined || value === null) return 'Rp 0';
-        return 'Rp ' + Math.round(value).toLocaleString('id-ID');
+        if (value === undefined || value === null) return "Rp 0";
+        return "Rp " + Math.round(value).toLocaleString("id-ID");
     }
 
     openLowStockAction() {

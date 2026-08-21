@@ -18,6 +18,7 @@
     ],
     'assets': {
         'web.assets_backend': [
+            '/web/static/lib/Chart/Chart.js',
             'bff_dashboard/static/src/scss/bff_dashboard.scss',
             'bff_dashboard/static/src/xml/bff_dashboard.xml',
             'bff_dashboard/static/src/js/bff_dashboard.js',
