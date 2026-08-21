@@ -11,8 +11,8 @@
                 <field name="promo_type"/>
                 <field name="discount_type" invisible="promo_type == 'buy_x_get_y'"/>
                 <field name="discount_value" digits="[16, 0]" invisible="promo_type == 'buy_x_get_y'"/>
-                <field name="min_qty_buy" invisible="promo_type != 'buy_x_get_y'"/>
-                <field name="free_qty" invisible="promo_type != 'buy_x_get_y'"/>
+                <field name="min_qty_buy" digits="[16, 0]" invisible="promo_type != 'buy_x_get_y'"/>
+                <field name="free_qty" digits="[16, 0]" invisible="promo_type != 'buy_x_get_y'"/>
                 <field name="apply_on"/>
                 <field name="date_start"/>
                 <field name="date_end"/>
@@ -46,8 +46,8 @@
                             <field name="promo_type" widget="radio"/>
                             <field name="discount_type" invisible="promo_type != 'discount'" required="promo_type == 'discount'"/>
                             <field name="discount_value" digits="[16, 0]" invisible="promo_type != 'discount'" required="promo_type == 'discount'"/>
-                            <field name="min_qty_buy" invisible="promo_type != 'buy_x_get_y'" required="promo_type == 'buy_x_get_y'"/>
-                            <field name="free_qty" invisible="promo_type != 'buy_x_get_y'" required="promo_type == 'buy_x_get_y'"/>
+                            <field name="min_qty_buy" digits="[16, 0]" invisible="promo_type != 'buy_x_get_y'" required="promo_type == 'buy_x_get_y'"/>
+                            <field name="free_qty" digits="[16, 0]" invisible="promo_type != 'buy_x_get_y'" required="promo_type == 'buy_x_get_y'"/>
                             <field name="reward_product_id" invisible="promo_type != 'buy_x_get_y'"/>
                             <field name="active"/>
                         </group>

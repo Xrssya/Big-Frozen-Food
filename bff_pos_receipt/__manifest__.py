@@ -16,6 +16,10 @@
         ],
         'web.assets_backend': [
             'bff_pos_receipt/static/src/js/price_no_decimals_patch.js',
+            'bff_pos_receipt/static/src/js/dashboard_indonesian_units_patch.js',
+        ],
+        'spreadsheet.o_spreadsheet': [
+            'bff_pos_receipt/static/src/js/dashboard_indonesian_units_patch.js',
         ],
     },
     'installable': True,

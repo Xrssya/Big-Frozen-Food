@@ -32,7 +32,7 @@ patch(ProductScreen.prototype, {
         this.pos.setSelectedCategory(categoryId);
     },
     async closeSession() {
-        return this.pos.closePos();
+        return this.pos.closeSession();
     },
     onCashMoveButtonClick() {
         this.hardwareProxy.openCashbox(_t("Cash in / out"));
