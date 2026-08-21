@@ -6,7 +6,7 @@
         <record id="action_bff_karyawan_cashier" model="ir.actions.act_window">
             <field name="name">Karyawan Kasir</field>
             <field name="res_model">hr.employee</field>
-            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_mode">kanban,list,form</field>
             <field name="domain">[('bff_role', '=', 'cashier')]</field>
             <field name="context">{'default_bff_role': 'cashier'}</field>
             <field name="help" type="html">
@@ -23,7 +23,7 @@
         <record id="action_bff_karyawan_warehouse" model="ir.actions.act_window">
             <field name="name">Orang / Staf Gudang</field>
             <field name="res_model">hr.employee</field>
-            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_mode">kanban,list,form</field>
             <field name="domain">[('bff_role', '=', 'warehouse')]</field>
             <field name="context">{'default_bff_role': 'warehouse'}</field>
             <field name="help" type="html">

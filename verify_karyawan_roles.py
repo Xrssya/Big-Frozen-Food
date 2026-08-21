@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import sys
 
-sys.path.insert(0, '/home/adi-purwanto/developer/odoo18')
+sys.path.insert(0, '/home/setyo/developer/odoo18')
 import odoo
 from odoo import api, SUPERUSER_ID
 
-DB_NAME = 'odoo-big-frozen'
-CONF_PATH = '/home/adi-purwanto/developer/odoo/ubig.food/Big-Frozen-Food/big_frozen_food.conf'
+DB_NAME = 'bigfrozenfood_db'
+CONF_PATH = '/home/setyo/developer/odoo/odoo-BigFrozenFood/big_frozen_food.conf'
 
 def verify():
     odoo.tools.config.parse_config(['-c', CONF_PATH, '-d', DB_NAME])
