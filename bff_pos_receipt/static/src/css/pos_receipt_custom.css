@@ -16,6 +16,49 @@
     margin: 0 !important;
 }
 
+/* ── 1. PRINTER TYPE SELECTOR (Screen Only) ─────────────── */
+.bff-mode-selector {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    padding: 6px 8px !important;
+    margin-bottom: 8px !important;
+    text-align: center !important;
+}
+
+.bff-mode-title {
+    font-size: 7.5pt !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    margin-bottom: 4px !important;
+}
+
+.bff-mode-buttons {
+    display: flex !important;
+    gap: 4px !important;
+    justify-content: center !important;
+}
+
+.bff-mode-btn {
+    flex: 1 !important;
+    padding: 4px 6px !important;
+    font-size: 7pt !important;
+    font-weight: 500 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    background: #ffffff !important;
+    color: #334155 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.bff-mode-btn.active {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
 .render-container .pos-receipt,
 .pos-receipt,
 .bff-receipt {
@@ -268,6 +311,30 @@
     margin-top: 2px !important;
 }
 
+/* ── 9.1 PRINTER MODE OVERRIDES (Tinta/Pita vs Thermal) ───── */
+/* Versi Printer Tinta/Pita (Dot Matrix / Impact): Tanpa Tebal pada item & total */
+.bff-mode-ink,
+.bff-mode-ink td,
+.bff-mode-ink span,
+.bff-mode-ink div,
+.bff-mode-ink p,
+.bff-mode-ink tr,
+.bff-mode-ink .bff-item-name,
+.bff-mode-ink .bff-item-total,
+.bff-mode-ink .bff-info-val,
+.bff-mode-ink .bff-total-qty,
+.bff-mode-ink .bff-tot-label,
+.bff-mode-ink .bff-tot-rp,
+.bff-mode-ink .bff-tot-num {
+    font-weight: 400 !important;
+}
+
+.bff-mode-ink .bff-store-name,
+.bff-mode-ink .bff-grand-total td,
+.bff-mode-ink .bff-footer-thanks {
+    font-weight: 600 !important;
+}
+
 /* ── 10. PRINT MEDIA OVERRIDES ───────────────────────────── */
 @media print {
     @page {
@@ -312,6 +379,10 @@
         background: #ffffff !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+    }
+
+    .bff-mode-selector {
+        display: none !important;
     }
 
     .bff-receipt .bff-divider {

@@ -2,7 +2,26 @@
 <templates id="template" xml:space="preserve">
     <t t-name="bff_pos_receipt.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
         <xpath expr="//div[hasclass('pos-receipt')]" position="replace">
-            <div class="pos-receipt bff-receipt">
+            <div t-attf-class="pos-receipt bff-receipt {{ isInkMode ? 'bff-mode-ink' : 'bff-mode-thermal' }}">
+
+                <!-- ══════════════════════════════════════
+                     0. PRINTER TYPE SELECTOR (Screen Only)
+                ══════════════════════════════════════ -->
+                <div class="bff-mode-selector d-print-none">
+                    <div class="bff-mode-title">Tipe Printer Struk:</div>
+                    <div class="bff-mode-buttons">
+                        <button type="button" 
+                                t-attf-class="bff-mode-btn {{ !isInkMode ? 'active' : '' }}"
+                                t-on-click="() => this.setReceiptMode('thermal')">
+                            🔥 Termal (Tebal)
+                        </button>
+                        <button type="button" 
+                                t-attf-class="bff-mode-btn {{ isInkMode ? 'active' : '' }}"
+                                t-on-click="() => this.setReceiptMode('ink')">
+                            🖨️ Tinta/Pita (Biasa)
+                        </button>
+                    </div>
+                </div>
 
                 <!-- ══════════════════════════════════════
                      1. HEADER

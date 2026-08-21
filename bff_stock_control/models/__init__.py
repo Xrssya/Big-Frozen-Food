@@ -2,3 +2,4 @@
 from . import product
 from . import stock_picking
 from . import pos_session
+from . import stock_transfer_request

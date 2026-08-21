@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sequence for Stock Transfer Request -->
+    <record id="seq_stock_transfer_request" model="ir.sequence">
+        <field name="name">Permintaan Restock Darurat</field>
+        <field name="code">stock.transfer.request</field>
+        <field name="prefix">REQ/%(year)s/%(month)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Form View Stock Transfer Request -->
+    <record id="view_stock_transfer_request_form" model="ir.ui.view">
+        <field name="name">stock.transfer.request.form</field>
+        <field name="model">stock.transfer.request</field>
+        <field name="arch" type="xml">
+            <form string="Permintaan Restock Darurat">
+                <header>
+                    <button name="action_submit" string="Kirim Pengajuan" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Setujui &amp; Buat Transfer" type="object" class="btn-success" invisible="state != 'submitted'"/>
+                    <button name="action_cancel" string="Batal" type="object" class="btn-secondary" invisible="state in ('done', 'cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,done,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_picking" type="object" class="oe_stat_button" icon="fa-truck" invisible="picking_count == 0">
+                            <field name="picking_count" widget="statinfo" string="Transfer Stock"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informasi Pengajuan">
+                            <field name="requested_by_id" readonly="1"/>
+                            <field name="request_date" readonly="state != 'draft'"/>
+                            <field name="priority" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+                        <group string="Rute Kirim &amp; Lokasi">
+                            <field name="source_location_id" readonly="state != 'draft'"/>
+                            <field name="dest_location_id" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Daftar Produk Restock" name="lines">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="qty_available_source" string="Stok Tersedia (Pengirim)"/>
+                                    <field name="qty_requested"/>
+                                    <field name="uom_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Alasan &amp; Catatan" name="notes">
+                            <field name="notes" placeholder="Tuliskan alasan permintaan restock (contoh: Stok Bakso di toko A habis karena pemesanan besar)..." readonly="state != 'draft'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View Stock Transfer Request -->
+    <record id="view_stock_transfer_request_tree" model="ir.ui.view">
+        <field name="name">stock.transfer.request.tree</field>
+        <field name="model">stock.transfer.request</field>
+        <field name="arch" type="xml">
+            <list string="Permintaan Restock Darurat" decoration-danger="priority == '2'" decoration-warning="priority == '1'">
+                <field name="name"/>
+                <field name="request_date"/>
+                <field name="requested_by_id"/>
+                <field name="source_location_id"/>
+                <field name="dest_location_id"/>
+                <field name="priority" widget="badge"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'submitted'"
+                       decoration-primary="state == 'approved'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View Stock Transfer Request -->
+    <record id="view_stock_transfer_request_search" model="ir.ui.view">
+        <field name="name">stock.transfer.request.search</field>
+        <field name="model">stock.transfer.request</field>
+        <field name="arch" type="xml">
+            <search string="Cari Permintaan Restock">
+                <field name="name"/>
+                <field name="source_location_id"/>
+                <field name="dest_location_id"/>
+                <field name="requested_by_id"/>
+                <separator/>
+                <filter string="🔥 Darurat" name="filter_emergency" domain="[('priority', '=', '2')]"/>
+                <filter string="⏳ Menunggu Persetujuan" name="filter_submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="📋 Draft" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state" domain="[]" context="{'group_by': 'state'}"/>
+                    <filter string="Prioritas" name="group_priority" domain="[]" context="{'group_by': 'priority'}"/>
+                    <filter string="Lokasi Tujuan" name="group_dest" domain="[]" context="{'group_by': 'dest_location_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action Stock Transfer Request -->
+    <record id="action_stock_transfer_request" model="ir.actions.act_window">
+        <field name="name">Permintaan Restock Darurat</field>
+        <field name="res_model">stock.transfer.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_stock_transfer_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat Permintaan Restock Darurat Baru!
+            </p>
+            <p>
+                Gunakan fitur ini ketika stok produk frozen food di toko cabang Anda habis dan memerlukan kiriman cepat dari Gudang Pusat atau cabang toko lain.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item in Inventory -> Operations -->
+    <menuitem id="menu_stock_transfer_request"
+              name="📦 Permintaan Restock Darurat"
+              parent="stock.menu_stock_warehouse_mgmt"
+              action="action_stock_transfer_request"
+              sequence="30"/>
+</odoo>
