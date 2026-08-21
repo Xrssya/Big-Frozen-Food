@@ -7,9 +7,9 @@
         <field name="target">main</field>
     </record>
 
-    <!-- Main Root Menu Item for Dashboard - sequence=1 agar tampil pertama -->
+    <!-- Main Root Menu Item for Executive Dashboard - sequence=1 agar tampil pertama -->
     <menuitem id="menu_bff_dashboard_root"
-              name="Dashboard"
+              name="Dashboard Eksekutif"
               action="action_bff_dashboard_main"
               sequence="1"/>
 </odoo>
