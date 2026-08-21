@@ -1,365 +1,254 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="bff_dashboard.BffDashboardTemplate">
-        <div class="o_bff_dashboard p-4 overflow-auto">
-            <!-- Modern Header & Toolbar Bar -->
+        <div class="o_bff_dashboard p-4">
+
+            <!-- HEADER BAR -->
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
-                        <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-2 py-1 rounded-2 fs-8">BIG FROZEN FOOD</span>
-                        <div class="live-indicator">
-                            <span class="pulse-dot"></span>
-                            <span>Live Analytics</span>
-                        </div>
+                        <span class="badge text-bg-primary fw-bold px-2 py-1 rounded-2" style="font-size:0.7rem;">BIG FROZEN FOOD</span>
+                        <span class="live-indicator">
+                            <span class="pulse-dot"/>
+                            Live Analytics
+                        </span>
                     </div>
-                    <h2 class="fw-extrabold mb-0 text-slate-900 tracking-tight">
-                        <t t-if="state.mode === 'sales'">
-                            <i class="fa fa-line-chart text-primary me-2"/>Dashboard Penjualan
-                        </t>
-                        <t t-elif="state.mode === 'stock'">
-                            <i class="fa fa-cubes text-emerald-600 me-2"/>Dashboard Stok &amp; FEFO Kadaluarsa
-                        </t>
-                        <t t-elif="state.mode === 'purchase'">
-                            <i class="fa fa-shopping-cart text-indigo-600 me-2"/>Dashboard Pembelian Supplier
-                        </t>
-                        <t t-else="">
-                            <i class="fa fa-tachometer text-primary me-2"/>Dashboard Eksekutif Utama
-                        </t>
+                    <h2 class="fw-bold mb-0">
+                        <t t-if="state.mode === 'sales'">Dashboard Penjualan</t>
+                        <t t-elif="state.mode === 'stock'">Dashboard Stok &amp; FEFO</t>
+                        <t t-elif="state.mode === 'purchase'">Dashboard Pembelian</t>
+                        <t t-else="">Dashboard Eksekutif</t>
                     </h2>
                 </div>
 
-                <div class="d-flex align-items-center gap-3 mt-3 mt-md-0">
-                    <!-- Segmented Mode Controls -->
+                <div class="d-flex align-items-center flex-wrap gap-3 mt-3 mt-md-0">
+                    <!-- Mode Pills -->
                     <div class="bff-pill-group">
-                        <button type="button" 
-                                class="btn-pill"
-                                t-att-class="state.mode === 'all' ? 'active' : ''"
-                                t-on-click="() => this.changeMode('all')">
-                            Semua
-                        </button>
-                        <button type="button" 
-                                class="btn-pill"
-                                t-att-class="state.mode === 'sales' ? 'active' : ''"
-                                t-on-click="() => this.changeMode('sales')">
-                            Penjualan
-                        </button>
-                        <button type="button" 
-                                class="btn-pill"
-                                t-att-class="state.mode === 'stock' ? 'active' : ''"
-                                t-on-click="() => this.changeMode('stock')">
-                            Stok &amp; FEFO
-                        </button>
-                        <button type="button" 
-                                class="btn-pill"
-                                t-att-class="state.mode === 'purchase' ? 'active' : ''"
-                                t-on-click="() => this.changeMode('purchase')">
-                            Pembelian
-                        </button>
+                        <button type="button" t-att-class="state.mode === 'all' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('all')">Semua</button>
+                        <button type="button" t-att-class="state.mode === 'sales' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('sales')">Penjualan</button>
+                        <button type="button" t-att-class="state.mode === 'stock' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('stock')">Stok &amp; FEFO</button>
+                        <button type="button" t-att-class="state.mode === 'purchase' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('purchase')">Pembelian</button>
                     </div>
-
-                    <!-- Period Filter Controls -->
+                    <!-- Period Pills -->
                     <div class="bff-period-group">
-                        <button type="button" 
-                                class="btn-period-pill"
-                                t-att-class="state.period === 'month' ? 'active' : ''"
-                                t-on-click="() => this.changePeriod('month')">
-                            Bulan Ini
-                        </button>
-                        <button type="button" 
-                                class="btn-period-pill"
-                                t-att-class="state.period === '30days' ? 'active' : ''"
-                                t-on-click="() => this.changePeriod('30days')">
-                            30 Hari
-                        </button>
-                        <button type="button" 
-                                class="btn-period-pill"
-                                t-att-class="state.period === 'year' ? 'active' : ''"
-                                t-on-click="() => this.changePeriod('year')">
-                            Tahun Ini
-                        </button>
-                        <button type="button" 
-                                class="btn-period-pill"
-                                t-att-class="state.period === 'all' ? 'active' : ''"
-                                t-on-click="() => this.changePeriod('all')">
-                            Semua
-                        </button>
+                        <button type="button" t-att-class="state.period === 'month' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.changePeriod('month')">Bulan Ini</button>
+                        <button type="button" t-att-class="state.period === '30days' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.changePeriod('30days')">30 Hari</button>
+                        <button type="button" t-att-class="state.period === 'year' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.changePeriod('year')">Tahun Ini</button>
+                        <button type="button" t-att-class="state.period === 'all' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.changePeriod('all')">Semua</button>
                     </div>
-
-                    <button class="btn btn-white btn-sm shadow-sm border border-slate-200 rounded-circle d-flex align-items-center justify-content-center"
-                            style="width: 36px; height: 36px;"
-                            t-on-click="reloadDashboard" title="Refresh Realtime Data">
-                        <i class="fa fa-refresh text-slate-600" t-att-class="state.loading ? 'fa-spin' : ''"/>
+                    <!-- Refresh -->
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" style="width:36px;height:36px;" t-on-click="reloadDashboard" title="Refresh">
+                        <i t-att-class="state.loading ? 'fa fa-refresh fa-spin' : 'fa fa-refresh'"/>
                     </button>
                 </div>
             </div>
 
-            <!-- Loading Spinner -->
+            <!-- LOADING -->
             <t t-if="state.loading">
-                <div class="text-center py-5 my-5">
-                    <div class="spinner-border text-primary" style="width: 2.5rem; height: 2.5rem;" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-3 text-slate-500 small fw-semibold">Memuat data analytics...</p>
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"/>
+                    <p class="mt-3 text-muted">Memuat data dashboard...</p>
                 </div>
             </t>
 
             <t t-else="">
-                <!-- KPI SUMMARY FLOATING CARDS ROW -->
+                <!-- KPI CARDS -->
                 <div class="row g-3 mb-4">
-                    <!-- Card 1: Sales Omset -->
-                    <t t-if="state.mode === 'all' || state.mode === 'sales'">
-                        <div class="col-12 col-sm-6" t-att-class="state.mode === 'sales' ? 'col-xl-6' : 'col-xl-2-4'">
-                            <div class="bff-card p-3 h-100 d-flex flex-column justify-content-between">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
+
+                    <t t-if="state.mode === 'all' or state.mode === 'sales'">
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="bff-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <span class="text-uppercase fs-7 fw-bold text-slate-400">Total Omset Sales</span>
-                                        <h3 class="fw-extrabold mb-0 text-slate-900 mt-1" t-out="formatCurrency(state.data.sales.total_revenue)"/>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total Omset Sales</div>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.sales.total_revenue)"/>
+                                        <div class="mt-2">
+                                            <span class="trend-badge trend-badge-up">
+                                                <i class="fa fa-arrow-up me-1"/>Agen &amp; POS
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="icon-box icon-box-sales">
-                                        <i class="fa fa-line-chart"/>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-slate-100 mt-2">
-                                    <span class="trend-badge trend-badge-up">
-                                        <i class="fa fa-arrow-up"/> Live Sync
-                                    </span>
-                                    <span class="fs-8 text-slate-500 fw-medium">
-                                        Agen: <strong class="text-slate-700" t-out="formatCurrency(state.data.sales.so_revenue)"/> | POS: <strong class="text-slate-700" t-out="formatCurrency(state.data.sales.pos_revenue)"/>
-                                    </span>
+                                    <div class="icon-box icon-box-sales"><i class="fa fa-line-chart"/></div>
                                 </div>
                             </div>
                         </div>
                     </t>
 
-                    <!-- Card 2: Stock Valuation -->
-                    <t t-if="state.mode === 'all' || state.mode === 'stock'">
-                        <div class="col-12 col-sm-6" t-att-class="state.mode === 'stock' ? 'col-xl-4' : 'col-xl-2-4'">
-                            <div class="bff-card p-3 h-100 d-flex flex-column justify-content-between">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <t t-if="state.mode === 'all' or state.mode === 'stock'">
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="bff-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <span class="text-uppercase fs-7 fw-bold text-slate-400">Nilai Stok Fisik</span>
-                                        <h3 class="fw-extrabold mb-0 text-slate-900 mt-1" t-out="formatCurrency(state.data.stock.total_valuation)"/>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Nilai Stok Fisik</div>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.stock.total_valuation)"/>
+                                        <div class="mt-2">
+                                            <span class="trend-badge trend-badge-neutral">
+                                                <i class="fa fa-database me-1"/>Cold-Chain
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="icon-box icon-box-stock">
-                                        <i class="fa fa-cubes"/>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-slate-100 mt-2">
-                                    <span class="trend-badge trend-badge-neutral">
-                                        <i class="fa fa-database"/> Cold-Chain Stock
-                                    </span>
-                                    <span class="fs-8 text-slate-500 fw-medium">Total Persediaan Gudang</span>
+                                    <div class="icon-box icon-box-stock"><i class="fa fa-cubes"/></div>
                                 </div>
                             </div>
                         </div>
                     </t>
 
-                    <!-- Card 3: Low Stock Warning -->
-                    <t t-if="state.mode === 'all' || state.mode === 'stock'">
-                        <div class="col-12 col-sm-6" t-att-class="state.mode === 'stock' ? 'col-xl-4' : 'col-xl-2-4'">
-                            <div class="bff-card p-3 h-100 d-flex flex-column justify-content-between">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <t t-if="state.mode === 'all' or state.mode === 'stock'">
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="bff-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <span class="text-uppercase fs-7 fw-bold text-slate-400">Stok Menipis</span>
-                                        <h3 class="fw-extrabold mb-0 text-slate-900 mt-1">
-                                            <t t-out="state.data.stock.low_stock_count"/> <span class="fs-6 fw-normal text-slate-500">Item</span>
-                                        </h3>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Stok Menipis</div>
+                                        <div class="fw-bold fs-4 text-dark">
+                                            <t t-out="state.data.stock.low_stock_count"/>
+                                            <small class="fw-normal text-muted fs-6"> Item</small>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="trend-badge trend-badge-warn">
+                                                <i class="fa fa-warning me-1"/>Reorder Alert
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="icon-box icon-box-warning">
-                                        <i class="fa fa-exclamation-triangle"/>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-slate-100 mt-2">
-                                    <span class="trend-badge trend-badge-warn">
-                                        <i class="fa fa-warning"/> Reorder Alert
-                                    </span>
-                                    <span class="fs-8 text-slate-500 fw-medium">Di Bawah Batas Minimum</span>
+                                    <div class="icon-box icon-box-warning"><i class="fa fa-exclamation-triangle"/></div>
                                 </div>
                             </div>
                         </div>
                     </t>
 
-                    <!-- Card 4: Near Expiry FEFO -->
-                    <t t-if="state.mode === 'all' || state.mode === 'stock'">
-                        <div class="col-12 col-sm-6" t-att-class="state.mode === 'stock' ? 'col-xl-4' : 'col-xl-2-4'">
-                            <div class="bff-card p-3 h-100 d-flex flex-column justify-content-between">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <t t-if="state.mode === 'all' or state.mode === 'stock'">
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="bff-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <span class="text-uppercase fs-7 fw-bold text-slate-400">Near-Expiry FEFO</span>
-                                        <h3 class="fw-extrabold mb-0 text-slate-900 mt-1">
-                                            <t t-out="state.data.stock.near_expiry_count"/> <span class="fs-6 fw-normal text-slate-500">Batch Lot</span>
-                                        </h3>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Near-Expiry FEFO</div>
+                                        <div class="fw-bold fs-4 text-dark">
+                                            <t t-out="state.data.stock.near_expiry_count"/>
+                                            <small class="fw-normal text-muted fs-6"> Lot</small>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="trend-badge trend-badge-warn">
+                                                <i class="fa fa-clock-o me-1"/>FEFO H-30
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="icon-box icon-box-expiry">
-                                        <i class="fa fa-calendar-times-o"/>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-slate-100 mt-2">
-                                    <span class="trend-badge trend-badge-warn">
-                                        <i class="fa fa-clock-o"/> FEFO H-30
-                                    </span>
-                                    <span class="fs-8 text-slate-500 fw-medium">Mendekati Kadaluarsa</span>
+                                    <div class="icon-box icon-box-expiry"><i class="fa fa-calendar-times-o"/></div>
                                 </div>
                             </div>
                         </div>
                     </t>
 
-                    <!-- Card 5: Monthly Purchase -->
-                    <t t-if="state.mode === 'all' || state.mode === 'purchase' || state.mode === 'sales'">
-                        <div class="col-12 col-sm-6" t-att-class="state.mode === 'all' ? 'col-xl-2-4' : (state.mode === 'sales' ? 'col-xl-6' : 'col-xl-12')">
-                            <div class="bff-card p-3 h-100 d-flex flex-column justify-content-between">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <t t-if="state.mode === 'all' or state.mode === 'purchase'">
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="bff-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <span class="text-uppercase fs-7 fw-bold text-slate-400">Belanja Supplier</span>
-                                        <h3 class="fw-extrabold mb-0 text-slate-900 mt-1" t-out="formatCurrency(state.data.purchase.monthly_total)"/>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Belanja Supplier</div>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.purchase.monthly_total)"/>
+                                        <div class="mt-2">
+                                            <span class="trend-badge trend-badge-neutral">
+                                                <i class="fa fa-truck me-1"/>PO Supplier
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="icon-box icon-box-purchase">
-                                        <i class="fa fa-shopping-cart"/>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-slate-100 mt-2">
-                                    <span class="trend-badge trend-badge-neutral">
-                                        <i class="fa fa-truck"/> PO Supplier
-                                    </span>
-                                    <span class="fs-8 text-slate-500 fw-medium">Total Pembelian Dikirim</span>
+                                    <div class="icon-box icon-box-purchase"><i class="fa fa-shopping-cart"/></div>
                                 </div>
                             </div>
                         </div>
                     </t>
                 </div>
 
-                <!-- SECTION: SALES DASHBOARD (Penjualan) -->
-                <t t-if="state.mode === 'all' || state.mode === 'sales'">
+                <!-- SALES SECTION -->
+                <t t-if="state.mode === 'all' or state.mode === 'sales'">
                     <div class="row g-4 mb-4">
-                        <!-- Sales Area Line Chart -->
                         <div class="col-12 col-lg-7">
                             <div class="bff-card p-4 h-100">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
-                                        <h5 class="fw-bold mb-0 text-slate-900">
-                                            <i class="fa fa-area-chart text-primary me-2"/>Grafik Omset Penjualan
-                                        </h5>
-                                        <p class="text-slate-400 fs-8 mb-0">Tren transaksi penjualan harian &amp; bulanan</p>
+                                        <h6 class="fw-bold mb-0">Grafik Omset Penjualan</h6>
+                                        <p class="text-muted mb-0" style="font-size:0.78rem;">Tren harian &amp; bulanan</p>
                                     </div>
                                     <div class="bff-pill-group">
-                                        <button class="btn-pill"
-                                                t-att-class="state.salesView === 'daily' ? 'active' : ''"
-                                                t-on-click="() => this.toggleSalesView('daily')">Harian</button>
-                                        <button class="btn-pill"
-                                                t-att-class="state.salesView === 'monthly' ? 'active' : ''"
-                                                t-on-click="() => this.toggleSalesView('monthly')">Bulanan</button>
+                                        <button type="button" t-att-class="state.salesView === 'daily' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.toggleSalesView('daily')">Harian</button>
+                                        <button type="button" t-att-class="state.salesView === 'monthly' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.toggleSalesView('monthly')">Bulanan</button>
                                     </div>
                                 </div>
-                                <div class="position-relative" style="min-height: 270px;">
-                                    <canvas t-ref="salesChartCanvas"></canvas>
+                                <div style="position:relative;height:260px;">
+                                    <canvas t-ref="salesChartCanvas"/>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Channel Doughnut Chart -->
                         <div class="col-12 col-lg-5">
                             <div class="bff-card p-4 h-100">
-                                <div class="mb-3">
-                                    <h5 class="fw-bold mb-0 text-slate-900">
-                                        <i class="fa fa-pie-chart text-emerald-600 me-2"/>Perbandingan Channel Penjualan
-                                    </h5>
-                                    <p class="text-slate-400 fs-8 mb-0">Kontribusi Agen B2B vs POS Retail Toko</p>
+                                <h6 class="fw-bold mb-1">Channel Penjualan</h6>
+                                <p class="text-muted mb-3" style="font-size:0.78rem;">B2B Agen vs POS Retail</p>
+                                <div style="position:relative;height:200px;">
+                                    <canvas t-ref="channelChartCanvas"/>
                                 </div>
-                                <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 240px;">
-                                    <div class="w-100 position-relative" style="max-height: 210px;">
-                                        <canvas t-ref="channelChartCanvas"></canvas>
+                                <div class="d-flex justify-content-around text-center mt-3 pt-3 border-top">
+                                    <div>
+                                        <div class="text-muted" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;">Agen B2B</div>
+                                        <div class="fw-bold text-primary" t-out="formatCurrency(state.data.sales.so_revenue)"/>
                                     </div>
-                                    <div class="mt-3 w-100 d-flex justify-content-around text-center border-top border-slate-100 pt-3">
-                                        <div>
-                                            <span class="fs-8 fw-bold text-slate-400 text-uppercase d-block">Agen &amp; Reseller (B2B)</span>
-                                            <span class="fw-extrabold fs-6 text-blue-600" t-out="formatCurrency(state.data.sales.so_revenue)"/>
-                                        </div>
-                                        <div class="border-start border-slate-200"></div>
-                                        <div>
-                                            <span class="fs-8 fw-bold text-slate-400 text-uppercase d-block">POS Toko Retail</span>
-                                            <span class="fw-extrabold fs-6 text-cyan-600" t-out="formatCurrency(state.data.sales.pos_revenue)"/>
-                                        </div>
+                                    <div class="border-start"/>
+                                    <div>
+                                        <div class="text-muted" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;">POS Retail</div>
+                                        <div class="fw-bold text-info" t-out="formatCurrency(state.data.sales.pos_revenue)"/>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Top 5 Best Sellers -->
-                    <div class="row g-4 mb-4">
-                        <div class="col-12">
-                            <div class="bff-card p-4">
-                                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-slate-100">
-                                    <div>
-                                        <h5 class="fw-bold mb-0 text-slate-900">
-                                            <i class="fa fa-trophy text-amber-500 me-2"/>Top 5 Produk Terlaris
-                                        </h5>
-                                        <p class="text-slate-400 fs-8 mb-0">Ranking produk berdasarkan omset &amp; volume penjualan</p>
-                                    </div>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table align-middle">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 60px;" class="text-center">Rank</th>
-                                                <th>Nama Produk</th>
-                                                <th class="text-end">Jumlah Terjual</th>
-                                                <th class="text-end" style="width: 220px;">Visual Volume</th>
-                                                <th class="text-end">Total Omset (Rp)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <t t-foreach="state.data.sales.top_5_products" t-as="prod" t-key="prod.id">
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <div t-att-class="'rank-medal rank-' + (prod_index + 1 &lt;= 3 ? (prod_index + 1) : 'other') + ' mx-auto'">
-                                                            <t t-if="prod_index === 0">🥇</t>
-                                                            <t t-elif="prod_index === 1">🥈</t>
-                                                            <t t-elif="prod_index === 2">🥉</t>
-                                                            <t t-else=""><t t-out="prod_index + 1"/></t>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <span class="fw-bold text-slate-800" t-out="prod.name"/>
-                                                    </td>
-                                                    <td class="text-end fw-extrabold text-blue-600">
-                                                        <t t-out="prod.qty"/> <small class="text-slate-400 fw-normal" t-out="prod.uom"/>
-                                                    </td>
-                                                    <td class="text-end">
-                                                        <div class="progress-bar-thin">
-                                                            <div class="fill bg-blue-500" t-att-style="'width: ' + Math.min(100, Math.round((prod.qty / (state.data.sales.top_5_products[0].qty || 1)) * 100)) + '%'"></div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-end fw-extrabold text-emerald-600" t-out="formatCurrency(prod.revenue)"/>
-                                                </tr>
-                                            </t>
-                                            <t t-if="!state.data.sales.top_5_products || state.data.sales.top_5_products.length === 0">
-                                                <tr>
-                                                    <td colspan="5" class="text-center text-slate-400 py-4">Belum ada data penjualan pada periode ini.</td>
-                                                </tr>
-                                            </t>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                    <!-- Top Products Table -->
+                    <div class="bff-card p-4 mb-4">
+                        <h6 class="fw-bold mb-1">Top 5 Produk Terlaris</h6>
+                        <p class="text-muted mb-3" style="font-size:0.78rem;">Ranking berdasarkan omset &amp; volume penjualan</p>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th style="width:55px;" class="text-center">Rank</th>
+                                        <th>Produk</th>
+                                        <th class="text-end">Qty Terjual</th>
+                                        <th class="text-end">Total Omset</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="state.data.sales.top_5_products" t-as="prod" t-key="prod.id">
+                                        <tr>
+                                            <td class="text-center">
+                                                <t t-if="prod_index === 0"><span class="rank-medal rank-1">🥇</span></t>
+                                                <t t-elif="prod_index === 1"><span class="rank-medal rank-2">🥈</span></t>
+                                                <t t-elif="prod_index === 2"><span class="rank-medal rank-3">🥉</span></t>
+                                                <t t-else=""><span class="rank-medal rank-other" t-out="prod_index + 1"/></t>
+                                            </td>
+                                            <td class="fw-semibold" t-out="prod.name"/>
+                                            <td class="text-end fw-bold text-primary">
+                                                <t t-out="prod.qty"/> <small class="text-muted fw-normal" t-out="prod.uom"/>
+                                            </td>
+                                            <td class="text-end fw-bold text-success" t-out="formatCurrency(prod.revenue)"/>
+                                        </tr>
+                                    </t>
+                                    <t t-if="!state.data.sales.top_5_products.length">
+                                        <tr><td colspan="4" class="text-center text-muted py-4">Belum ada data penjualan.</td></tr>
+                                    </t>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </t>
 
-                <!-- SECTION: STOCK & EXPIRY FEFO (Inventaris) -->
-                <t t-if="state.mode === 'all' || state.mode === 'stock'">
+                <!-- STOCK SECTION -->
+                <t t-if="state.mode === 'all' or state.mode === 'stock'">
                     <div class="row g-4 mb-4">
-                        <!-- Low Stock Warning Table -->
                         <div class="col-12 col-lg-6">
                             <div class="bff-card p-4 h-100">
-                                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-slate-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
-                                        <h5 class="fw-bold mb-0 text-slate-900">
-                                            <i class="fa fa-exclamation-triangle text-amber-500 me-2"/>Peringatan Stok Menipis
-                                        </h5>
-                                        <p class="text-slate-400 fs-8 mb-0">Item produk di bawah batas reorder minimum</p>
+                                        <h6 class="fw-bold mb-0">Stok Menipis</h6>
+                                        <p class="text-muted mb-0" style="font-size:0.78rem;">Di bawah batas minimum reorder</p>
                                     </div>
-                                    <button class="btn btn-sm btn-link text-blue-600 text-decoration-none fw-semibold p-0" t-on-click="openLowStockAction">
+                                    <button type="button" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none" t-on-click="openLowStockAction">
                                         Lihat Semua <i class="fa fa-arrow-right ms-1"/>
                                     </button>
                                 </div>
@@ -367,51 +256,37 @@
                                     <table class="table align-middle">
                                         <thead>
                                             <tr>
-                                                <th>Nama Produk</th>
-                                                <th class="text-end">Stok Fisik</th>
-                                                <th class="text-end">Batas Alert</th>
+                                                <th>Produk</th>
+                                                <th class="text-end">Stok</th>
+                                                <th class="text-end">Min Alert</th>
                                                 <th class="text-center">Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <t t-foreach="state.data.stock.low_stock_items" t-as="item" t-key="item.id">
                                                 <tr>
-                                                    <td class="fw-bold text-slate-800" t-out="item.name"/>
-                                                    <td class="text-end fw-extrabold text-rose-600">
-                                                        <t t-out="item.qty_available"/> <small class="text-slate-400 fw-normal" t-out="item.uom"/>
-                                                    </td>
-                                                    <td class="text-end text-slate-400">
-                                                        <t t-out="item.min_alert_qty"/> <small t-out="item.uom"/>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <span class="badge-pill-danger">STOK MENIPIS</span>
-                                                    </td>
+                                                    <td class="fw-semibold" t-out="item.name"/>
+                                                    <td class="text-end fw-bold text-danger"><t t-out="item.qty_available"/> <small class="text-muted fw-normal" t-out="item.uom"/></td>
+                                                    <td class="text-end text-muted"><t t-out="item.min_alert_qty"/></td>
+                                                    <td class="text-center"><span class="badge-pill-danger">MENIPIS</span></td>
                                                 </tr>
                                             </t>
-                                            <t t-if="!state.data.stock.low_stock_items || state.data.stock.low_stock_items.length === 0">
-                                                <tr>
-                                                    <td colspan="4" class="text-center text-emerald-600 py-4">
-                                                        <i class="fa fa-check-circle me-1"/>Semua stok produk dalam kondisi aman.
-                                                    </td>
-                                                </tr>
+                                            <t t-if="!state.data.stock.low_stock_items.length">
+                                                <tr><td colspan="4" class="text-center text-success py-4"><i class="fa fa-check-circle me-1"/>Semua stok aman.</td></tr>
                                             </t>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Near Expiry Watchlist -->
                         <div class="col-12 col-lg-6">
                             <div class="bff-card p-4 h-100">
-                                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-slate-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
-                                        <h5 class="fw-bold mb-0 text-slate-900">
-                                            <i class="fa fa-calendar-times-o text-rose-500 me-2"/>FEFO Near-Expiry Watchlist
-                                        </h5>
-                                        <p class="text-slate-400 fs-8 mb-0">Prioritas pengeluaran lot mendekati kadaluarsa</p>
+                                        <h6 class="fw-bold mb-0">FEFO Near-Expiry Watchlist</h6>
+                                        <p class="text-muted mb-0" style="font-size:0.78rem;">Lot mendekati kadaluarsa (H-30)</p>
                                     </div>
-                                    <button class="btn btn-sm btn-link text-blue-600 text-decoration-none fw-semibold p-0" t-on-click="openExpiryAction">
+                                    <button type="button" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none" t-on-click="openExpiryAction">
                                         Lihat Semua <i class="fa fa-arrow-right ms-1"/>
                                     </button>
                                 </div>
@@ -419,7 +294,7 @@
                                     <table class="table align-middle">
                                         <thead>
                                             <tr>
-                                                <th>Produk / Batch Lot</th>
+                                                <th>Produk / Lot</th>
                                                 <th class="text-center">Tgl Expiry</th>
                                                 <th class="text-center">Sisa Hari</th>
                                                 <th class="text-center">Status</th>
@@ -429,37 +304,27 @@
                                             <t t-foreach="state.data.stock.near_expiry_items" t-as="lot" t-key="lot.id">
                                                 <tr>
                                                     <td>
-                                                        <div class="fw-bold text-slate-800" t-out="lot.product_name"/>
-                                                        <small class="text-slate-400">Lot: <t t-out="lot.lot_name"/></small>
+                                                        <div class="fw-semibold" t-out="lot.product_name"/>
+                                                        <small class="text-muted">Lot: <t t-out="lot.lot_name"/></small>
                                                     </td>
-                                                    <td class="text-center text-slate-500 fw-medium" t-out="lot.expiration_date"/>
+                                                    <td class="text-center text-muted" t-out="lot.expiration_date"/>
                                                     <td class="text-center fw-bold">
-                                                        <t t-if="lot.days_left &lt; 0">
-                                                            <span class="text-rose-600">Expired (<t t-out="Math.abs(lot.days_left)"/> hr lalu)</span>
+                                                        <t t-if="lot.status === 'EXPIRED'">
+                                                            <span class="text-danger">Expired</span>
                                                         </t>
                                                         <t t-else="">
-                                                            <span class="text-amber-600"><t t-out="lot.days_left"/> hari</span>
+                                                            <span class="text-warning"><t t-out="lot.days_left"/> hr</span>
                                                         </t>
                                                     </td>
                                                     <td class="text-center">
-                                                        <t t-if="lot.status === 'EXPIRED'">
-                                                            <span class="badge-pill-danger">EXPIRED</span>
-                                                        </t>
-                                                        <t t-elif="lot.status === 'CRITICAL'">
-                                                            <span class="badge-pill-danger">CRITICAL H-14</span>
-                                                        </t>
-                                                        <t t-else="">
-                                                            <span class="badge-pill-warning">NEAR EXPIRY</span>
-                                                        </t>
+                                                        <t t-if="lot.status === 'EXPIRED'"><span class="badge-pill-danger">EXPIRED</span></t>
+                                                        <t t-elif="lot.status === 'CRITICAL'"><span class="badge-pill-danger">KRITIS</span></t>
+                                                        <t t-else=""><span class="badge-pill-warning">WASPADA</span></t>
                                                     </td>
                                                 </tr>
                                             </t>
-                                            <t t-if="!state.data.stock.near_expiry_items || state.data.stock.near_expiry_items.length === 0">
-                                                <tr>
-                                                    <td colspan="4" class="text-center text-emerald-600 py-4">
-                                                        <i class="fa fa-check-circle me-1"/>Tidak ada batch lot yang mendekati kadaluarsa.
-                                                    </td>
-                                                </tr>
+                                            <t t-if="!state.data.stock.near_expiry_items.length">
+                                                <tr><td colspan="4" class="text-center text-success py-4"><i class="fa fa-check-circle me-1"/>Tidak ada lot mendekati kadaluarsa.</td></tr>
                                             </t>
                                         </tbody>
                                     </table>
@@ -469,59 +334,41 @@
                     </div>
                 </t>
 
-                <!-- SECTION: PURCHASE DASHBOARD (Pembelian) -->
-                <t t-if="state.mode === 'all' || state.mode === 'purchase'">
+                <!-- PURCHASE SECTION -->
+                <t t-if="state.mode === 'all' or state.mode === 'purchase'">
                     <div class="row g-4 mb-4">
-                        <!-- Supplier Spend Chart -->
-                        <div class="col-12 col-lg-6">
+                        <div class="col-12 col-lg-7">
                             <div class="bff-card p-4 h-100">
-                                <div class="mb-3">
-                                    <h5 class="fw-bold mb-0 text-slate-900">
-                                        <i class="fa fa-bar-chart text-indigo-600 me-2"/>Grafik Belanja per Supplier
-                                    </h5>
-                                    <p class="text-slate-400 fs-8 mb-0">Distribusi alokasi belanja ke masing-masing vendor</p>
-                                </div>
-                                <div class="position-relative" style="min-height: 270px;">
-                                    <canvas t-ref="supplierChartCanvas"></canvas>
+                                <h6 class="fw-bold mb-1">Grafik Belanja per Supplier</h6>
+                                <p class="text-muted mb-3" style="font-size:0.78rem;">Distribusi alokasi belanja ke vendor</p>
+                                <div style="position:relative;height:260px;">
+                                    <canvas t-ref="supplierChartCanvas"/>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Supplier Spend Breakdown Table -->
-                        <div class="col-12 col-lg-6">
+                        <div class="col-12 col-lg-5">
                             <div class="bff-card p-4 h-100">
-                                <div class="mb-3">
-                                    <h5 class="fw-bold mb-0 text-slate-900">
-                                        <i class="fa fa-truck text-indigo-600 me-2"/>Rekap Total Belanja Ke Supplier
-                                    </h5>
-                                    <p class="text-slate-400 fs-8 mb-0">Rincian nominal PO &amp; frekuensi transaksi</p>
-                                </div>
+                                <h6 class="fw-bold mb-1">Rekap Belanja Supplier</h6>
+                                <p class="text-muted mb-3" style="font-size:0.78rem;">Total nominal PO per vendor</p>
                                 <div class="table-responsive">
                                     <table class="table align-middle">
                                         <thead>
                                             <tr>
-                                                <th>Nama Supplier</th>
-                                                <th class="text-center">Jumlah PO</th>
-                                                <th class="text-end">Total Belanja (Rp)</th>
+                                                <th>Supplier</th>
+                                                <th class="text-center">PO</th>
+                                                <th class="text-end">Total (Rp)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <t t-foreach="state.data.purchase.supplier_breakdown" t-as="supp" t-key="supp_index">
                                                 <tr>
-                                                    <td class="fw-bold text-slate-800">
-                                                        <i class="fa fa-building-o text-slate-400 me-2"/>
-                                                        <t t-out="supp.supplier"/>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <span class="badge bg-slate-100 text-slate-700 px-3 py-1 rounded-pill" t-out="supp.po_count + ' PO'"/>
-                                                    </td>
-                                                    <td class="text-end fw-extrabold text-indigo-600" t-out="formatCurrency(supp.total)"/>
+                                                    <td class="fw-semibold" t-out="supp.supplier"/>
+                                                    <td class="text-center"><span class="badge text-bg-light" t-out="supp.po_count"/></td>
+                                                    <td class="text-end fw-bold text-indigo" t-out="formatCurrency(supp.total)"/>
                                                 </tr>
                                             </t>
-                                            <t t-if="!state.data.purchase.supplier_breakdown || state.data.purchase.supplier_breakdown.length === 0">
-                                                <tr>
-                                                    <td colspan="3" class="text-center text-slate-400 py-4">Belum ada data pembelian supplier pada periode ini.</td>
-                                                </tr>
+                                            <t t-if="!state.data.purchase.supplier_breakdown.length">
+                                                <tr><td colspan="3" class="text-center text-muted py-4">Belum ada data pembelian.</td></tr>
                                             </t>
                                         </tbody>
                                     </table>
@@ -530,6 +377,7 @@
                         </div>
                     </div>
                 </t>
+
             </t>
         </div>
     </t>
