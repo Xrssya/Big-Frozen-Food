@@ -3,84 +3,85 @@
     <t t-name="bff_dashboard.BffDashboardTemplate">
         <div class="o_bff_dashboard p-4 overflow-auto">
             <!-- Header Toolbar -->
-            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
                 <div>
-                    <h2 class="fw-bold mb-1 text-primary">
+                    <h3 class="fw-bold mb-1 text-dark">
                         <t t-if="state.mode === 'sales'">
-                            <i class="fa fa-line-chart me-2"/>Dashboard Penjualan
+                            <i class="fa fa-line-chart text-primary me-2"/>Dashboard Penjualan
                         </t>
                         <t t-elif="state.mode === 'stock'">
-                            <i class="fa fa-cubes me-2"/>Dashboard Stok &amp; FEFO Kadaluarsa
+                            <i class="fa fa-cubes text-success me-2"/>Dashboard Stok &amp; FEFO Kadaluarsa
                         </t>
                         <t t-elif="state.mode === 'purchase'">
-                            <i class="fa fa-shopping-cart me-2"/>Dashboard Pembelian Supplier
+                            <i class="fa fa-shopping-cart text-info me-2"/>Dashboard Pembelian Supplier
                         </t>
                         <t t-else="">
-                            <i class="fa fa-tachometer me-2"/>Dashboard Eksekutif Utama
+                            <i class="fa fa-tachometer text-primary me-2"/>Dashboard Eksekutif Utama
                         </t>
-                    </h2>
-                    <p class="text-muted mb-0">
-                        Big Frozen Food - Visualisasi KPI, Grafik &amp; Analytic Real-time
+                    </h3>
+                    <p class="text-muted small mb-0">
+                        Big Frozen Food &mdash; Visualisasi Analytics &amp; Ringkasan Operational Real-time
                     </p>
                 </div>
-                <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
-                    <!-- Dashboard Section Tabs -->
-                    <div class="btn-group me-2" role="group">
+                <div class="d-flex align-items-center gap-3 mt-3 mt-md-0">
+                    <!-- Segmented Tab Controls -->
+                    <div class="bff-segmented-control me-1">
                         <button type="button" 
-                                class="btn btn-sm"
-                                t-att-class="state.mode === 'all' ? 'btn-primary' : 'btn-outline-secondary'"
+                                class="btn-segment"
+                                t-att-class="state.mode === 'all' ? 'active' : ''"
                                 t-on-click="() => this.changeMode('all')">
                             Semua
                         </button>
                         <button type="button" 
-                                class="btn btn-sm"
-                                t-att-class="state.mode === 'sales' ? 'btn-primary' : 'btn-outline-secondary'"
+                                class="btn-segment"
+                                t-att-class="state.mode === 'sales' ? 'active' : ''"
                                 t-on-click="() => this.changeMode('sales')">
                             Penjualan
                         </button>
                         <button type="button" 
-                                class="btn btn-sm"
-                                t-att-class="state.mode === 'stock' ? 'btn-primary' : 'btn-outline-secondary'"
+                                class="btn-segment"
+                                t-att-class="state.mode === 'stock' ? 'active' : ''"
                                 t-on-click="() => this.changeMode('stock')">
                             Stok &amp; FEFO
                         </button>
                         <button type="button" 
-                                class="btn btn-sm"
-                                t-att-class="state.mode === 'purchase' ? 'btn-primary' : 'btn-outline-secondary'"
+                                class="btn-segment"
+                                t-att-class="state.mode === 'purchase' ? 'active' : ''"
                                 t-on-click="() => this.changeMode('purchase')">
                             Pembelian
                         </button>
                     </div>
 
-                    <!-- Period Filter Buttons -->
-                    <div class="btn-group shadow-sm" role="group">
+                    <!-- Period Filter Control -->
+                    <div class="bff-period-control">
                         <button type="button" 
-                                class="btn btn-outline-primary btn-sm"
-                                t-att-class="state.period === 'month' ? 'active fw-bold' : ''"
+                                class="btn-period"
+                                t-att-class="state.period === 'month' ? 'active' : ''"
                                 t-on-click="() => this.changePeriod('month')">
                             Bulan Ini
                         </button>
                         <button type="button" 
-                                class="btn btn-outline-primary btn-sm"
-                                t-att-class="state.period === '30days' ? 'active fw-bold' : ''"
+                                class="btn-period"
+                                t-att-class="state.period === '30days' ? 'active' : ''"
                                 t-on-click="() => this.changePeriod('30days')">
                             30 Hari
                         </button>
                         <button type="button" 
-                                class="btn btn-outline-primary btn-sm"
-                                t-att-class="state.period === 'year' ? 'active fw-bold' : ''"
+                                class="btn-period"
+                                t-att-class="state.period === 'year' ? 'active' : ''"
                                 t-on-click="() => this.changePeriod('year')">
                             Tahun Ini
                         </button>
                         <button type="button" 
-                                class="btn btn-outline-primary btn-sm"
-                                t-att-class="state.period === 'all' ? 'active fw-bold' : ''"
+                                class="btn-period"
+                                t-att-class="state.period === 'all' ? 'active' : ''"
                                 t-on-click="() => this.changePeriod('all')">
                             Semua
                         </button>
                     </div>
-                    <button class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm ms-2"
-                            t-on-click="reloadDashboard">
+
+                    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                            t-on-click="reloadDashboard" title="Refresh Data">
                         <i class="fa fa-refresh" t-att-class="state.loading ? 'fa-spin' : ''"/>
                         <span>Refresh</span>
                     </button>
@@ -90,10 +91,10 @@
             <!-- Loading Spinner -->
             <t t-if="state.loading">
                 <div class="text-center py-5 my-5">
-                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                    <div class="spinner-border text-primary" style="width: 2.5rem; height: 2.5rem;" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-3 text-muted fw-semibold">Memuat Data Dashboard...</p>
+                    <p class="mt-3 text-muted small fw-medium">Memuat Data Dashboard...</p>
                 </div>
             </t>
 
@@ -103,16 +104,16 @@
                     <!-- Card 1: Sales Omset -->
                     <t t-if="state.mode === 'all' || state.mode === 'sales'">
                         <div class="col-12 col-sm-6" t-att-class="state.mode === 'sales' ? 'col-xl-6' : 'col-xl-2-4'">
-                            <div class="card border-0 shadow-sm rounded-3 h-100 bff-kpi-card bg-gradient-sales text-white">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 bff-kpi-card bff-card-sales">
                                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-uppercase fs-7 fw-bold opacity-75">Total Omset Sales</span>
-                                        <div class="icon-circle bg-white text-primary rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
-                                            <i class="fa fa-line-chart fs-5"/>
+                                        <span class="text-uppercase fs-7 fw-semibold text-muted">Total Omset Sales</span>
+                                        <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
+                                            <i class="fa fa-line-chart fs-6"/>
                                         </div>
                                     </div>
-                                    <h3 class="fw-bold mb-1" t-out="formatCurrency(state.data.sales.total_revenue)"/>
-                                    <div class="small opacity-90">
+                                    <h3 class="fw-bold mb-1 text-dark" t-out="formatCurrency(state.data.sales.total_revenue)"/>
+                                    <div class="small text-muted opacity-90">
                                         <span>Agen: <t t-out="formatCurrency(state.data.sales.so_revenue)"/></span> | 
                                         <span>POS Toko: <t t-out="formatCurrency(state.data.sales.pos_revenue)"/></span>
                                     </div>
@@ -124,16 +125,16 @@
                     <!-- Card 2: Stock Valuation -->
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
                         <div class="col-12 col-sm-6" t-att-class="state.mode === 'stock' ? 'col-xl-4' : 'col-xl-2-4'">
-                            <div class="card border-0 shadow-sm rounded-3 h-100 bff-kpi-card bg-gradient-stock text-white">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 bff-kpi-card bff-card-stock">
                                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-uppercase fs-7 fw-bold opacity-75">Nilai Stok Fisik</span>
-                                        <div class="icon-circle bg-white text-success rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
-                                            <i class="fa fa-cubes fs-5"/>
+                                        <span class="text-uppercase fs-7 fw-semibold text-muted">Nilai Stok Fisik</span>
+                                        <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
+                                            <i class="fa fa-cubes fs-6"/>
                                         </div>
                                     </div>
-                                    <h3 class="fw-bold mb-1" t-out="formatCurrency(state.data.stock.total_valuation)"/>
-                                    <div class="small opacity-90">Total Aset Persediaan Cold-Chain</div>
+                                    <h3 class="fw-bold mb-1 text-dark" t-out="formatCurrency(state.data.stock.total_valuation)"/>
+                                    <div class="small text-muted">Total Valuation Persediaan Cold-Chain</div>
                                 </div>
                             </div>
                         </div>
@@ -142,18 +143,18 @@
                     <!-- Card 3: Low Stock Warning -->
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
                         <div class="col-12 col-sm-6" t-att-class="state.mode === 'stock' ? 'col-xl-4' : 'col-xl-2-4'">
-                            <div class="card border-0 shadow-sm rounded-3 h-100 bff-kpi-card bg-gradient-warning text-white">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 bff-kpi-card bff-card-warning">
                                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-uppercase fs-7 fw-bold opacity-75">Produk Stok Menipis</span>
-                                        <div class="icon-circle bg-white text-warning rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
-                                            <i class="fa fa-exclamation-triangle fs-5"/>
+                                        <span class="text-uppercase fs-7 fw-semibold text-muted">Stok Produk Menipis</span>
+                                        <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
+                                            <i class="fa fa-exclamation-triangle fs-6"/>
                                         </div>
                                     </div>
-                                    <h3 class="fw-bold mb-1">
-                                        <t t-out="state.data.stock.low_stock_count"/> <span class="fs-6 fw-normal">Item</span>
+                                    <h3 class="fw-bold mb-1 text-dark">
+                                        <t t-out="state.data.stock.low_stock_count"/> <span class="fs-6 fw-normal text-muted">Item</span>
                                     </h3>
-                                    <div class="small opacity-90">Stok &lt;= Batas Minimum Reorder</div>
+                                    <div class="small text-muted">Stok &lt;= Batas Minimum Reorder</div>
                                 </div>
                             </div>
                         </div>
@@ -162,18 +163,18 @@
                     <!-- Card 4: Near Expiry FEFO -->
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
                         <div class="col-12 col-sm-6" t-att-class="state.mode === 'stock' ? 'col-xl-4' : 'col-xl-2-4'">
-                            <div class="card border-0 shadow-sm rounded-3 h-100 bff-kpi-card bg-gradient-expiry text-white">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 bff-kpi-card bff-card-expiry">
                                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-uppercase fs-7 fw-bold opacity-75">Near-Expiry (FEFO)</span>
-                                        <div class="icon-circle bg-white text-danger rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
-                                            <i class="fa fa-calendar-times-o fs-5"/>
+                                        <span class="text-uppercase fs-7 fw-semibold text-muted">Near-Expiry (FEFO)</span>
+                                        <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
+                                            <i class="fa fa-calendar-times-o fs-6"/>
                                         </div>
                                     </div>
-                                    <h3 class="fw-bold mb-1">
-                                        <t t-out="state.data.stock.near_expiry_count"/> <span class="fs-6 fw-normal">Batch Lot</span>
+                                    <h3 class="fw-bold mb-1 text-dark">
+                                        <t t-out="state.data.stock.near_expiry_count"/> <span class="fs-6 fw-normal text-muted">Batch Lot</span>
                                     </h3>
-                                    <div class="small opacity-90">Mendekati / Lewat Kadaluarsa (H-30)</div>
+                                    <div class="small text-muted">Mendekati / Lewat Kadaluarsa (H-30)</div>
                                 </div>
                             </div>
                         </div>
@@ -182,16 +183,16 @@
                     <!-- Card 5: Monthly Purchase -->
                     <t t-if="state.mode === 'all' || state.mode === 'purchase' || state.mode === 'sales'">
                         <div class="col-12 col-sm-6" t-att-class="state.mode === 'all' ? 'col-xl-2-4' : (state.mode === 'sales' ? 'col-xl-6' : 'col-xl-12')">
-                            <div class="card border-0 shadow-sm rounded-3 h-100 bff-kpi-card bg-gradient-purchase text-white">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 bff-kpi-card bff-card-purchase">
                                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-uppercase fs-7 fw-bold opacity-75">Belanja Supplier</span>
-                                        <div class="icon-circle bg-white text-info rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
-                                            <i class="fa fa-shopping-cart fs-5"/>
+                                        <span class="text-uppercase fs-7 fw-semibold text-muted">Belanja Supplier</span>
+                                        <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
+                                            <i class="fa fa-shopping-cart fs-6"/>
                                         </div>
                                     </div>
-                                    <h3 class="fw-bold mb-1" t-out="formatCurrency(state.data.purchase.monthly_total)"/>
-                                    <div class="small opacity-90">Total PO Dikirim Ke Supplier</div>
+                                    <h3 class="fw-bold mb-1 text-dark" t-out="formatCurrency(state.data.purchase.monthly_total)"/>
+                                    <div class="small text-muted">Total PO Dikirim Ke Supplier</div>
                                 </div>
                             </div>
                         </div>
@@ -205,9 +206,9 @@
                         <div class="col-12 col-lg-7">
                             <div class="card border-0 shadow-sm rounded-3 h-100">
                                 <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
-                                    <h5 class="fw-bold mb-0 text-dark">
-                                        <i class="fa fa-area-chart me-2 text-primary"/>Grafik Omset Penjualan (Harian &amp; Bulanan)
-                                    </h5>
+                                    <h6 class="fw-bold mb-0 text-dark">
+                                        <i class="fa fa-area-chart text-primary me-2"/>Grafik Omset Penjualan (Harian &amp; Bulanan)
+                                    </h6>
                                     <div class="btn-group btn-group-sm">
                                         <button class="btn btn-outline-secondary btn-sm"
                                                 t-att-class="state.salesView === 'daily' ? 'active' : ''"
@@ -227,9 +228,9 @@
                         <div class="col-12 col-lg-5">
                             <div class="card border-0 shadow-sm rounded-3 h-100">
                                 <div class="card-header bg-transparent border-0 pt-3 pb-0">
-                                    <h5 class="fw-bold mb-0 text-dark">
-                                        <i class="fa fa-pie-chart me-2 text-success"/>Perbandingan Agen vs POS Toko
-                                    </h5>
+                                    <h6 class="fw-bold mb-0 text-dark">
+                                        <i class="fa fa-pie-chart text-success me-2"/>Perbandingan Agen vs POS Toko
+                                    </h6>
                                 </div>
                                 <div class="card-body p-3 d-flex flex-column align-items-center justify-content-center">
                                     <div class="w-100 position-relative" style="max-height: 240px;">
@@ -237,13 +238,13 @@
                                     </div>
                                     <div class="mt-3 w-100 d-flex justify-content-around text-center border-top pt-2">
                                         <div>
-                                            <span class="badge bg-primary rounded-pill mb-1">Agen &amp; Reseller (B2B)</span>
+                                            <span class="badge badge-soft-primary rounded-pill mb-1">Agen &amp; Reseller (B2B)</span>
                                             <div class="fw-bold fs-6 text-primary" t-out="formatCurrency(state.data.sales.so_revenue)"/>
                                         </div>
                                         <div class="border-start"></div>
                                         <div>
-                                            <span class="badge bg-info text-white rounded-pill mb-1">POS Toko Retail</span>
-                                            <div class="fw-bold fs-6 text-info" t-out="formatCurrency(state.data.sales.pos_revenue)"/>
+                                            <span class="badge bg-light text-dark border rounded-pill mb-1">POS Toko Retail</span>
+                                            <div class="fw-bold fs-6 text-dark" t-out="formatCurrency(state.data.sales.pos_revenue)"/>
                                         </div>
                                     </div>
                                 </div>
@@ -256,14 +257,14 @@
                         <div class="col-12">
                             <div class="card border-0 shadow-sm rounded-3">
                                 <div class="card-header bg-transparent border-0 pt-3 pb-0">
-                                    <h5 class="fw-bold mb-0 text-dark">
-                                        <i class="fa fa-trophy me-2 text-warning"/>Top 5 Produk Terlaris
-                                    </h5>
+                                    <h6 class="fw-bold mb-0 text-dark">
+                                        <i class="fa fa-trophy text-warning me-2"/>Top 5 Produk Terlaris
+                                    </h6>
                                 </div>
                                 <div class="card-body p-3">
                                     <div class="table-responsive">
-                                        <table class="table table-hover align-middle mb-0">
-                                            <thead class="table-light">
+                                        <table class="table align-middle mb-0">
+                                            <thead>
                                                 <tr>
                                                     <th style="width: 50px;">Rank</th>
                                                     <th>Nama Produk</th>
@@ -275,7 +276,7 @@
                                                 <t t-foreach="state.data.sales.top_5_products" t-as="prod" t-key="prod.id">
                                                     <tr>
                                                         <td>
-                                                            <span class="badge rounded-circle bg-warning text-dark p-2" t-out="prod_index + 1"/>
+                                                            <span class="badge rounded-circle bg-light text-dark border p-2" t-out="prod_index + 1"/>
                                                         </td>
                                                         <td class="fw-semibold text-dark" t-out="prod.name"/>
                                                         <td class="text-end fw-bold text-primary">
@@ -305,17 +306,17 @@
                         <div class="col-12 col-lg-6">
                             <div class="card border-0 shadow-sm rounded-3 h-100">
                                 <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
-                                    <h5 class="fw-bold mb-0 text-dark">
-                                        <i class="fa fa-exclamation-triangle me-2 text-warning"/>Peringatan Stok Menipis
-                                    </h5>
+                                    <h6 class="fw-bold mb-0 text-dark">
+                                        <i class="fa fa-exclamation-triangle text-warning me-2"/>Peringatan Stok Menipis
+                                    </h6>
                                     <button class="btn btn-sm btn-link text-primary p-0 text-decoration-none" t-on-click="openLowStockAction">
                                         Lihat Semua <i class="fa fa-arrow-right ms-1"/>
                                     </button>
                                 </div>
                                 <div class="card-body p-3">
                                     <div class="table-responsive">
-                                        <table class="table table-hover align-middle mb-0">
-                                            <thead class="table-light">
+                                        <table class="table align-middle mb-0">
+                                            <thead>
                                                 <tr>
                                                     <th>Produk</th>
                                                     <th class="text-end">Stok Fisik</th>
@@ -334,7 +335,7 @@
                                                             <t t-out="item.min_alert_qty"/> <small t-out="item.uom"/>
                                                         </td>
                                                         <td class="text-center">
-                                                            <span class="badge bg-danger rounded-pill">STOK MENIPIS</span>
+                                                            <span class="badge badge-soft-danger rounded-pill">STOK MENIPIS</span>
                                                         </td>
                                                     </tr>
                                                 </t>
@@ -356,17 +357,17 @@
                         <div class="col-12 col-lg-6">
                             <div class="card border-0 shadow-sm rounded-3 h-100">
                                 <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
-                                    <h5 class="fw-bold mb-0 text-dark">
-                                        <i class="fa fa-calendar-times-o me-2 text-danger"/>FEFO Near-Expiry Watchlist
-                                    </h5>
+                                    <h6 class="fw-bold mb-0 text-dark">
+                                        <i class="fa fa-calendar-times-o text-danger me-2"/>FEFO Near-Expiry Watchlist
+                                    </h6>
                                     <button class="btn btn-sm btn-link text-primary p-0 text-decoration-none" t-on-click="openExpiryAction">
                                         Lihat Semua <i class="fa fa-arrow-right ms-1"/>
                                     </button>
                                 </div>
                                 <div class="card-body p-3">
                                     <div class="table-responsive">
-                                        <table class="table table-hover align-middle mb-0">
-                                            <thead class="table-light">
+                                        <table class="table align-middle mb-0">
+                                            <thead>
                                                 <tr>
                                                     <th>Produk / Batch Lot</th>
                                                     <th class="text-center">Tgl Expiry</th>
@@ -392,13 +393,13 @@
                                                         </td>
                                                         <td class="text-center">
                                                             <t t-if="lot.status === 'EXPIRED'">
-                                                                <span class="badge bg-danger rounded-pill">EXPIRED</span>
+                                                                <span class="badge badge-soft-danger rounded-pill">EXPIRED</span>
                                                             </t>
                                                             <t t-elif="lot.status === 'CRITICAL'">
-                                                                <span class="badge bg-danger bg-opacity-75 rounded-pill">H-14 CRITICAL</span>
+                                                                <span class="badge badge-soft-danger rounded-pill">H-14 CRITICAL</span>
                                                             </t>
                                                             <t t-else="">
-                                                                <span class="badge bg-warning text-dark rounded-pill">NEAR EXPIRY</span>
+                                                                <span class="badge badge-soft-warning rounded-pill">NEAR EXPIRY</span>
                                                             </t>
                                                         </td>
                                                     </tr>
@@ -426,9 +427,9 @@
                         <div class="col-12 col-lg-6">
                             <div class="card border-0 shadow-sm rounded-3 h-100">
                                 <div class="card-header bg-transparent border-0 pt-3 pb-0">
-                                    <h5 class="fw-bold mb-0 text-dark">
-                                        <i class="fa fa-bar-chart me-2 text-info"/>Grafik Belanja per Supplier
-                                    </h5>
+                                    <h6 class="fw-bold mb-0 text-dark">
+                                        <i class="fa fa-bar-chart text-info me-2"/>Grafik Belanja per Supplier
+                                    </h6>
                                 </div>
                                 <div class="card-body p-3 position-relative" style="min-height: 280px;">
                                     <canvas t-ref="supplierChartCanvas"></canvas>
@@ -440,14 +441,14 @@
                         <div class="col-12 col-lg-6">
                             <div class="card border-0 shadow-sm rounded-3 h-100">
                                 <div class="card-header bg-transparent border-0 pt-3 pb-0">
-                                    <h5 class="fw-bold mb-0 text-dark">
-                                        <i class="fa fa-truck me-2 text-info"/>Rekap Total Belanja Ke Supplier
-                                    </h5>
+                                    <h6 class="fw-bold mb-0 text-dark">
+                                        <i class="fa fa-truck text-info me-2"/>Rekap Total Belanja Ke Supplier
+                                    </h6>
                                 </div>
                                 <div class="card-body p-3">
                                     <div class="table-responsive">
-                                        <table class="table table-hover align-middle mb-0">
-                                            <thead class="table-light">
+                                        <table class="table align-middle mb-0">
+                                            <thead>
                                                 <tr>
                                                     <th>Nama Supplier</th>
                                                     <th class="text-center">Jumlah PO</th>
@@ -462,7 +463,7 @@
                                                             <t t-out="supp.supplier"/>
                                                         </td>
                                                         <td class="text-center">
-                                                            <span class="badge bg-secondary rounded-pill" t-out="supp.po_count"/>
+                                                            <span class="badge bg-light text-dark border rounded-pill" t-out="supp.po_count"/>
                                                         </td>
                                                         <td class="text-end fw-bold text-primary" t-out="formatCurrency(supp.total)"/>
                                                     </tr>

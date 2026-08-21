@@ -113,9 +113,9 @@ export class BffDashboardComponent extends Component {
                 datasets: [{
                     label: isDaily ? 'Omset Harian (Rp)' : 'Omset Bulanan (Rp)',
                     data: totalData,
-                    backgroundColor: 'rgba(30, 60, 114, 0.8)',
-                    borderColor: '#1e3c72',
-                    borderWidth: 2,
+                    backgroundColor: 'rgba(37, 99, 235, 0.85)',
+                    borderColor: '#2563eb',
+                    borderWidth: 1,
                     borderRadius: 6,
                 }]
             },
@@ -125,6 +125,9 @@ export class BffDashboardComponent extends Component {
                 plugins: {
                     legend: { display: true, position: 'top' },
                     tooltip: {
+                        backgroundColor: '#0f172a',
+                        padding: 10,
+                        cornerRadius: 6,
                         callbacks: {
                             label: function(context) {
                                 let val = context.raw || 0;
@@ -134,8 +137,12 @@ export class BffDashboardComponent extends Component {
                     }
                 },
                 scales: {
+                    x: {
+                        grid: { display: false }
+                    },
                     y: {
                         beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
                         ticks: {
                             callback: function(value) {
                                 if (value >= 1000000) {
@@ -166,8 +173,9 @@ export class BffDashboardComponent extends Component {
                 labels: ['Agen & Reseller (B2B)', 'POS Toko Retail'],
                 datasets: [{
                     data: [channelData.agen_sales, channelData.pos_sales],
-                    backgroundColor: ['#1e3c72', '#17a2b8'],
+                    backgroundColor: ['#1e3a8a', '#06b6d4'],
                     borderWidth: 2,
+                    borderColor: '#ffffff',
                     hoverOffset: 4
                 }]
             },
@@ -177,6 +185,9 @@ export class BffDashboardComponent extends Component {
                 plugins: {
                     legend: { position: 'bottom' },
                     tooltip: {
+                        backgroundColor: '#0f172a',
+                        padding: 10,
+                        cornerRadius: 6,
                         callbacks: {
                             label: function(context) {
                                 let val = context.raw || 0;
@@ -209,9 +220,9 @@ export class BffDashboardComponent extends Component {
                 datasets: [{
                     label: 'Total Belanja (Rp)',
                     data: totals,
-                    backgroundColor: 'rgba(71, 118, 230, 0.8)',
-                    borderColor: '#4776e6',
-                    borderWidth: 2,
+                    backgroundColor: 'rgba(79, 70, 229, 0.85)',
+                    borderColor: '#4f46e5',
+                    borderWidth: 1,
                     borderRadius: 6,
                 }]
             },
@@ -221,6 +232,9 @@ export class BffDashboardComponent extends Component {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
+                        backgroundColor: '#0f172a',
+                        padding: 10,
+                        cornerRadius: 6,
                         callbacks: {
                             label: function(context) {
                                 let val = context.raw || 0;
@@ -230,8 +244,12 @@ export class BffDashboardComponent extends Component {
                     }
                 },
                 scales: {
+                    x: {
+                        grid: { display: false }
+                    },
                     y: {
                         beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
                         ticks: {
                             callback: function(value) {
                                 if (value >= 1000000) {
