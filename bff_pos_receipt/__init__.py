@@ -1,1 +1,2 @@
-# __init__.py for bff_pos_receipt
+# -*- coding: utf-8 -*-
+from . import models
