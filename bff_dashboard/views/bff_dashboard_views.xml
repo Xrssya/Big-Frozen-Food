@@ -49,20 +49,20 @@
               name="Dashboard Penjualan"
               parent="sale.sale_menu_root"
               action="action_bff_dashboard_sales"
-              sequence="1"/>
+              sequence="-10"/>
 
     <!-- Dashboard Stok & Kadaluarsa in Stock Module (stock.menu_stock_root) -->
     <menuitem id="menu_bff_dashboard_stock_item"
               name="Dashboard Stok &amp; FEFO"
               parent="stock.menu_stock_root"
               action="action_bff_dashboard_stock"
-              sequence="1"/>
+              sequence="-10"/>
 
     <!-- Dashboard Pembelian in Purchase Module (purchase.menu_purchase_root) -->
     <menuitem id="menu_bff_dashboard_purchase_item"
               name="Dashboard Pembelian"
               parent="purchase.menu_purchase_root"
               action="action_bff_dashboard_purchase"
-              sequence="1"/>
+              sequence="-10"/>
 
 </odoo>
