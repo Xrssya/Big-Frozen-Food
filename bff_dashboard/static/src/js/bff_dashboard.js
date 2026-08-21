@@ -23,6 +23,7 @@ export class BffDashboardComponent extends Component {
                 bff_dashboard_sales: "sales",
                 bff_dashboard_stock: "stock",
                 bff_dashboard_purchase: "purchase",
+                bff_dashboard_pos: "pos",
             };
             defaultMode = tagMap[this.props.action.tag] || "all";
         }
@@ -117,9 +118,11 @@ export class BffDashboardComponent extends Component {
     renderCharts() {
         if (this.state.loading || !this.state.data) return;
         const mode = this.state.mode;
-        if (mode === "all" || mode === "sales") {
+        if (mode === "all" || mode === "sales" || mode === "pos") {
             this.renderSalesChart();
-            this.renderChannelChart();
+            if (mode !== "pos") {
+                this.renderChannelChart();
+            }
         }
         if (mode === "all" || mode === "purchase") {
             this.renderSupplierChart();
@@ -138,18 +141,30 @@ export class BffDashboardComponent extends Component {
 
         this.destroyChartInstance("sales");
 
+        const isPos = this.state.mode === "pos";
         const isDaily = this.state.salesView === "daily";
-        const labels = isDaily
-            ? this.state.data.sales.daily_labels
-            : this.state.data.sales.monthly_labels;
-        const values = isDaily
-            ? this.state.data.sales.daily_total
-            : this.state.data.sales.monthly_revenue;
+        
+        let labels = [];
+        let values = [];
+        let chartLabel = "";
+
+        if (isPos) {
+            labels = this.state.data.pos.daily_labels || [];
+            values = this.state.data.pos.daily_values || [];
+            chartLabel = "Omset POS Toko (Rp)";
+        } else {
+            labels = isDaily ? this.state.data.sales.daily_labels : this.state.data.sales.monthly_labels;
+            values = isDaily ? this.state.data.sales.daily_total : this.state.data.sales.monthly_revenue;
+            chartLabel = isDaily ? "Omset Harian (Rp)" : "Omset Bulanan (Rp)";
+        }
 
         const ctx = canvas.getContext("2d");
         const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-        gradient.addColorStop(0, "rgba(37, 99, 235, 0.28)");
-        gradient.addColorStop(1, "rgba(37, 99, 235, 0.0)");
+        const lineColor = isPos ? "#06b6d4" : "#2563eb";
+        const stopColor = isPos ? "rgba(6, 182, 212, 0.3)" : "rgba(37, 99, 235, 0.28)";
+
+        gradient.addColorStop(0, stopColor);
+        gradient.addColorStop(1, "rgba(255, 255, 255, 0.0)");
 
         this.salesChartInstance = new Chart(ctx, {
             type: "line",
@@ -157,14 +172,14 @@ export class BffDashboardComponent extends Component {
                 labels: labels || [],
                 datasets: [
                     {
-                        label: isDaily ? "Omset Harian (Rp)" : "Omset Bulanan (Rp)",
+                        label: chartLabel,
                         data: values || [],
-                        borderColor: "#2563eb",
+                        borderColor: lineColor,
                         borderWidth: 2.5,
                         backgroundColor: gradient,
                         fill: true,
                         tension: 0.4,
-                        pointBackgroundColor: "#2563eb",
+                        pointBackgroundColor: lineColor,
                         pointBorderColor: "#ffffff",
                         pointBorderWidth: 2,
                         pointRadius: 4,
@@ -348,3 +363,4 @@ registry.category("actions").add("bff_dashboard_main", BffDashboardComponent);
 registry.category("actions").add("bff_dashboard_sales", BffDashboardComponent);
 registry.category("actions").add("bff_dashboard_stock", BffDashboardComponent);
 registry.category("actions").add("bff_dashboard_purchase", BffDashboardComponent);
+registry.category("actions").add("bff_dashboard_pos", BffDashboardComponent);

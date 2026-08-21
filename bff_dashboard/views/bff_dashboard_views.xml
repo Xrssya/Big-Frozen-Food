@@ -32,6 +32,14 @@
         <field name="context">{'default_mode': 'purchase'}</field>
     </record>
 
+    <!-- 5. POS Retail Dashboard Client Action (Point of Sale) -->
+    <record id="action_bff_dashboard_pos" model="ir.actions.client">
+        <field name="name">Dashboard POS Toko</field>
+        <field name="tag">bff_dashboard_pos</field>
+        <field name="target">main</field>
+        <field name="context">{'default_mode': 'pos'}</field>
+    </record>
+
 
     <!-- ======================================================= -->
     <!-- MENU PLACEMENTS IN RESPECTIVE MODULES                   -->
@@ -63,6 +71,13 @@
               name="Dashboard Pembelian"
               parent="purchase.menu_purchase_root"
               action="action_bff_dashboard_purchase"
+              sequence="-10"/>
+
+    <!-- Dashboard POS in Point of Sale Module (point_of_sale.menu_point_root) -->
+    <menuitem id="menu_bff_dashboard_pos_item"
+              name="Dashboard POS"
+              parent="point_of_sale.menu_point_root"
+              action="action_bff_dashboard_pos"
               sequence="-10"/>
 
 </odoo>

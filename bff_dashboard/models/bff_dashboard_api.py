@@ -1,23 +1,15 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
-from datetime import datetime, date, timedelta
-from dateutil.relativedelta import relativedelta
-import logging
+from odoo import models, api
+from datetime import date, datetime, timedelta
 
-_logger = logging.getLogger(__name__)
 
-class BffDashboardApi(models.TransientModel):
+class BffDashboardApi(models.AbstractModel):
     _name = 'bff.dashboard.api'
-    _description = 'Big Frozen Food Executive Dashboard API'
+    _description = 'Big Frozen Food Executive & Module Dashboard API'
 
     @api.model
     def get_dashboard_data(self, period='month'):
-        """
-        Fetch real-time aggregated metrics and chart data for Executive Dashboard.
-        Periods: 'month' (Current Month), '30days' (Last 30 Days), 'year' (Year to Date), 'all' (All Time)
-        """
-        today = fields.Date.today()
-        now = datetime.now()
+        today = date.today()
 
         # Determine date filter boundaries
         if period == '30days':
@@ -60,36 +52,38 @@ class BffDashboardApi(models.TransientModel):
 
         for i in range(13, -1, -1):
             d = today - timedelta(days=i)
-            day_start = datetime.combine(d, datetime.min.time())
-            day_end = datetime.combine(d, datetime.max.time())
-            
+            d_start = datetime.combine(d, datetime.min.time())
+            d_end = datetime.combine(d, datetime.max.time())
+
             d_so = sum(so.amount_total for so in self.env['sale.order'].search([
                 ('state', 'in', ['sale', 'done']),
-                ('date_order', '>=', day_start),
-                ('date_order', '<=', day_end)
+                ('date_order', '>=', d_start),
+                ('date_order', '<=', d_end)
             ]))
             d_pos = sum(po.amount_total for po in self.env['pos.order'].search([
                 ('state', 'in', ['paid', 'done', 'invoiced']),
-                ('date_order', '>=', day_start),
-                ('date_order', '<=', day_end)
+                ('date_order', '>=', d_start),
+                ('date_order', '<=', d_end)
             ]))
-            
+
             daily_labels.append(d.strftime('%d %b'))
             daily_so_values.append(round(d_so, 2))
             daily_pos_values.append(round(d_pos, 2))
             daily_total_values.append(round(d_so + d_pos, 2))
 
-        # Monthly Turnover (Last 6 Months)
+        # Monthly Turnover (Current Year)
         monthly_labels = []
         monthly_revenue_values = []
-
-        for i in range(5, -1, -1):
-            m_date = today - relativedelta(months=i)
-            m_start = datetime(m_date.year, m_date.month, 1, 0, 0, 0)
-            if m_date.month == 12:
-                m_end = datetime(m_date.year + 1, 1, 1, 0, 0, 0) - timedelta(seconds=1)
+        current_year = today.year
+        for m in range(1, 13):
+            if m > today.month and period != 'year':
+                break
+            m_start = datetime(current_year, m, 1, 0, 0, 0)
+            if m == 12:
+                m_end = datetime(current_year, 12, 31, 23, 59, 59)
             else:
-                m_end = datetime(m_date.year, m_date.month + 1, 1, 0, 0, 0) - timedelta(seconds=1)
+                next_month = datetime(current_year, m + 1, 1, 0, 0, 0)
+                m_end = next_month - timedelta(seconds=1)
 
             m_so = sum(so.amount_total for so in self.env['sale.order'].search([
                 ('state', 'in', ['sale', 'done']),
@@ -102,7 +96,7 @@ class BffDashboardApi(models.TransientModel):
                 ('date_order', '<=', m_end)
             ]))
 
-            monthly_labels.append(m_date.strftime('%b %Y'))
+            monthly_labels.append(m_start.strftime('%b %Y'))
             monthly_revenue_values.append(round(m_so + m_pos, 2))
 
         # Top 5 Best Selling Products
@@ -156,7 +150,6 @@ class BffDashboardApi(models.TransientModel):
         # ----------------------------------------------------
         # 2. STOCK & EXPIRY DASHBOARD DATA
         # ----------------------------------------------------
-        # Internal Stock Quants
         quants = self.env['stock.quant'].search([
             ('location_id.usage', '=', 'internal'),
             ('quantity', '>', 0)
@@ -164,7 +157,6 @@ class BffDashboardApi(models.TransientModel):
         
         total_stock_value = sum(q.quantity * (q.product_id.standard_price or q.product_id.list_price * 0.7) for q in quants)
 
-        # Low Stock Calculation
         storable_products = self.env['product.product'].search([('is_storable', '=', True)])
         low_stock_list = []
         for p in storable_products:
@@ -180,13 +172,10 @@ class BffDashboardApi(models.TransientModel):
                 })
 
         low_stock_count = len(low_stock_list)
-        # Sort top 8 lowest stock for table view
         low_stock_items = sorted(low_stock_list, key=lambda x: x['qty_available'])[:8]
 
-        # Near Expiry (FEFO) Calculation
         near_expiry_list = []
         near_expiry_count = 0
-        expiry_threshold = today + timedelta(days=30)
         
         if 'use_date' in self.env['stock.lot']._fields or 'expiration_date' in self.env['stock.lot']._fields:
             lot_domain = [('expiration_date', '!=', False)] if 'expiration_date' in self.env['stock.lot']._fields else [('use_date', '!=', False)]
@@ -234,6 +223,45 @@ class BffDashboardApi(models.TransientModel):
         } for s in sorted_suppliers]
 
 
+        # ----------------------------------------------------
+        # 4. POS RETAIL DASHBOARD SPECIFIC DATA
+        # ----------------------------------------------------
+        pos_orders_count = len(pos_orders)
+        avg_basket_size = (total_pos_revenue / pos_orders_count) if pos_orders_count > 0 else 0.0
+
+        active_sessions = self.env['pos.session'].search([('state', '=', 'opened')])
+        session_list = [{
+            'id': s.id,
+            'name': s.name,
+            'config_name': s.config_id.name,
+            'user_name': s.user_id.name,
+            'start_at': s.start_at.strftime('%d %b %H:%M') if s.start_at else '-',
+        } for s in active_sessions]
+
+        pos_product_totals = {}
+        for line in pos_lines:
+            pid = line.product_id.id
+            if pid not in pos_product_totals:
+                pos_product_totals[pid] = {
+                    'id': pid,
+                    'name': line.product_id.display_name,
+                    'qty': 0.0,
+                    'revenue': 0.0,
+                    'uom': line.product_uom_id.name or 'pcs'
+                }
+            pos_product_totals[pid]['qty'] += line.qty
+            pos_product_totals[pid]['revenue'] += line.price_subtotal_incl
+
+        sorted_pos_prods = sorted(pos_product_totals.values(), key=lambda x: x['revenue'], reverse=True)[:5]
+        top_5_pos_products = [{
+            'id': p['id'],
+            'name': p['name'],
+            'qty': round(p['qty'], 2),
+            'revenue': round(p['revenue'], 2),
+            'uom': p['uom']
+        } for p in sorted_pos_prods]
+
+
         return {
             'period': period,
             'sales': {
@@ -259,5 +287,15 @@ class BffDashboardApi(models.TransientModel):
             'purchase': {
                 'monthly_total': round(monthly_purchase_total, 2),
                 'supplier_breakdown': supplier_breakdown,
+            },
+            'pos': {
+                'total_revenue': round(total_pos_revenue, 2),
+                'orders_count': pos_orders_count,
+                'avg_basket_size': round(avg_basket_size, 2),
+                'active_sessions_count': len(active_sessions),
+                'session_list': session_list,
+                'top_5_products': top_5_pos_products,
+                'daily_labels': daily_labels,
+                'daily_values': daily_pos_values,
             }
         }

@@ -14,7 +14,8 @@
                         </span>
                     </div>
                     <h2 class="fw-bold mb-0">
-                        <t t-if="state.mode === 'sales'">Dashboard Penjualan</t>
+                        <t t-if="state.mode === 'sales'">Dashboard Penjualan B2B &amp; POS</t>
+                        <t t-elif="state.mode === 'pos'">Dashboard POS Toko Retail</t>
                         <t t-elif="state.mode === 'stock'">Dashboard Stok &amp; FEFO</t>
                         <t t-elif="state.mode === 'purchase'">Dashboard Pembelian</t>
                         <t t-else="">Dashboard Eksekutif</t>
@@ -26,6 +27,7 @@
                     <div class="bff-pill-group">
                         <button type="button" t-att-class="state.mode === 'all' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('all')">Semua</button>
                         <button type="button" t-att-class="state.mode === 'sales' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('sales')">Penjualan</button>
+                        <button type="button" t-att-class="state.mode === 'pos' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('pos')">POS Toko</button>
                         <button type="button" t-att-class="state.mode === 'stock' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('stock')">Stok &amp; FEFO</button>
                         <button type="button" t-att-class="state.mode === 'purchase' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('purchase')">Pembelian</button>
                     </div>
@@ -55,6 +57,7 @@
                 <!-- KPI CARDS -->
                 <div class="row g-3 mb-4">
 
+                    <!-- Standard Sales Revenue Card -->
                     <t t-if="state.mode === 'all' || state.mode === 'sales'">
                         <div class="col-12 col-sm-6 col-xl-3">
                             <div class="bff-card p-3">
@@ -69,6 +72,87 @@
                                         </div>
                                     </div>
                                     <div class="icon-box icon-box-sales"><i class="fa fa-line-chart"/></div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Dedicated POS Mode KPI Cards -->
+                    <t t-if="state.mode === 'pos'">
+                        <!-- POS Card 1: Total POS Omset -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="bff-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total Omset POS Toko</div>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.pos.total_revenue)"/>
+                                        <div class="mt-2">
+                                            <span class="trend-badge trend-badge-up">
+                                                <i class="fa fa-shopping-bag me-1"/>Retail Toko
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="icon-box icon-box-sales"><i class="fa fa-shopping-bag"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- POS Card 2: Total Transaksi -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="bff-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Jumlah Transaksi POS</div>
+                                        <div class="fw-bold fs-4 text-dark">
+                                            <t t-out="state.data.pos.orders_count"/>
+                                            <small class="fw-normal text-muted fs-6"> Struk</small>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="trend-badge trend-badge-neutral">
+                                                <i class="fa fa-ticket me-1"/>Struk Kasir
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="icon-box icon-box-stock"><i class="fa fa-ticket"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- POS Card 3: Rata-Rata Keranjang (Basket Size) -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="bff-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Rata-Rata per Struk</div>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.pos.avg_basket_size)"/>
+                                        <div class="mt-2">
+                                            <span class="trend-badge trend-badge-neutral">
+                                                <i class="fa fa-calculator me-1"/>Basket Size
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="icon-box icon-box-warning"><i class="fa fa-calculator"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- POS Card 4: Sesi Kasir Aktif -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="bff-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Sesi Kasir Aktif</div>
+                                        <div class="fw-bold fs-4 text-dark">
+                                            <t t-out="state.data.pos.active_sessions_count"/>
+                                            <small class="fw-normal text-muted fs-6"> Sesi Open</small>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="trend-badge trend-badge-up">
+                                                <i class="fa fa-circle text-success me-1"/>Kasir Buka
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="icon-box icon-box-purchase"><i class="fa fa-user-circle-o"/></div>
                                 </div>
                             </div>
                         </div>
@@ -156,6 +240,97 @@
                         </div>
                     </t>
                 </div>
+
+                <!-- DEDICATED POS SECTION -->
+                <t t-if="state.mode === 'pos'">
+                    <div class="row g-4 mb-4">
+                        <div class="col-12 col-lg-8">
+                            <div class="bff-card p-4 h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Grafik Penjualan POS Toko</h6>
+                                        <p class="text-muted mb-0" style="font-size:0.78rem;">Tren omset harian transaksi kasir</p>
+                                    </div>
+                                </div>
+                                <div style="position:relative;height:260px;">
+                                    <canvas t-ref="salesChartCanvas"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <div class="bff-card p-4 h-100">
+                                <h6 class="fw-bold mb-1">Status Sesi Kasir POS</h6>
+                                <p class="text-muted mb-3" style="font-size:0.78rem;">Daftar kasir yang sedang buka</p>
+                                <div class="table-responsive">
+                                    <table class="table align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>POS / Kasir</th>
+                                                <th class="text-center">Jam Buka</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="state.data.pos.session_list" t-as="sess" t-key="sess.id">
+                                                <tr>
+                                                    <td>
+                                                        <div class="fw-semibold text-dark" t-out="sess.config_name"/>
+                                                        <small class="text-muted"><t t-out="sess.user_name"/></small>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge text-bg-success px-2 py-1" t-out="sess.start_at"/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <t t-if="!state.data.pos.session_list.length">
+                                                <tr>
+                                                    <td colspan="2" class="text-center text-muted py-4">Belum ada sesi kasir yang aktif saat ini.</td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top 5 POS Products Table -->
+                    <div class="bff-card p-4 mb-4">
+                        <h6 class="fw-bold mb-1">Top 5 Produk Terlaris POS Toko</h6>
+                        <p class="text-muted mb-3" style="font-size:0.78rem;">Ranking produk berdasarkan omset penjualan retail kasir</p>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th style="width:55px;" class="text-center">Rank</th>
+                                        <th>Produk</th>
+                                        <th class="text-end">Qty Terjual</th>
+                                        <th class="text-end">Total Omset POS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="state.data.pos.top_5_products" t-as="prod" t-key="prod.id">
+                                        <tr>
+                                            <td class="text-center">
+                                                <t t-if="prod_index === 0"><span class="rank-medal rank-1">🥇</span></t>
+                                                <t t-elif="prod_index === 1"><span class="rank-medal rank-2">🥈</span></t>
+                                                <t t-elif="prod_index === 2"><span class="rank-medal rank-3">🥉</span></t>
+                                                <t t-else=""><span class="rank-medal rank-other" t-out="prod_index + 1"/></t>
+                                            </td>
+                                            <td class="fw-semibold" t-out="prod.name"/>
+                                            <td class="text-end fw-bold text-info">
+                                                <t t-out="prod.qty"/> <small class="text-muted fw-normal" t-out="prod.uom"/>
+                                            </td>
+                                            <td class="text-end fw-bold text-success" t-out="formatCurrency(prod.revenue)"/>
+                                        </tr>
+                                    </t>
+                                    <t t-if="!state.data.pos.top_5_products.length">
+                                        <tr><td colspan="4" class="text-center text-muted py-4">Belum ada transaksi POS pada periode ini.</td></tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </t>
 
                 <!-- SALES SECTION -->
                 <t t-if="state.mode === 'all' || state.mode === 'sales'">
