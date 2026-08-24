@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- 1. Grafik Level Stok per Kategori Produk -->
+        <record id="view_bff_report_stock_level_graph" model="ir.ui.view">
+            <field name="name">bff.report.stock.level.graph</field>
+            <field name="model">product.template</field>
+            <field name="arch" type="xml">
+                <graph string="Grafik Jumlah Stok Fisik per Kategori" type="bar" sample="1">
+                    <field name="categ_id" string="Kategori Produk"/>
+                    <field name="qty_available" type="measure" string="Total Kuantitas Stok Fisik"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- 2. Pivot Analisis Status Stok & Batas Reorder Alert -->
+        <record id="view_bff_report_stock_level_pivot" model="ir.ui.view">
+            <field name="name">bff.report.stock.level.pivot</field>
+            <field name="model">product.template</field>
+            <field name="arch" type="xml">
+                <pivot string="Tabel Analisis Level Stok &amp; Batas Ambang Reorder" sample="1">
+                    <field name="categ_id" type="row" string="Kategori Produk"/>
+                    <field name="stock_status" type="col" string="Status Stok Fisik"/>
+                    <field name="qty_available" type="measure" string="Stok Fisik Tersedia"/>
+                    <field name="min_stock_alert_qty" type="measure" string="Batas Ambang Reorder"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Action: Laporan Level & Sebaran Stok Produk -->
+        <record id="action_bff_report_stock_level" model="ir.actions.act_window">
+            <field name="name">Laporan Level &amp; Sebaran Stok Produk</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">graph,pivot,list,kanban</field>
+            <field name="view_id" ref="view_bff_report_stock_level_graph"/>
+            <field name="context">{'search_default_filter_to_sell': 1, 'group_by': ['categ_id']}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Laporan Kuantitas &amp; Sebaran Stok Produk Cold Storage Big Frozen Food.
+                </p>
+            </field>
+        </record>
+
+        <!-- Action: Laporan Peringatan Stok Menipis -->
+        <record id="action_bff_report_low_stock" model="ir.actions.act_window">
+            <field name="name">Laporan Peringatan Stok Menipis (Low Stock)</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">list,kanban,graph,form</field>
+            <field name="context">{'search_default_filter_stock_low': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Daftar Produk yang Kuantitas Stoknya Berada di Bawah Batas Minimum Alert.
+                </p>
+            </field>
+        </record>
+
+        <!-- Action: Laporan Mutasi & Pergerakan Barang -->
+        <record id="action_bff_report_stock_movements" model="ir.actions.act_window">
+            <field name="name">Laporan Mutasi &amp; Pergerakan Barang Beku</field>
+            <field name="res_model">stock.picking</field>
+            <field name="view_mode">list,kanban,form,calendar</field>
+            <field name="context">{'search_default_done': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Laporan Penerimaan Barang Supplier, Transfer antar Freezer, dan Pengeluaran Barang.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

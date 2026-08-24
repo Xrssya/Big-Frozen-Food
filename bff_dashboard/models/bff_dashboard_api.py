@@ -8,11 +8,19 @@ class BffDashboardApi(models.AbstractModel):
     _description = 'Big Frozen Food Executive & Module Dashboard API'
 
     @api.model
-    def get_dashboard_data(self, period='month'):
+    def get_dashboard_data(self, period='month', date_from=None, date_to=None):
         today = date.today()
+        end_date = today
 
         # Determine date filter boundaries
-        if period == '30days':
+        if period == 'custom' and date_from and date_to:
+            try:
+                start_date = datetime.strptime(date_from, '%Y-%m-%d').date()
+                end_date = datetime.strptime(date_to, '%Y-%m-%d').date()
+            except Exception:
+                start_date = date(today.year, today.month, 1)
+                end_date = today
+        elif period == '30days':
             start_date = today - timedelta(days=30)
         elif period == 'year':
             start_date = date(today.year, 1, 1)
@@ -22,17 +30,26 @@ class BffDashboardApi(models.AbstractModel):
             start_date = date(today.year, today.month, 1)
 
         start_datetime = datetime.combine(start_date, datetime.min.time())
+        end_datetime = datetime.combine(end_date, datetime.max.time())
 
         # ----------------------------------------------------
         # 1. SALES DASHBOARD DATA
         # ----------------------------------------------------
         # B2B Sales Orders
-        so_domain = [('state', 'in', ['sale', 'done']), ('date_order', '>=', start_datetime)]
+        so_domain = [
+            ('state', 'in', ['sale', 'done']),
+            ('date_order', '>=', start_datetime),
+            ('date_order', '<=', end_datetime)
+        ]
         sale_orders = self.env['sale.order'].search(so_domain)
         total_so_revenue = sum(so.amount_total for so in sale_orders)
 
         # Retail POS Orders
-        pos_domain = [('state', 'in', ['paid', 'done', 'invoiced']), ('date_order', '>=', start_datetime)]
+        pos_domain = [
+            ('state', 'in', ['paid', 'done', 'invoiced']),
+            ('date_order', '>=', start_datetime),
+            ('date_order', '<=', end_datetime)
+        ]
         pos_orders = self.env['pos.order'].search(pos_domain)
         total_pos_revenue = sum(po.amount_total for po in pos_orders)
 
@@ -44,14 +61,21 @@ class BffDashboardApi(models.AbstractModel):
             'pos_sales': round(total_pos_revenue, 2),
         }
 
-        # Daily Turnover (Last 14 Days)
+        # Daily Turnover Calculation
         daily_labels = []
         daily_so_values = []
         daily_pos_values = []
         daily_total_values = []
 
-        for i in range(13, -1, -1):
-            d = today - timedelta(days=i)
+        total_days = (end_date - start_date).days + 1
+        if total_days > 31:
+            # Step size to limit chart points to ~30 max
+            step = max(1, total_days // 30)
+            date_list = [start_date + timedelta(days=i) for i in range(0, total_days, step)]
+        else:
+            date_list = [start_date + timedelta(days=i) for i in range(total_days)]
+
+        for d in date_list:
             d_start = datetime.combine(d, datetime.min.time())
             d_end = datetime.combine(d, datetime.max.time())
 
@@ -71,12 +95,12 @@ class BffDashboardApi(models.AbstractModel):
             daily_pos_values.append(round(d_pos, 2))
             daily_total_values.append(round(d_so + d_pos, 2))
 
-        # Monthly Turnover (Current Year)
+        # Monthly Turnover
         monthly_labels = []
         monthly_revenue_values = []
         current_year = today.year
         for m in range(1, 13):
-            if m > today.month and period != 'year':
+            if m > today.month and period != 'year' and period != 'all':
                 break
             m_start = datetime(current_year, m, 1, 0, 0, 0)
             if m == 12:
@@ -101,10 +125,10 @@ class BffDashboardApi(models.AbstractModel):
 
         # Top 5 Best Selling Products
         product_totals = {}
-        # Aggregate from sale.order.line
         so_lines = self.env['sale.order.line'].search([
             ('order_id.state', 'in', ['sale', 'done']),
-            ('order_id.date_order', '>=', start_datetime)
+            ('order_id.date_order', '>=', start_datetime),
+            ('order_id.date_order', '<=', end_datetime)
         ])
         for line in so_lines:
             pid = line.product_id.id
@@ -119,10 +143,10 @@ class BffDashboardApi(models.AbstractModel):
             product_totals[pid]['qty'] += line.product_uom_qty
             product_totals[pid]['revenue'] += line.price_subtotal
 
-        # Aggregate from pos.order.line
         pos_lines = self.env['pos.order.line'].search([
             ('order_id.state', 'in', ['paid', 'done', 'invoiced']),
-            ('order_id.date_order', '>=', start_datetime)
+            ('order_id.date_order', '>=', start_datetime),
+            ('order_id.date_order', '<=', end_datetime)
         ])
         for line in pos_lines:
             pid = line.product_id.id
@@ -146,7 +170,6 @@ class BffDashboardApi(models.AbstractModel):
             'uom': p['uom']
         } for p in sorted_products]
 
-
         # ----------------------------------------------------
         # 2. STOCK & EXPIRY DASHBOARD DATA
         # ----------------------------------------------------
@@ -154,7 +177,6 @@ class BffDashboardApi(models.AbstractModel):
             ('location_id.usage', '=', 'internal'),
             ('quantity', '>', 0)
         ])
-        
         total_stock_value = sum(q.quantity * (q.product_id.standard_price or q.product_id.list_price * 0.7) for q in quants)
 
         storable_products = self.env['product.product'].search([('is_storable', '=', True)])
@@ -176,7 +198,6 @@ class BffDashboardApi(models.AbstractModel):
 
         near_expiry_list = []
         near_expiry_count = 0
-        
         if 'use_date' in self.env['stock.lot']._fields or 'expiration_date' in self.env['stock.lot']._fields:
             lot_domain = [('expiration_date', '!=', False)] if 'expiration_date' in self.env['stock.lot']._fields else [('use_date', '!=', False)]
             lots = self.env['stock.lot'].search(lot_domain)
@@ -199,11 +220,14 @@ class BffDashboardApi(models.AbstractModel):
 
         near_expiry_items = sorted(near_expiry_list, key=lambda x: x['days_left'])[:8]
 
-
         # ----------------------------------------------------
         # 3. PURCHASE DASHBOARD DATA
         # ----------------------------------------------------
-        po_domain = [('state', 'in', ['purchase', 'done']), ('date_order', '>=', start_datetime)]
+        po_domain = [
+            ('state', 'in', ['purchase', 'done']),
+            ('date_order', '>=', start_datetime),
+            ('date_order', '<=', end_datetime)
+        ]
         purchase_orders = self.env['purchase.order'].search(po_domain)
         monthly_purchase_total = sum(po.amount_total for po in purchase_orders)
 
@@ -221,7 +245,6 @@ class BffDashboardApi(models.AbstractModel):
             'po_count': s['po_count'],
             'total': round(s['total'], 2)
         } for s in sorted_suppliers]
-
 
         # ----------------------------------------------------
         # 4. POS RETAIL DASHBOARD SPECIFIC DATA
@@ -261,9 +284,10 @@ class BffDashboardApi(models.AbstractModel):
             'uom': p['uom']
         } for p in sorted_pos_prods]
 
-
         return {
             'period': period,
+            'date_from': start_date.strftime('%Y-%m-%d'),
+            'date_to': end_date.strftime('%Y-%m-%d'),
             'sales': {
                 'total_revenue': round(total_sales_revenue, 2),
                 'so_revenue': round(total_so_revenue, 2),

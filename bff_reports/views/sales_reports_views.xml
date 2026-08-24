@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- 1. Grafik Analisis Omset Penjualan (Harian & Bulanan) -->
+        <record id="view_bff_report_sales_turnover_graph" model="ir.ui.view">
+            <field name="name">bff.report.sales.turnover.graph</field>
+            <field name="model">sale.report</field>
+            <field name="arch" type="xml">
+                <graph string="Grafik Tren Omset Penjualan (Rp)" type="bar" sample="1">
+                    <field name="date" interval="day" string="Tanggal Transaksi"/>
+                    <field name="price_subtotal" type="measure" string="Total Omset (Rp)"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- 2. Pivot Analisis Penjualan per Kategori & Agen/Pelanggan -->
+        <record id="view_bff_report_sales_pivot" model="ir.ui.view">
+            <field name="name">bff.report.sales.pivot</field>
+            <field name="model">sale.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Tabel Analisis Penjualan per Kategori &amp; Pelanggan" sample="1">
+                    <field name="categ_id" type="row" string="Kategori Produk"/>
+                    <field name="partner_id" type="row" string="Nama Agen / Pelanggan"/>
+                    <field name="date" interval="month" type="col" string="Bulan Transaksi"/>
+                    <field name="product_uom_qty" type="measure" string="Jumlah Terjual (Unit/Kg)"/>
+                    <field name="price_subtotal" type="measure" string="Total Omset (Rp)"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- 3. Grafik Top Produk Terlaris -->
+        <record id="view_bff_report_top_products_graph" model="ir.ui.view">
+            <field name="name">bff.report.top.products.graph</field>
+            <field name="model">sale.report</field>
+            <field name="arch" type="xml">
+                <graph string="Grafik Top Produk Terlaris" type="pie" sample="1">
+                    <field name="product_id" string="Produk Frozen Food"/>
+                    <field name="product_uom_qty" type="measure" string="Volume Terjual (Unit/Kg)"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- 4. Grafik Penjualan POS Kasir Toko Retail -->
+        <record id="view_bff_report_pos_sales_graph" model="ir.ui.view">
+            <field name="name">bff.report.pos.sales.graph</field>
+            <field name="model">report.pos.order</field>
+            <field name="arch" type="xml">
+                <graph string="Grafik Omset Penjualan Kasir POS Toko" type="bar" sample="1">
+                    <field name="date" interval="day" string="Tanggal Transaksi POS"/>
+                    <field name="price_total" type="measure" string="Total Belanja Retail (Rp)"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- 5. Pivot Penjualan POS Kasir Toko Retail -->
+        <record id="view_bff_report_pos_sales_pivot" model="ir.ui.view">
+            <field name="name">bff.report.pos.sales.pivot</field>
+            <field name="model">report.pos.order</field>
+            <field name="arch" type="xml">
+                <pivot string="Tabel Analisis Penjualan Kasir Toko" sample="1">
+                    <field name="config_id" type="row" string="Mesin Kasir / Mesin POS"/>
+                    <field name="user_id" type="row" string="Nama Kasir Penanggung Jawab"/>
+                    <field name="date" interval="month" type="col" string="Bulan Transaksi"/>
+                    <field name="nbr_lines" type="measure" string="Jumlah Item Transaksi"/>
+                    <field name="price_total" type="measure" string="Total Nominal Struk (Rp)"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Action: Laporan Omset & Tren Penjualan -->
+        <record id="action_bff_report_sales_turnover" model="ir.actions.act_window">
+            <field name="name">Laporan Omset &amp; Tren Penjualan</field>
+            <field name="res_model">sale.report</field>
+            <field name="view_mode">graph,pivot,list</field>
+            <field name="view_id" ref="view_bff_report_sales_turnover_graph"/>
+            <field name="context">{'search_default_FilterOrderDate': 1, 'group_by': ['date:day']}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Laporan Rekapitulasi &amp; Tren Omset Penjualan Harian/Bulanan Toko Big Frozen Food.
+                </p>
+            </field>
+        </record>
+
+        <!-- Action: Laporan Top Produk Terlaris -->
+        <record id="action_bff_report_top_products" model="ir.actions.act_window">
+            <field name="name">Laporan Top Produk Terlaris</field>
+            <field name="res_model">sale.report</field>
+            <field name="view_mode">graph,pivot,list</field>
+            <field name="view_id" ref="view_bff_report_top_products_graph"/>
+            <field name="context">{'group_by': ['product_id']}</field>
+        </record>
+
+        <!-- Action: Laporan Penjualan Kasir POS Toko -->
+        <record id="action_bff_report_pos_sales" model="ir.actions.act_window">
+            <field name="name">Laporan Penjualan Kasir POS Toko</field>
+            <field name="res_model">report.pos.order</field>
+            <field name="view_mode">graph,pivot,list</field>
+            <field name="view_id" ref="view_bff_report_pos_sales_graph"/>
+            <field name="context">{'group_by': ['date:day', 'user_id']}</field>
+        </record>
+
+    </data>
+</odoo>

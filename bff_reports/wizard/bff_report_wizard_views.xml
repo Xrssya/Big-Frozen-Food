@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- 1. Wizard Ekspor Laporan Penjualan -->
+        <record id="view_bff_sales_report_wizard_form" model="ir.ui.view">
+            <field name="name">bff.sales.report.wizard.form</field>
+            <field name="model">bff.sales.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Ekspor Laporan Penjualan">
+                    <sheet>
+                        <div class="mb-3">
+                            <h4 class="fw-bold text-primary mb-1">Pusat Ekspor Laporan Penjualan &amp; POS</h4>
+                            <p class="text-muted mb-0">Pilih jenis laporan, rentang tanggal, dan saluran penjualan untuk diunduh langsung dalam format Excel (.xlsx).</p>
+                        </div>
+                        <group>
+                            <group string="Parameter Filter Laporan">
+                                <field name="report_type" widget="radio"/>
+                                <field name="sales_channel" widget="radio"/>
+                            </group>
+                            <group string="Rentang Tanggal Laporan">
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_export_excel" string="Unduh File Excel (.xlsx)" type="object" class="btn-primary"/>
+                        <button string="Batal" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_bff_sales_report_wizard" model="ir.actions.act_window">
+            <field name="name">Ekspor Laporan Penjualan (Excel)</field>
+            <field name="res_model">bff.sales.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_bff_sales_report_wizard_form"/>
+        </record>
+
+        <!-- 2. Wizard Ekspor Laporan Stok -->
+        <record id="view_bff_stock_report_wizard_form" model="ir.ui.view">
+            <field name="name">bff.stock.report.wizard.form</field>
+            <field name="model">bff.stock.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Ekspor Laporan Stok Gudang">
+                    <sheet>
+                        <div class="mb-3">
+                            <h4 class="fw-bold text-primary mb-1">Pusat Ekspor Laporan Inventaris &amp; Stok Cold Storage</h4>
+                            <p class="text-muted mb-0">Pilih jenis laporan stok produk untuk diunduh langsung dalam format Excel (.xlsx).</p>
+                        </div>
+                        <group>
+                            <group string="Jenis Laporan Stok">
+                                <field name="report_type" widget="radio"/>
+                            </group>
+                            <group string="Filter Spesifik">
+                                <field name="categ_id"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_export_excel" string="Unduh File Excel (.xlsx)" type="object" class="btn-primary"/>
+                        <button string="Batal" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_bff_stock_report_wizard" model="ir.actions.act_window">
+            <field name="name">Ekspor Laporan Stok (Excel)</field>
+            <field name="res_model">bff.stock.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_bff_stock_report_wizard_form"/>
+        </record>
+
+        <!-- 3. Wizard Ekspor Laporan Pembelian -->
+        <record id="view_bff_purchase_report_wizard_form" model="ir.ui.view">
+            <field name="name">bff.purchase.report.wizard.form</field>
+            <field name="model">bff.purchase.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Ekspor Laporan Pembelian">
+                    <sheet>
+                        <div class="mb-3">
+                            <h4 class="fw-bold text-primary mb-1">Pusat Ekspor Laporan Pembelian &amp; Belanja Pemasok</h4>
+                            <p class="text-muted mb-0">Pilih jenis laporan dan rentang tanggal untuk diunduh langsung dalam format Excel (.xlsx).</p>
+                        </div>
+                        <group>
+                            <group string="Jenis Laporan Pembelian">
+                                <field name="report_type" widget="radio"/>
+                                <field name="partner_id"/>
+                            </group>
+                            <group string="Rentang Tanggal Laporan">
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_export_excel" string="Unduh File Excel (.xlsx)" type="object" class="btn-primary"/>
+                        <button string="Batal" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_bff_purchase_report_wizard" model="ir.actions.act_window">
+            <field name="name">Ekspor Laporan Pembelian (Excel)</field>
+            <field name="res_model">bff.purchase.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_bff_purchase_report_wizard_form"/>
+        </record>
+
+        <!-- 4. Wizard Ekspor Laporan Keuangan -->
+        <record id="view_bff_finance_report_wizard_form" model="ir.ui.view">
+            <field name="name">bff.finance.report.wizard.form</field>
+            <field name="model">bff.finance.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Ekspor Laporan Keuangan &amp; Piutang">
+                    <sheet>
+                        <div class="mb-3">
+                            <h4 class="fw-bold text-primary mb-1">Pusat Ekspor Laporan Keuangan &amp; Piutang / Hutang</h4>
+                            <p class="text-muted mb-0">Pilih jenis laporan keuangan untuk diunduh langsung dalam format Excel (.xlsx).</p>
+                        </div>
+                        <group>
+                            <group string="Jenis Laporan Keuangan">
+                                <field name="report_type" widget="radio"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_export_excel" string="Unduh File Excel (.xlsx)" type="object" class="btn-primary"/>
+                        <button string="Batal" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_bff_finance_report_wizard" model="ir.actions.act_window">
+            <field name="name">Ekspor Laporan Keuangan (Excel)</field>
+            <field name="res_model">bff.finance.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_bff_finance_report_wizard_form"/>
+        </record>
+
+    </data>
+</odoo>

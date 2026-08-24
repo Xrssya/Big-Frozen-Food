@@ -23,25 +23,34 @@
                 </div>
 
                 <div class="d-flex align-items-center flex-wrap gap-3 mt-3 mt-md-0">
-                    <!-- Mode Pills -->
-                    <div class="bff-pill-group">
-                        <button type="button" t-att-class="state.mode === 'all' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('all')">Semua</button>
-                        <button type="button" t-att-class="state.mode === 'sales' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('sales')">Penjualan</button>
-                        <button type="button" t-att-class="state.mode === 'pos' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('pos')">POS</button>
-                        <button type="button" t-att-class="state.mode === 'stock' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('stock')">Stok &amp; FEFO</button>
-                        <button type="button" t-att-class="state.mode === 'purchase' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('purchase')">Pembelian</button>
+                    <!-- Mode Pills (Hanya tampil di Dashboard Eksekutif Utama, tersembunyi jika dibuka dari modul spesifik) -->
+                    <t t-if="!state.isEmbedded">
+                        <div class="bff-pill-group">
+                            <button type="button" t-att-class="state.mode === 'all' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('all')">Semua</button>
+                            <button type="button" t-att-class="state.mode === 'sales' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('sales')">Penjualan</button>
+                            <button type="button" t-att-class="state.mode === 'pos' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('pos')">POS Toko</button>
+                            <button type="button" t-att-class="state.mode === 'stock' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('stock')">Stok &amp; FEFO</button>
+                            <button type="button" t-att-class="state.mode === 'purchase' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('purchase')">Pembelian</button>
+                        </div>
+                    </t>
+
+                    <!-- Rentang Tanggal Terintegrasi (Tombol Preset + Datepicker Otomatis Tanpa Tombol Terapkan/Refresh) -->
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <div class="bff-period-group">
+                            <button type="button" t-att-class="state.period === 'month' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.selectPreset('month')">Bulan Ini</button>
+                            <button type="button" t-att-class="state.period === '30days' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.selectPreset('30days')">30 Hari</button>
+                            <button type="button" t-att-class="state.period === 'year' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.selectPreset('year')">Tahun Ini</button>
+                            <button type="button" t-att-class="state.period === 'all' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.selectPreset('all')">Semua</button>
+                        </div>
+
+                        <!-- Datepicker Input Range (Berubah Biru Aktif saat Memilih / Custom Tanggal) -->
+                        <div t-att-class="state.period === 'custom' ? 'bff-date-range-box active-blue' : 'bff-date-range-box'">
+                            <small class="fw-semibold ms-1">Dari:</small>
+                            <input type="date" class="form-control form-control-sm border-0 shadow-none" style="width:130px;" t-model="state.dateFrom" t-on-change="() => this.onCustomDateChange()" t-on-focus="() => this.onCustomDateFocus()"/>
+                            <small class="fw-semibold">s/d:</small>
+                            <input type="date" class="form-control form-control-sm border-0 shadow-none" style="width:130px;" t-model="state.dateTo" t-on-change="() => this.onCustomDateChange()" t-on-focus="() => this.onCustomDateFocus()"/>
+                        </div>
                     </div>
-                    <!-- Period Pills -->
-                    <div class="bff-period-group">
-                        <button type="button" t-att-class="state.period === 'month' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.changePeriod('month')">Bulan Ini</button>
-                        <button type="button" t-att-class="state.period === '30days' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.changePeriod('30days')">30 Hari</button>
-                        <button type="button" t-att-class="state.period === 'year' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.changePeriod('year')">Tahun Ini</button>
-                        <button type="button" t-att-class="state.period === 'all' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.changePeriod('all')">Semua</button>
-                    </div>
-                    <!-- Refresh -->
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" style="width:36px;height:36px;" t-on-click="reloadDashboard" title="Refresh">
-                        <i t-att-class="state.loading ? 'fa fa-refresh fa-spin' : 'fa fa-refresh'"/>
-                    </button>
                 </div>
             </div>
 

@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bff_report_sale_report,bff.report.sale.report,sale.model_sale_report,base.group_user,1,0,0,0
+access_bff_report_pos_order_report,bff.report.pos.order.report,point_of_sale.model_report_pos_order,base.group_user,1,0,0,0
+access_bff_report_purchase_report,bff.report.purchase.report,purchase.model_purchase_report,base.group_user,1,0,0,0
+access_bff_sales_report_wizard,bff.sales.report.wizard,model_bff_sales_report_wizard,base.group_user,1,1,1,1
+access_bff_stock_report_wizard,bff.stock.report.wizard,model_bff_stock_report_wizard,base.group_user,1,1,1,1
+access_bff_purchase_report_wizard,bff.purchase.report.wizard,model_bff_purchase_report_wizard,base.group_user,1,1,1,1
+access_bff_finance_report_wizard,bff.finance.report.wizard,model_bff_finance_report_wizard,base.group_user,1,1,1,1

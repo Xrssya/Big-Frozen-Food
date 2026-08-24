@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ============================================================
+             1. PENJUALAN: KLIK MENU LAPORAN LANGSUNG MUNCUL WIZARD
+             ============================================================ -->
+        <!-- Sembunyikan Submenu Default Odoo -->
+        <record id="sale.menu_reporting_sales" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+        <record id="sale.menu_reporting_salespeople" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+        <record id="sale.menu_reporting_product" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+        <record id="sale.menu_reporting_customer" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+
+        <!-- Pasang Aksi Wizard Langsung pada Top Menu Navbar 'Laporan' Penjualan -->
+        <record id="sale.menu_sale_report" model="ir.ui.menu">
+            <field name="action" ref="action_bff_sales_report_wizard"/>
+            <field name="name">Laporan</field>
+        </record>
+
+        <!-- ============================================================
+             2. POINT OF SALE (POS): KLIK MENU LAPORAN LANGSUNG MUNCUL WIZARD
+             ============================================================ -->
+        <record id="point_of_sale.menu_report_pos_order_all" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+        <record id="point_of_sale.menu_report_order_details" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+        <record id="point_of_sale.menu_report_daily_details" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+
+        <record id="point_of_sale.menu_point_rep" model="ir.ui.menu">
+            <field name="action" ref="action_bff_sales_report_wizard"/>
+            <field name="name">Laporan</field>
+        </record>
+
+        <!-- ============================================================
+             3. INVENTARIS: KLIK MENU LAPORAN LANGSUNG MUNCUL WIZARD
+             ============================================================ -->
+        <record id="stock.menu_product_stock" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+        <record id="stock.stock_move_line_menu" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+        <record id="stock.stock_move_menu" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+        <record id="stock_account.menu_valuation" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+
+        <record id="stock.menu_warehouse_report" model="ir.ui.menu">
+            <field name="action" ref="action_bff_stock_report_wizard"/>
+            <field name="name">Laporan</field>
+        </record>
+
+        <!-- ============================================================
+             4. PEMBELIAN: KLIK MENU LAPORAN LANGSUNG MUNCUL WIZARD
+             ============================================================ -->
+        <record id="purchase.purchase_report" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+
+        <record id="purchase.purchase_report_main" model="ir.ui.menu">
+            <field name="action" ref="action_bff_purchase_report_wizard"/>
+            <field name="name">Laporan</field>
+        </record>
+
+        <!-- ============================================================
+             5. PENAGIHAN / KEUANGAN: KLIK MENU LAPORAN LANGSUNG MUNCUL WIZARD
+             ============================================================ -->
+        <record id="account.account_reports_management_menu" model="ir.ui.menu">
+            <field name="active">False</field>
+        </record>
+
+        <record id="account.menu_finance_reports" model="ir.ui.menu">
+            <field name="action" ref="action_bff_finance_report_wizard"/>
+            <field name="name">Laporan</field>
+        </record>
+
+    </data>
+</odoo>

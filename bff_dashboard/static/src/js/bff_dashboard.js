@@ -1,7 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
-import { Component, onWillStart, onMounted, onPatched, useRef, useState } from "@odoo/owl";
+import { Component, onWillStart, onMounted, onWillUnmount, onPatched, useRef, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { loadJS } from "@web/core/assets";
 
@@ -17,8 +17,13 @@ export class BffDashboardComponent extends Component {
         this.actionService = useService("action");
 
         let defaultMode = "all";
+        let isEmbedded = false;
+
         if (this.props.action?.context?.default_mode) {
             defaultMode = this.props.action.context.default_mode;
+            if (defaultMode !== "all") {
+                isEmbedded = true;
+            }
         } else if (this.props.action?.tag) {
             const tagMap = {
                 bff_dashboard_sales: "sales",
@@ -26,12 +31,48 @@ export class BffDashboardComponent extends Component {
                 bff_dashboard_purchase: "purchase",
                 bff_dashboard_pos: "pos",
             };
-            defaultMode = tagMap[this.props.action.tag] || "all";
+            if (tagMap[this.props.action.tag]) {
+                defaultMode = tagMap[this.props.action.tag];
+                isEmbedded = true;
+            }
         }
+
+        const formatDate = (d) => {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        };
+
+        this.getPresetDates = (preset) => {
+            const today = new Date();
+            let from = new Date();
+            let to = today;
+
+            if (preset === "month") {
+                from = new Date(today.getFullYear(), today.getMonth(), 1);
+            } else if (preset === "30days") {
+                from = new Date();
+                from.setDate(today.getDate() - 30);
+            } else if (preset === "year") {
+                from = new Date(today.getFullYear(), 0, 1);
+            } else if (preset === "all") {
+                from = new Date(2020, 0, 1);
+            }
+            return {
+                dateFrom: formatDate(from),
+                dateTo: formatDate(to),
+            };
+        };
+
+        const initialDates = this.getPresetDates("month");
 
         this.state = useState({
             mode: defaultMode,
+            isEmbedded: isEmbedded,
             period: "month",
+            dateFrom: initialDates.dateFrom,
+            dateTo: initialDates.dateTo,
             salesView: "daily",
             loading: true,
             data: null,
@@ -44,6 +85,8 @@ export class BffDashboardComponent extends Component {
         this.salesChartInstance = null;
         this.channelChartInstance = null;
         this.supplierChartInstance = null;
+
+        this.autoRefreshInterval = null;
 
         onWillStart(async () => {
             if (!window.Chart) {
@@ -62,7 +105,19 @@ export class BffDashboardComponent extends Component {
         });
 
         onMounted(() => {
-            setTimeout(() => this.renderCharts(), 50);
+            this.renderCharts();
+            // Live Background Polling every 30 seconds without interrupting UI
+            this.autoRefreshInterval = setInterval(() => {
+                this.silentReloadData();
+            }, 30000);
+        });
+
+        onWillUnmount(() => {
+            if (this.autoRefreshInterval) {
+                clearInterval(this.autoRefreshInterval);
+                this.autoRefreshInterval = null;
+            }
+            this.destroyCharts();
         });
 
         onPatched(() => {
@@ -76,7 +131,7 @@ export class BffDashboardComponent extends Component {
             const data = await this.orm.call(
                 "bff.dashboard.api",
                 "get_dashboard_data",
-                [this.state.period]
+                [this.state.period, this.state.dateFrom, this.state.dateTo]
             );
             this.state.data = data;
         } catch (err) {
@@ -87,9 +142,36 @@ export class BffDashboardComponent extends Component {
         }
     }
 
-    async changePeriod(period) {
-        if (this.state.period !== period) {
-            this.state.period = period;
+    async silentReloadData() {
+        try {
+            const data = await this.orm.call(
+                "bff.dashboard.api",
+                "get_dashboard_data",
+                [this.state.period, this.state.dateFrom, this.state.dateTo]
+            );
+            this.state.data = data;
+            this.renderCharts();
+        } catch (err) {
+            console.error("BFF Dashboard: Background silent refresh failed:", err);
+        }
+    }
+
+    async selectPreset(preset) {
+        this.state.period = preset;
+        const dates = this.getPresetDates(preset);
+        this.state.dateFrom = dates.dateFrom;
+        this.state.dateTo = dates.dateTo;
+        this.destroyCharts();
+        await this.loadData();
+    }
+
+    onCustomDateFocus() {
+        this.state.period = "custom";
+    }
+
+    async onCustomDateChange() {
+        this.state.period = "custom";
+        if (this.state.dateFrom && this.state.dateTo && this.state.dateFrom <= this.state.dateTo) {
             this.destroyCharts();
             await this.loadData();
         }
@@ -98,11 +180,6 @@ export class BffDashboardComponent extends Component {
     changeMode(mode) {
         this.destroyCharts();
         this.state.mode = mode;
-    }
-
-    async reloadDashboard() {
-        this.destroyCharts();
-        await this.loadData();
     }
 
     toggleSalesView(view) {

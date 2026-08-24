@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Form View Wizard Ekspor Laporan Penjualan -->
+        <record id="view_bff_sales_report_wizard_form" model="ir.ui.view">
+            <field name="name">bff.sales.report.wizard.form</field>
+            <field name="model">bff.sales.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Ekspor Laporan Penjualan &amp; Analytics">
+                    <sheet>
+                        <div class="mb-3">
+                            <h4 class="fw-bold text-primary mb-1">Pusat Ekspor Laporan Penjualan &amp; POS</h4>
+                            <p class="text-muted mb-0">Pilih jenis laporan, rentang tanggal, dan saluran penjualan untuk diunduh dalam format Excel (.xlsx) atau ditampilkan di layar.</p>
+                        </div>
+                        <group>
+                            <group string="Parameter Filter Laporan">
+                                <field name="report_type" widget="radio"/>
+                                <field name="sales_channel" widget="radio"/>
+                            </group>
+                            <group string="Rentang Tanggal Laporan">
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_export_excel" string="Unduh File Excel (.xlsx)" type="object" class="btn-success"/>
+                        <button name="action_view_report" string="Tampilkan Layar (Grafik &amp; Tabel)" type="object" class="btn-primary"/>
+                        <button string="Batal" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action Opening Wizard Popup Modal -->
+        <record id="action_bff_sales_report_wizard" model="ir.actions.act_window">
+            <field name="name">Ekspor Laporan Penjualan (Excel)</field>
+            <field name="res_model">bff.sales.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_bff_sales_report_wizard_form"/>
+        </record>
+
+    </data>
+</odoo>

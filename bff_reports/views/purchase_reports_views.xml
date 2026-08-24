@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- 1. Grafik Belanja ke Pemasok / Supplier -->
+        <record id="view_bff_report_purchase_supplier_graph" model="ir.ui.view">
+            <field name="name">bff.report.purchase.supplier.graph</field>
+            <field name="model">purchase.report</field>
+            <field name="arch" type="xml">
+                <graph string="Grafik Total Belanja ke Pemasok (Rp)" type="bar" sample="1">
+                    <field name="partner_id" string="Nama Pemasok / Supplier"/>
+                    <field name="price_total" type="measure" string="Total Nominal Pembelian (Rp)"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- 2. Pivot Analisis Belanja Pemasok per Kategori & Bulan -->
+        <record id="view_bff_report_purchase_supplier_pivot" model="ir.ui.view">
+            <field name="name">bff.report.purchase.supplier.pivot</field>
+            <field name="model">purchase.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Tabel Analisis Pembelian per Kategori Produk &amp; Pemasok" sample="1">
+                    <field name="category_id" type="row" string="Kategori Produk"/>
+                    <field name="partner_id" type="row" string="Nama Pemasok / Supplier"/>
+                    <field name="date_approve" interval="month" type="col" string="Bulan Transaksi PO"/>
+                    <field name="qty_ordered" type="measure" string="Total Kuantitas Diorder"/>
+                    <field name="price_total" type="measure" string="Total Belanja Modal (Rp)"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Action: Laporan Analisis Belanja Pemasok -->
+        <record id="action_bff_report_purchase_supplier" model="ir.actions.act_window">
+            <field name="name">Laporan Analisis Belanja Pemasok / Supplier</field>
+            <field name="res_model">purchase.report</field>
+            <field name="view_mode">graph,pivot,list</field>
+            <field name="view_id" ref="view_bff_report_purchase_supplier_graph"/>
+            <field name="context">{'group_by': ['partner_id']}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Laporan Rekapitulasi Alokasi Belanja Modal ke Pemasok / Supplier Produk Frozen Food.
+                </p>
+            </field>
+        </record>
+
+        <!-- Action: Laporan Riwayat Pembelian & Modal Produk (PO Lines) -->
+        <record id="action_bff_report_purchase_order_lines" model="ir.actions.act_window">
+            <field name="name">Laporan Detail Rincian Pembelian &amp; Modal HPP</field>
+            <field name="res_model">purchase.order.line</field>
+            <field name="view_mode">list,pivot,graph,form</field>
+            <field name="context">{'search_default_purchase_orders': 1, 'group_by': ['product_id']}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Detail Rincian Item Pembelian Produk, Harga Modal Beli, dan Kuantitas yang Dipesan.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,8 +1,17 @@
 /* Big Frozen Food - Modern Executive Dashboard Styles */
 
+.o_action_manager:has(.o_bff_dashboard),
+.o_content:has(.o_bff_dashboard) {
+    overflow-y: auto !important;
+    height: 100% !important;
+}
+
 .o_bff_dashboard {
     background: #f1f5f9;
     min-height: 100vh;
+    height: 100%;
+    overflow-y: auto !important;
+    overflow-x: hidden;
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: #0f172a;
 
@@ -167,6 +176,39 @@
                 background: #2563eb;
                 color: #ffffff;
                 box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+            }
+        }
+    }
+
+    /* Custom Blue Active Date Box */
+    .bff-date-range-box {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 9999px;
+        padding: 3px 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &.active-blue {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-color: #1e40af;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+            color: #ffffff;
+
+            small {
+                color: #ffffff !important;
+                font-weight: 700;
+            }
+
+            input[type="date"] {
+                background: #ffffff !important;
+                color: #0f172a !important;
+                font-weight: 700;
+                border-radius: 9999px;
+                padding-left: 8px;
+                padding-right: 8px;
             }
         }
     }
