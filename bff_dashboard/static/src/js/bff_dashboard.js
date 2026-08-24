@@ -3,6 +3,7 @@
 import { registry } from "@web/core/registry";
 import { Component, onWillStart, onMounted, onPatched, useRef, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { loadJS } from "@web/core/assets";
 
 export class BffDashboardComponent extends Component {
     static template = "bff_dashboard.BffDashboardTemplate";
@@ -45,15 +46,27 @@ export class BffDashboardComponent extends Component {
         this.supplierChartInstance = null;
 
         onWillStart(async () => {
+            if (!window.Chart) {
+                try {
+                    await loadJS("/bff_dashboard/static/lib/chart.min.js");
+                } catch (e) {
+                    console.warn("BFF Dashboard: Failed to load local Chart.js, trying CDN fallback", e);
+                    try {
+                        await loadJS("https://cdn.jsdelivr.net/npm/chart.js");
+                    } catch (e2) {
+                        console.error("BFF Dashboard: Failed to load Chart.js from CDN", e2);
+                    }
+                }
+            }
             await this.loadData();
         });
 
         onMounted(() => {
-            this.renderCharts();
+            setTimeout(() => this.renderCharts(), 50);
         });
 
         onPatched(() => {
-            this.renderCharts();
+            setTimeout(() => this.renderCharts(), 50);
         });
     }
 

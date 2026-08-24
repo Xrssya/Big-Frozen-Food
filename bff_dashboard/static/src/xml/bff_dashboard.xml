@@ -15,10 +15,10 @@
                     </div>
                     <h2 class="fw-bold mb-0">
                         <t t-if="state.mode === 'sales'">Dashboard Penjualan B2B &amp; POS</t>
-                        <t t-elif="state.mode === 'pos'">Dashboard POS Toko Retail</t>
+                        <t t-elif="state.mode === 'pos'">POS Toko Retail</t>
                         <t t-elif="state.mode === 'stock'">Dashboard Stok &amp; FEFO</t>
                         <t t-elif="state.mode === 'purchase'">Dashboard Pembelian</t>
-                        <t t-else="">Dashboard Eksekutif</t>
+                        <t t-else="">Dashboard Utama</t>
                     </h2>
                 </div>
 
@@ -27,7 +27,7 @@
                     <div class="bff-pill-group">
                         <button type="button" t-att-class="state.mode === 'all' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('all')">Semua</button>
                         <button type="button" t-att-class="state.mode === 'sales' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('sales')">Penjualan</button>
-                        <button type="button" t-att-class="state.mode === 'pos' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('pos')">POS Toko</button>
+                        <button type="button" t-att-class="state.mode === 'pos' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('pos')">POS</button>
                         <button type="button" t-att-class="state.mode === 'stock' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('stock')">Stok &amp; FEFO</button>
                         <button type="button" t-att-class="state.mode === 'purchase' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('purchase')">Pembelian</button>
                     </div>
@@ -59,7 +59,7 @@
 
                     <!-- Standard Sales Revenue Card -->
                     <t t-if="state.mode === 'all' || state.mode === 'sales'">
-                        <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
                             <div class="bff-card p-3">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -80,7 +80,7 @@
                     <!-- Dedicated POS Mode KPI Cards -->
                     <t t-if="state.mode === 'pos'">
                         <!-- POS Card 1: Total POS Omset -->
-                        <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
                             <div class="bff-card p-3">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -98,7 +98,7 @@
                         </div>
 
                         <!-- POS Card 2: Total Transaksi -->
-                        <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
                             <div class="bff-card p-3">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -119,7 +119,7 @@
                         </div>
 
                         <!-- POS Card 3: Rata-Rata Keranjang (Basket Size) -->
-                        <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
                             <div class="bff-card p-3">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -137,7 +137,7 @@
                         </div>
 
                         <!-- POS Card 4: Sesi Kasir Aktif -->
-                        <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
                             <div class="bff-card p-3">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -159,7 +159,7 @@
                     </t>
 
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
-                        <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
                             <div class="bff-card p-3">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -178,7 +178,7 @@
                     </t>
 
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
-                        <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
                             <div class="bff-card p-3">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -200,7 +200,7 @@
                     </t>
 
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
-                        <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
                             <div class="bff-card p-3">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -222,7 +222,7 @@
                     </t>
 
                     <t t-if="state.mode === 'all' || state.mode === 'purchase'">
-                        <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
                             <div class="bff-card p-3">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>

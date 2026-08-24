@@ -49,16 +49,16 @@
                 <field name="expiry_level"/>
                 <field name="days_to_expiry"/>
             </xpath>
-            <xpath expr="//templates//t[@t-name='card']" position="inside">
-                <div t-if="record.expiry_level &amp;&amp; record.expiry_level.raw_value == 'danger'"
-                     class="position-absolute top-0 start-0 m-1 px-2 py-1 rounded bg-danger text-white fw-bold"
-                     style="font-size: 10px; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                    🔥 🔴 Exp <t t-esc="record.days_to_expiry ? record.days_to_expiry.value : ''"/>H
+            <xpath expr="//main" position="inside">
+                <div t-if="record.expiry_level &amp;&amp; record.expiry_level.raw_value == 'danger'" class="mt-1">
+                    <span class="badge text-bg-danger fw-bold px-2 py-1" style="font-size: 10px;">
+                        🔥 Exp <t t-esc="record.days_to_expiry ? record.days_to_expiry.value : ''"/>H
+                    </span>
                 </div>
-                <div t-elif="record.expiry_level &amp;&amp; record.expiry_level.raw_value == 'warning'"
-                     class="position-absolute top-0 start-0 m-1 px-2 py-1 rounded bg-warning text-dark fw-bold"
-                     style="font-size: 10px; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                    ⚠️ 🟡 Exp <t t-esc="record.days_to_expiry ? record.days_to_expiry.value : ''"/>H
+                <div t-elif="record.expiry_level &amp;&amp; record.expiry_level.raw_value == 'warning'" class="mt-1">
+                    <span class="badge text-bg-warning text-dark fw-bold px-2 py-1" style="font-size: 10px;">
+                        ⚠️ Exp <t t-esc="record.days_to_expiry ? record.days_to_expiry.value : ''"/>H
+                    </span>
                 </div>
             </xpath>
             <xpath expr="//div[hasclass('rounded-circle')]" position="attributes">

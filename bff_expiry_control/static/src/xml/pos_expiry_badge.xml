@@ -5,17 +5,12 @@
             <t t-if="props.product">
                 <t t-if="props.product.expiry_level === 'danger' || (props.product.is_near_expiry &amp;&amp; props.product.days_to_expiry &lt;= 7)">
                     <div class="pos-expiry-badge danger" t-attf-title="Exp: {{props.product.earliest_expiry_date || '-'}}">
-                        🔥 🔴 Obral (<t t-esc="props.product.days_to_expiry &lt;= 0 ? 'Expired' : (props.product.days_to_expiry + 'H')"/>)
+                        🔥 Exp <t t-esc="props.product.days_to_expiry &lt;= 0 ? 'Expired' : (props.product.days_to_expiry + 'H')"/>
                     </div>
                 </t>
                 <t t-elif="props.product.expiry_level === 'warning' || (props.product.is_near_expiry &amp;&amp; props.product.days_to_expiry &lt;= 30)">
                     <div class="pos-expiry-badge warning" t-attf-title="Exp: {{props.product.earliest_expiry_date || '-'}}">
-                        ⚠️ 🟡 Exp <t t-esc="props.product.days_to_expiry"/>H
-                    </div>
-                </t>
-                <t t-elif="props.product.earliest_expiry_date &amp;&amp; props.product.expiry_level === 'safe'">
-                    <div class="pos-expiry-badge safe" t-attf-title="Exp: {{props.product.earliest_expiry_date || '-'}}">
-                        ✅ 🟢 Segar
+                        ⚠️ Exp <t t-esc="props.product.days_to_expiry"/>H
                     </div>
                 </t>
             </t>
