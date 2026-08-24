@@ -3,11 +3,19 @@ from odoo import models, fields, api
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
+    ROLE_LABEL_MAP = {
+        'kepala_toko': 'Kepala Toko',
+        'asisten_kepala_toko': 'Asisten Kepala Toko',
+        'kasir': 'Kasir',
+        'kepala_gudang': 'Kepala Gudang',
+    }
+
     bff_role = fields.Selection([
-        ('cashier', 'Kasir (Point of Sale)'),
-        ('warehouse', 'Orang / Staf Gudang (Inventory & Stock)'),
-        ('manager', 'Manajer / Supervisor Operasional'),
-    ], string='Role / Tugas Karyawan', default='cashier', help='Role operasional karyawan di Big Frozen Food')
+        ('kepala_toko', 'Kepala Toko'),
+        ('asisten_kepala_toko', 'Asisten Kepala Toko'),
+        ('kasir', 'Kasir'),
+        ('kepala_gudang', 'Kepala Gudang'),
+    ], string='Role / Tugas Karyawan', default='kasir', help='Role operasional karyawan di Big Frozen Food')
 
     shift_schedule = fields.Selection([
         ('morning', 'Shift Pagi (07:30 - 15:30)'),
@@ -47,6 +55,20 @@ class HrEmployee(models.Model):
         default=lambda self: self.env.company.currency_id
     )
 
+    @api.onchange('bff_role')
+    def _onchange_bff_role_set_tags(self):
+        """Otomatis memasang Label (Category ID) sesuai dengan role yang dipilih"""
+        if self.bff_role in self.ROLE_LABEL_MAP:
+            target_label_name = self.ROLE_LABEL_MAP[self.bff_role]
+            all_role_names = set(self.ROLE_LABEL_MAP.values())
+            
+            tag = self.env['hr.employee.category'].search([('name', '=', target_label_name)], limit=1)
+            if not tag:
+                tag = self.env['hr.employee.category'].create({'name': target_label_name})
+            
+            existing_tags = self.category_ids.filtered(lambda c: c.name not in all_role_names)
+            self.category_ids = [(6, 0, (existing_tags | tag).ids)]
+
     def _compute_total_commission_earned(self):
         for emp in self:
             reports = self.env['cashier.commission.report'].search([
@@ -70,17 +92,48 @@ class HrEmployee(models.Model):
         return res
 
     def _sync_user_groups(self):
-        """Menyinkronkan grup keamanan pengguna (res.users) berdasarkan role karyawan"""
-        cashier_group = self.env.ref('bff_karyawan.group_bff_cashier', raise_if_not_found=False)
-        warehouse_group = self.env.ref('bff_karyawan.group_bff_warehouse', raise_if_not_found=False)
+        """Menyinkronkan grup keamanan pengguna (res.users) dan Label Tag berdasarkan role karyawan"""
+        g_kepala_toko = self.env.ref('bff_karyawan.group_bff_kepala_toko', raise_if_not_found=False)
+        g_asisten_kepala_toko = self.env.ref('bff_karyawan.group_bff_asisten_kepala_toko', raise_if_not_found=False)
+        g_cashier = self.env.ref('bff_karyawan.group_bff_cashier', raise_if_not_found=False)
+        g_gudang = self.env.ref('bff_karyawan.group_bff_kepala_gudang', raise_if_not_found=False)
+
+        all_role_names = set(self.ROLE_LABEL_MAP.values())
 
         for emp in self:
-            if not emp.user_id:
-                continue
-            user = emp.user_id
-            if emp.bff_role == 'cashier':
-                if cashier_group and cashier_group not in user.groups_id:
-                    user.write({'groups_id': [(4, cashier_group.id)]})
-            elif emp.bff_role == 'warehouse':
-                if warehouse_group and warehouse_group not in user.groups_id:
-                    user.write({'groups_id': [(4, warehouse_group.id)]})
+            role = emp.bff_role
+            if role in self.ROLE_LABEL_MAP:
+                target_label_name = self.ROLE_LABEL_MAP[role]
+
+                # 1. Sync Employee Label Tag (hr.employee.category)
+                emp_tag = self.env['hr.employee.category'].search([('name', '=', target_label_name)], limit=1)
+                if not emp_tag:
+                    emp_tag = self.env['hr.employee.category'].create({'name': target_label_name})
+                
+                other_tags = emp.category_ids.filtered(lambda c: c.name not in all_role_names)
+                new_emp_tags = (other_tags | emp_tag).ids
+                if set(emp.category_ids.ids) != set(new_emp_tags):
+                    emp.write({'category_ids': [(6, 0, new_emp_tags)]})
+
+                # 2. Sync User & Partner Permissions & Tags
+                if emp.user_id:
+                    user = emp.user_id
+                    if role == 'kepala_toko' and g_kepala_toko:
+                        user.write({'groups_id': [(4, g_kepala_toko.id)]})
+                    elif role == 'asisten_kepala_toko' and g_asisten_kepala_toko:
+                        user.write({'groups_id': [(4, g_asisten_kepala_toko.id)]})
+                    elif role == 'kasir' and g_cashier:
+                        user.write({'groups_id': [(4, g_cashier.id)]})
+                    elif role == 'kepala_gudang' and g_gudang:
+                        user.write({'groups_id': [(4, g_gudang.id)]})
+
+                    # Sync Partner Contact Label (res.partner.category)
+                    if user.partner_id:
+                        p_tag = self.env['res.partner.category'].search([('name', '=', target_label_name)], limit=1)
+                        if not p_tag:
+                            p_tag = self.env['res.partner.category'].create({'name': target_label_name})
+                        
+                        other_p_tags = user.partner_id.category_id.filtered(lambda c: c.name not in all_role_names)
+                        new_p_tags = (other_p_tags | p_tag).ids
+                        if set(user.partner_id.category_id.ids) != set(new_p_tags):
+                            user.partner_id.write({'category_id': [(6, 0, new_p_tags)]})

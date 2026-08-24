@@ -4,9 +4,10 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     bff_role = fields.Selection([
-        ('cashier', 'Kasir (Point of Sale)'),
-        ('warehouse', 'Orang / Staf Gudang (Inventory & Stock)'),
-        ('manager', 'Manajer / Supervisor Operasional'),
+        ('kepala_toko', 'Kepala Toko'),
+        ('asisten_kepala_toko', 'Asisten Kepala Toko'),
+        ('kasir', 'Kasir'),
+        ('kepala_gudang', 'Kepala Gudang'),
     ], string='Role Big Frozen Food', compute='_compute_bff_role', inverse='_inverse_bff_role', store=True)
 
     @api.depends('employee_ids.bff_role')
