@@ -106,10 +106,10 @@ export class BffDashboardComponent extends Component {
 
         onMounted(() => {
             this.renderCharts();
-            // Live Background Polling every 30 seconds without interrupting UI
+            // Live Background Polling every 15 seconds without interrupting UI
             this.autoRefreshInterval = setInterval(() => {
                 this.silentReloadData();
-            }, 30000);
+            }, 15000);
         });
 
         onWillUnmount(() => {
@@ -280,6 +280,17 @@ export class BffDashboardComponent extends Component {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                onHover: (event, chartElement) => {
+                    if (event.native && event.native.target) {
+                        event.native.target.style.cursor = chartElement && chartElement.length ? "pointer" : "default";
+                    }
+                },
+                onClick: (event, elements) => {
+                    if (elements && elements.length > 0) {
+                        const idx = elements[0].index;
+                        this.onSalesChartPointClick(idx);
+                    }
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -317,6 +328,58 @@ export class BffDashboardComponent extends Component {
         });
     }
 
+    onSalesChartPointClick(index) {
+        const isPos = this.state.mode === "pos";
+        const isDaily = this.state.salesView === "daily";
+
+        if (isPos) {
+            const dates = (this.state.data && this.state.data.pos && this.state.data.pos.daily_dates) || [];
+            const dateStr = dates[index];
+            if (!dateStr) return;
+            this.actionService.doAction({
+                name: "Transaksi POS Toko (" + dateStr + ")",
+                type: "ir.actions.act_window",
+                res_model: "pos.order",
+                views: [[false, "list"], [false, "form"]],
+                domain: [
+                    ["state", "in", ["paid", "done", "invoiced"]],
+                    ["date_order", ">=", dateStr + " 00:00:00"],
+                    ["date_order", "<=", dateStr + " 23:59:59"],
+                ],
+            });
+        } else if (isDaily) {
+            const dates = (this.state.data && this.state.data.sales && this.state.data.sales.daily_dates) || [];
+            const dateStr = dates[index];
+            if (!dateStr) return;
+            this.actionService.doAction({
+                name: "Order Penjualan (" + dateStr + ")",
+                type: "ir.actions.act_window",
+                res_model: "sale.order",
+                views: [[false, "list"], [false, "form"]],
+                domain: [
+                    ["state", "in", ["sale", "done"]],
+                    ["date_order", ">=", dateStr + " 00:00:00"],
+                    ["date_order", "<=", dateStr + " 23:59:59"],
+                ],
+            });
+        } else {
+            const infoList = (this.state.data && this.state.data.sales && this.state.data.sales.monthly_info) || [];
+            const info = infoList[index];
+            if (!info) return;
+            this.actionService.doAction({
+                name: "Order Penjualan (" + info.label + ")",
+                type: "ir.actions.act_window",
+                res_model: "sale.order",
+                views: [[false, "list"], [false, "form"]],
+                domain: [
+                    ["state", "in", ["sale", "done"]],
+                    ["date_order", ">=", info.start],
+                    ["date_order", "<=", info.end],
+                ],
+            });
+        }
+    }
+
     renderChannelChart() {
         const Chart = this._getChart();
         if (!Chart) return;
@@ -344,6 +407,21 @@ export class BffDashboardComponent extends Component {
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: "72%",
+                onHover: (event, chartElement) => {
+                    if (event.native && event.native.target) {
+                        event.native.target.style.cursor = chartElement && chartElement.length ? "pointer" : "default";
+                    }
+                },
+                onClick: (event, elements) => {
+                    if (elements && elements.length > 0) {
+                        const idx = elements[0].index;
+                        if (idx === 0) {
+                            this.openSalesAction();
+                        } else {
+                            this.openPosAction();
+                        }
+                    }
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -390,6 +468,20 @@ export class BffDashboardComponent extends Component {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                onHover: (event, chartElement) => {
+                    if (event.native && event.native.target) {
+                        event.native.target.style.cursor = chartElement && chartElement.length ? "pointer" : "default";
+                    }
+                },
+                onClick: (event, elements) => {
+                    if (elements && elements.length > 0) {
+                        const idx = elements[0].index;
+                        const supp = suppliers[idx];
+                        if (supp) {
+                            this.openSupplierDetail(supp.partner_id);
+                        }
+                    }
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -428,23 +520,111 @@ export class BffDashboardComponent extends Component {
         return "Rp " + Math.round(value).toLocaleString("id-ID");
     }
 
-    openLowStockAction() {
+    openSalesAction() {
+        const ids = (this.state.data && this.state.data.sales && this.state.data.sales.so_ids) || [];
         this.actionService.doAction({
-            name: "Stok Menipis",
+            name: "Order Penjualan (B2B)",
+            type: "ir.actions.act_window",
+            res_model: "sale.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["id", "in", ids]],
+        });
+    }
+
+    openPosAction() {
+        const ids = (this.state.data && this.state.data.sales && this.state.data.sales.pos_ids) || [];
+        this.actionService.doAction({
+            name: "Transaksi POS Toko",
+            type: "ir.actions.act_window",
+            res_model: "pos.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["id", "in", ids]],
+        });
+    }
+
+    openPosSessionAction() {
+        this.actionService.doAction({
+            name: "Sesi Kasir POS",
+            type: "ir.actions.act_window",
+            res_model: "pos.session",
+            views: [[false, "list"], [false, "form"]],
+            domain: [],
+        });
+    }
+
+    openStockValueAction() {
+        this.actionService.doAction("bff_dashboard.action_bff_stock_valuation_quant");
+    }
+
+    openLowStockAction() {
+        const ids = (this.state.data && this.state.data.stock && this.state.data.stock.low_stock_ids) || [];
+        this.actionService.doAction({
+            name: "Stok Menipis (Reorder Alert)",
             type: "ir.actions.act_window",
             res_model: "product.product",
             views: [[false, "list"], [false, "form"]],
-            domain: [["is_storable", "=", true]],
+            domain: [["id", "in", ids]],
         });
     }
 
     openExpiryAction() {
+        const ids = (this.state.data && this.state.data.stock && this.state.data.stock.near_expiry_ids) || [];
         this.actionService.doAction({
-            name: "Stok Mendekati Expired",
+            name: "Stok Near-Expiry (FEFO)",
             type: "ir.actions.act_window",
             res_model: "stock.lot",
             views: [[false, "list"], [false, "form"]],
-            domain: [],
+            domain: [["id", "in", ids]],
+        });
+    }
+
+    openPurchaseAction() {
+        const ids = (this.state.data && this.state.data.purchase && this.state.data.purchase.po_ids) || [];
+        this.actionService.doAction({
+            name: "Pembelian / Purchase Orders",
+            type: "ir.actions.act_window",
+            res_model: "purchase.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["id", "in", ids]],
+        });
+    }
+
+    openProductDetail(productId) {
+        if (!productId) return;
+        this.actionService.doAction({
+            name: "Detail Produk",
+            type: "ir.actions.act_window",
+            res_model: "product.product",
+            res_id: productId,
+            views: [[false, "form"]],
+            target: "current",
+        });
+    }
+
+    openLotDetail(lotId) {
+        if (!lotId) return;
+        this.actionService.doAction({
+            name: "Detail Lot",
+            type: "ir.actions.act_window",
+            res_model: "stock.lot",
+            res_id: lotId,
+            views: [[false, "form"]],
+            target: "current",
+        });
+    }
+
+    openSupplierDetail(partnerId) {
+        if (!partnerId) {
+            this.openPurchaseAction();
+            return;
+        }
+        const poIds = (this.state.data && this.state.data.purchase && this.state.data.purchase.po_ids) || [];
+        this.actionService.doAction({
+            name: "PO Supplier",
+            type: "ir.actions.act_window",
+            res_model: "purchase.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["partner_id", "=", partnerId], ["id", "in", poIds]],
         });
     }
 }
