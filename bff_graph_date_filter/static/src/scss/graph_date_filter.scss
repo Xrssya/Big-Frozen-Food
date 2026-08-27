@@ -1,0 +1,94 @@
+.o_graph_date_filter_container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    .bff-period-group {
+        background: #cbd5e1;
+        border-radius: 9999px;
+        padding: 3px;
+        display: inline-flex;
+        gap: 2px;
+
+        .btn-period-pill {
+            border: 0;
+            background: transparent;
+            color: #334155;
+            font-size: 0.775rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            white-space: nowrap;
+
+            &:hover {
+                color: #000000;
+            }
+
+            &.active {
+                background: #2563eb;
+                color: #ffffff;
+                box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+            }
+        }
+    }
+
+    .bff-date-range-box {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 9999px;
+        padding: 3px 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        small {
+            font-size: 0.775rem;
+            color: #475569;
+            white-space: nowrap;
+        }
+
+        &.active-blue {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-color: #1e40af;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+            color: #ffffff;
+
+            small {
+                color: #ffffff !important;
+                font-weight: 700;
+            }
+
+            .o_datetime_input input,
+            input {
+                background: #ffffff !important;
+                color: #0f172a !important;
+                font-weight: 700;
+            }
+        }
+
+        .o_datetime_input {
+            width: 115px;
+
+            input {
+                font-size: 0.775rem;
+                padding: 0.15rem 0.4rem;
+                border-radius: 9999px;
+                border: 1px solid #e2e8f0;
+                text-align: center;
+                background: #ffffff;
+                color: #1e293b;
+                box-shadow: none;
+
+                &:focus {
+                    outline: none;
+                    border-color: #2563eb;
+                }
+            }
+        }
+    }
+}

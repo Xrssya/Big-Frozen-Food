@@ -16,9 +16,9 @@
                     <h2 class="fw-bold mb-0">
                         <t t-if="state.mode === 'sales'">Dashboard Penjualan B2B &amp; POS</t>
                         <t t-elif="state.mode === 'pos'">POS Toko Retail</t>
-                        <t t-elif="state.mode === 'stock'">Dashboard Stok &amp; FEFO</t>
+                        <t t-elif="state.mode === 'stock'">Dashboard Stok</t>
                         <t t-elif="state.mode === 'purchase'">Dashboard Pembelian</t>
-                        <t t-else="">Dashboard Utama</t>
+                        <t t-else="">Dashboard</t>
                     </h2>
                 </div>
 
@@ -28,8 +28,8 @@
                         <div class="bff-pill-group">
                             <button type="button" t-att-class="state.mode === 'all' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('all')">Semua</button>
                             <button type="button" t-att-class="state.mode === 'sales' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('sales')">Penjualan</button>
-                            <button type="button" t-att-class="state.mode === 'pos' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('pos')">POS Toko</button>
-                            <button type="button" t-att-class="state.mode === 'stock' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('stock')">Stok &amp; FEFO</button>
+                            <button type="button" t-att-class="state.mode === 'pos' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('pos')">POS</button>
+                            <button type="button" t-att-class="state.mode === 'stock' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('stock')">Stok</button>
                             <button type="button" t-att-class="state.mode === 'purchase' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('purchase')">Pembelian</button>
                         </div>
                     </t>
@@ -68,17 +68,17 @@
                 <!-- KPI CARDS -->
                 <div class="row g-3 mb-4">
 
-                    <!-- Standard Sales Revenue Card -->
+                    <!-- B2B Sales Revenue Card -->
                     <t t-if="state.mode === 'all' || state.mode === 'sales'">
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3">
+                            <div class="bff-card p-3 cursor-pointer" t-on-click="openSalesAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total Omset Sales</div>
-                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.sales.total_revenue)"/>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Omset Sales B2B</div>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.sales.so_revenue)"/>
                                         <div class="mt-2">
                                             <span class="trend-badge trend-badge-up">
-                                                <i class="fa fa-arrow-up me-1"/>Agen &amp; POS
+                                                <i class="fa fa-arrow-up me-1"/>Agen &amp; Reseller
                                             </span>
                                         </div>
                                     </div>
@@ -88,11 +88,31 @@
                         </div>
                     </t>
 
+                    <!-- Retail POS Revenue Card -->
+                    <t t-if="state.mode === 'all' || state.mode === 'sales'">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
+                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPosAction">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Omset POS Retail</div>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.sales.pos_revenue)"/>
+                                        <div class="mt-2">
+                                            <span class="trend-badge trend-badge-up">
+                                                <i class="fa fa-shopping-bag me-1"/>Kasir Toko
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="icon-box icon-box-sales"><i class="fa fa-shopping-bag"/></div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
                     <!-- Dedicated POS Mode KPI Cards -->
                     <t t-if="state.mode === 'pos'">
                         <!-- POS Card 1: Total POS Omset -->
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3">
+                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPosAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total Omset POS Toko</div>
@@ -110,7 +130,7 @@
 
                         <!-- POS Card 2: Total Transaksi -->
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3">
+                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPosAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Jumlah Transaksi POS</div>
@@ -131,7 +151,7 @@
 
                         <!-- POS Card 3: Rata-Rata Keranjang (Basket Size) -->
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3">
+                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPosAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Rata-Rata per Struk</div>
@@ -149,7 +169,7 @@
 
                         <!-- POS Card 4: Sesi Kasir Aktif -->
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3">
+                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPosSessionAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Sesi Kasir Aktif</div>
@@ -171,7 +191,7 @@
 
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3">
+                            <div class="bff-card p-3 cursor-pointer" t-on-click="openStockValueAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Nilai Stok Fisik</div>
@@ -190,7 +210,7 @@
 
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3">
+                            <div class="bff-card p-3 cursor-pointer" t-on-click="openLowStockAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Stok Menipis</div>
@@ -212,10 +232,10 @@
 
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3">
+                            <div class="bff-card p-3 cursor-pointer" t-on-click="openExpiryAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Near-Expiry FEFO</div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Near-Expiry</div>
                                         <div class="fw-bold fs-4 text-dark">
                                             <t t-out="state.data.stock.near_expiry_count"/>
                                             <small class="fw-normal text-muted fs-6"> Lot</small>
@@ -234,7 +254,7 @@
 
                     <t t-if="state.mode === 'all' || state.mode === 'purchase'">
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3">
+                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPurchaseAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Belanja Supplier</div>
@@ -512,7 +532,7 @@
                             <div class="bff-card p-4 h-100">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
-                                        <h6 class="fw-bold mb-0">Grafik Omset Penjualan</h6>
+                                        <h6 class="fw-bold mb-0">Omset Penjualan</h6>
                                         <p class="text-muted mb-0" style="font-size:0.78rem;">Tren harian &amp; bulanan</p>
                                     </div>
                                     <div class="bff-pill-group">
@@ -533,12 +553,12 @@
                                     <canvas t-ref="channelChartCanvas"/>
                                 </div>
                                 <div class="d-flex justify-content-around text-center mt-3 pt-3 border-top">
-                                    <div>
+                                    <div class="cursor-pointer" t-on-click="openSalesAction">
                                         <div class="text-muted" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;">Agen B2B</div>
                                         <div class="fw-bold text-primary" t-out="formatCurrency(state.data.sales.so_revenue)"/>
                                     </div>
                                     <div class="border-start"/>
-                                    <div>
+                                    <div class="cursor-pointer" t-on-click="openPosAction">
                                         <div class="text-muted" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;">POS Retail</div>
                                         <div class="fw-bold text-info" t-out="formatCurrency(state.data.sales.pos_revenue)"/>
                                     </div>
@@ -563,7 +583,7 @@
                                 </thead>
                                 <tbody>
                                     <t t-foreach="state.data.sales.top_5_products" t-as="prod" t-key="prod.id">
-                                        <tr>
+                                        <tr class="cursor-pointer bff-hover-row" t-on-click="() => this.openProductDetail(prod.id)">
                                             <td class="text-center">
                                                 <t t-if="prod_index === 0"><span class="rank-medal rank-1">🥇</span></t>
                                                 <t t-elif="prod_index === 1"><span class="rank-medal rank-2">🥈</span></t>
@@ -612,7 +632,7 @@
                                         </thead>
                                         <tbody>
                                             <t t-foreach="state.data.stock.low_stock_items" t-as="item" t-key="item.id">
-                                                <tr>
+                                                <tr class="cursor-pointer bff-hover-row" t-on-click="() => this.openProductDetail(item.id)">
                                                     <td class="fw-semibold" t-out="item.name"/>
                                                     <td class="text-end fw-bold text-danger"><t t-out="item.qty_available"/> <small class="text-muted fw-normal" t-out="item.uom"/></td>
                                                     <td class="text-end text-muted"><t t-out="item.min_alert_qty"/></td>
@@ -631,7 +651,7 @@
                             <div class="bff-card p-4 h-100">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
-                                        <h6 class="fw-bold mb-0">FEFO Near-Expiry Watchlist</h6>
+                                        <h6 class="fw-bold mb-0">Near-Expiry Watchlist</h6>
                                         <p class="text-muted mb-0" style="font-size:0.78rem;">Lot mendekati kadaluarsa (H-30)</p>
                                     </div>
                                     <button type="button" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none" t-on-click="openExpiryAction">
@@ -650,7 +670,7 @@
                                         </thead>
                                         <tbody>
                                             <t t-foreach="state.data.stock.near_expiry_items" t-as="lot" t-key="lot.id">
-                                                <tr>
+                                                <tr class="cursor-pointer bff-hover-row" t-on-click="() => this.openLotDetail(lot.id)">
                                                     <td>
                                                         <div class="fw-semibold" t-out="lot.product_name"/>
                                                         <small class="text-muted">Lot: <t t-out="lot.lot_name"/></small>
@@ -687,7 +707,7 @@
                     <div class="row g-4 mb-4">
                         <div class="col-12 col-lg-7">
                             <div class="bff-card p-4 h-100">
-                                <h6 class="fw-bold mb-1">Grafik Belanja per Supplier</h6>
+                                <h6 class="fw-bold mb-1">Belanja per Supplier</h6>
                                 <p class="text-muted mb-3" style="font-size:0.78rem;">Distribusi alokasi belanja ke vendor</p>
                                 <div style="position:relative;height:260px;">
                                     <canvas t-ref="supplierChartCanvas"/>
@@ -709,7 +729,7 @@
                                         </thead>
                                         <tbody>
                                             <t t-foreach="state.data.purchase.supplier_breakdown" t-as="supp" t-key="supp_index">
-                                                <tr>
+                                                <tr class="cursor-pointer bff-hover-row" t-on-click="() => this.openSupplierDetail(supp.partner_id)">
                                                     <td class="fw-semibold" t-out="supp.supplier"/>
                                                     <td class="text-center"><span class="badge text-bg-light" t-out="supp.po_count"/></td>
                                                     <td class="text-end fw-bold text-indigo" t-out="formatCurrency(supp.total)"/>

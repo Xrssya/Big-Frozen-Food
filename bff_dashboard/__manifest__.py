@@ -11,7 +11,7 @@
         - Dashboard Pembelian: Rekap total belanja ke Supplier bulan ini.
     """,
     'author': 'Big Frozen Food Team',
-    'depends': ['base', 'web', 'sale', 'point_of_sale', 'stock', 'purchase', 'bff_stock_control'],
+    'depends': ['base', 'web', 'sale', 'point_of_sale', 'stock', 'purchase', 'bff_stock_control', 'spreadsheet_dashboard'],
     'data': [
         'security/ir.model.access.csv',
         'views/bff_dashboard_views.xml',

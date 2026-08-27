@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-inherit="web.GraphRenderer" t-inherit-mode="extension">
+        <xpath expr="//div[contains(@class, 'd-print-none')]" position="replace">
+            <div class="d-flex d-print-none gap-2 flex-shrink-0 mt-2 mx-3 mb-3 align-items-center justify-content-between flex-wrap">
+                <div class="d-flex gap-1 align-items-center flex-wrap">
+                    <t t-call="{{ props.buttonTemplate }}"/>
+                </div>
+                <GraphDateFilter model="props.model"/>
+            </div>
+        </xpath>
+    </t>
+
+    <t t-name="bff_graph_date_filter.GraphDateFilter">
+        <div class="o_graph_date_filter_container ms-auto d-flex align-items-center gap-2">
+            <!-- Period Preset Pills (Same as Dashboard) -->
+            <div class="bff-period-group">
+                <button type="button" t-att-class="state.selectedPreset === 'this_month' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.selectPreset('this_month')">Bulan Ini</button>
+                <button type="button" t-att-class="state.selectedPreset === '30days' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.selectPreset('30days')">30 Hari</button>
+                <button type="button" t-att-class="state.selectedPreset === 'this_year' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.selectPreset('this_year')">Tahun Ini</button>
+                <button type="button" t-att-class="state.selectedPreset === 'all' ? 'btn-period-pill active' : 'btn-period-pill'" t-on-click="() => this.selectPreset('all')">Semua</button>
+            </div>
+
+            <!-- Date Range Box with DateTimeInput -->
+            <div t-att-class="state.selectedPreset === 'custom' ? 'bff-date-range-box active-blue' : 'bff-date-range-box'">
+                <small class="fw-semibold ms-1">Dari:</small>
+                <DateTimeInput type="'date'" format="'dd/MM/yyyy'" value="state.startDate" onChange="(val) => this.onStartDateChange(val)"/>
+                <small class="fw-semibold">s/d:</small>
+                <DateTimeInput type="'date'" format="'dd/MM/yyyy'" value="state.endDate" onChange="(val) => this.onEndDateChange(val)"/>
+            </div>
+        </div>
+    </t>
+
+</templates>

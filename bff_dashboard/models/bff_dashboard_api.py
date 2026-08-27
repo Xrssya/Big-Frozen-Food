@@ -67,6 +67,7 @@ class BffDashboardApi(models.AbstractModel):
 
         # Daily Turnover Calculation
         daily_labels = []
+        daily_dates = []
         daily_so_values = []
         daily_pos_values = []
         daily_total_values = []
@@ -95,12 +96,14 @@ class BffDashboardApi(models.AbstractModel):
             ]))
 
             daily_labels.append(d.strftime('%d %b'))
+            daily_dates.append(d.strftime('%Y-%m-%d'))
             daily_so_values.append(round(d_so, 2))
             daily_pos_values.append(round(d_pos, 2))
             daily_total_values.append(round(d_so + d_pos, 2))
 
         # Monthly Turnover
         monthly_labels = []
+        monthly_info = []
         monthly_revenue_values = []
         current_year = today.year
         for m in range(1, 13):
@@ -125,6 +128,11 @@ class BffDashboardApi(models.AbstractModel):
             ]))
 
             monthly_labels.append(m_start.strftime('%b %Y'))
+            monthly_info.append({
+                'start': m_start.strftime('%Y-%m-%d 00:00:00'),
+                'end': m_end.strftime('%Y-%m-%d 23:59:59'),
+                'label': m_start.strftime('%b %Y')
+            })
             monthly_revenue_values.append(round(m_so + m_pos, 2))
 
         # Top 5 Best Selling Products
@@ -240,14 +248,16 @@ class BffDashboardApi(models.AbstractModel):
 
         supplier_spend = {}
         for po in purchase_orders:
+            supp_id = po.partner_id.id
             supp_name = po.partner_id.display_name
-            if supp_name not in supplier_spend:
-                supplier_spend[supp_name] = {'supplier': supp_name, 'po_count': 0, 'total': 0.0}
-            supplier_spend[supp_name]['po_count'] += 1
-            supplier_spend[supp_name]['total'] += po.amount_total
+            if supp_id not in supplier_spend:
+                supplier_spend[supp_id] = {'partner_id': supp_id, 'supplier': supp_name, 'po_count': 0, 'total': 0.0}
+            supplier_spend[supp_id]['po_count'] += 1
+            supplier_spend[supp_id]['total'] += po.amount_total
 
         sorted_suppliers = sorted(supplier_spend.values(), key=lambda x: x['total'], reverse=True)[:6]
         supplier_breakdown = [{
+            'partner_id': s['partner_id'],
             'supplier': s['supplier'],
             'po_count': s['po_count'],
             'total': round(s['total'], 2)
@@ -299,12 +309,16 @@ class BffDashboardApi(models.AbstractModel):
                 'total_revenue': round(total_sales_revenue, 2),
                 'so_revenue': round(total_so_revenue, 2),
                 'pos_revenue': round(total_pos_revenue, 2),
+                'so_ids': sale_orders.ids,
+                'pos_ids': pos_orders.ids,
                 'channel_comparison': channel_comparison,
                 'daily_labels': daily_labels,
+                'daily_dates': daily_dates,
                 'daily_so': daily_so_values,
                 'daily_pos': daily_pos_values,
                 'daily_total': daily_total_values,
                 'monthly_labels': monthly_labels,
+                'monthly_info': monthly_info,
                 'monthly_revenue': monthly_revenue_values,
                 'top_5_products': top_5_products,
             },
@@ -312,12 +326,15 @@ class BffDashboardApi(models.AbstractModel):
                 'total_valuation': round(total_stock_value, 2),
                 'low_stock_count': low_stock_count,
                 'low_stock_items': low_stock_items,
+                'low_stock_ids': [p['id'] for p in low_stock_list],
                 'near_expiry_count': near_expiry_count,
                 'near_expiry_items': near_expiry_items,
+                'near_expiry_ids': [lot['id'] for lot in near_expiry_list],
             },
             'purchase': {
                 'monthly_total': round(monthly_purchase_total, 2),
                 'supplier_breakdown': supplier_breakdown,
+                'po_ids': purchase_orders.ids,
             },
             'pos': {
                 'total_revenue': round(total_pos_revenue, 2),
@@ -327,6 +344,7 @@ class BffDashboardApi(models.AbstractModel):
                 'session_list': session_list,
                 'top_5_products': top_5_pos_products,
                 'daily_labels': daily_labels,
+                'daily_dates': daily_dates,
                 'daily_values': daily_pos_values,
             }
         }
