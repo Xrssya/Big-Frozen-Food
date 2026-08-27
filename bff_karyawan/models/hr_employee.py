@@ -118,14 +118,27 @@ class HrEmployee(models.Model):
                 # 2. Sync User & Partner Permissions & Tags
                 if emp.user_id:
                     user = emp.user_id
-                    if role == 'kepala_toko' and g_kepala_toko:
-                        user.write({'groups_id': [(4, g_kepala_toko.id)]})
-                    elif role == 'asisten_kepala_toko' and g_asisten_kepala_toko:
-                        user.write({'groups_id': [(4, g_asisten_kepala_toko.id)]})
-                    elif role == 'kasir' and g_cashier:
-                        user.write({'groups_id': [(4, g_cashier.id)]})
-                    elif role == 'kepala_gudang' and g_gudang:
-                        user.write({'groups_id': [(4, g_gudang.id)]})
+                    all_groups = [g for g in [g_kepala_toko, g_asisten_kepala_toko, g_cashier, g_gudang] if g]
+                    target_group = None
+                    if role == 'kepala_toko':
+                        target_group = g_kepala_toko
+                    elif role == 'asisten_kepala_toko':
+                        target_group = g_asisten_kepala_toko
+                    elif role == 'kasir':
+                        target_group = g_cashier
+                    elif role == 'kepala_gudang':
+                        target_group = g_gudang
+
+                    group_cmds = []
+                    for g in all_groups:
+                        if target_group and g.id == target_group.id:
+                            if g.id not in user.groups_id.ids:
+                                group_cmds.append((4, g.id))
+                        else:
+                            if g.id in user.groups_id.ids:
+                                group_cmds.append((3, g.id))
+                    if group_cmds:
+                        user.write({'groups_id': group_cmds})
 
                     # Sync Partner Contact Label (res.partner.category)
                     if user.partner_id:

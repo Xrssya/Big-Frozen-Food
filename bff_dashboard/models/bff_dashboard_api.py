@@ -8,7 +8,7 @@ class BffDashboardApi(models.AbstractModel):
     _description = 'Big Frozen Food Executive & Module Dashboard API'
 
     @api.model
-    def get_dashboard_data(self, period='month', date_from=None, date_to=None):
+    def get_dashboard_data(self, period='month', date_from=None, date_to=None, company_id=None):
         today = date.today()
         end_date = today
 
@@ -32,6 +32,10 @@ class BffDashboardApi(models.AbstractModel):
         start_datetime = datetime.combine(start_date, datetime.min.time())
         end_datetime = datetime.combine(end_date, datetime.max.time())
 
+        company_domain = []
+        if company_id and str(company_id).isdigit():
+            company_domain = [('company_id', '=', int(company_id))]
+
         # ----------------------------------------------------
         # 1. SALES DASHBOARD DATA
         # ----------------------------------------------------
@@ -40,7 +44,7 @@ class BffDashboardApi(models.AbstractModel):
             ('state', 'in', ['sale', 'done']),
             ('date_order', '>=', start_datetime),
             ('date_order', '<=', end_datetime)
-        ]
+        ] + company_domain
         sale_orders = self.env['sale.order'].search(so_domain)
         total_so_revenue = sum(so.amount_total for so in sale_orders)
 
@@ -49,7 +53,7 @@ class BffDashboardApi(models.AbstractModel):
             ('state', 'in', ['paid', 'done', 'invoiced']),
             ('date_order', '>=', start_datetime),
             ('date_order', '<=', end_datetime)
-        ]
+        ] + company_domain
         pos_orders = self.env['pos.order'].search(pos_domain)
         total_pos_revenue = sum(po.amount_total for po in pos_orders)
 
@@ -179,7 +183,10 @@ class BffDashboardApi(models.AbstractModel):
         ])
         total_stock_value = sum(q.quantity * (q.product_id.standard_price or q.product_id.list_price * 0.7) for q in quants)
 
-        storable_products = self.env['product.product'].search([('is_storable', '=', True)])
+        if 'is_storable' in self.env['product.product']._fields:
+            storable_products = self.env['product.product'].search([('is_storable', '=', True)])
+        else:
+            storable_products = self.env['product.product'].search([('type', '=', 'consu')])
         low_stock_list = []
         for p in storable_products:
             min_alert = getattr(p, 'min_stock_alert_qty', 10.0) or 10.0
@@ -322,4 +329,151 @@ class BffDashboardApi(models.AbstractModel):
                 'daily_labels': daily_labels,
                 'daily_values': daily_pos_values,
             }
+        }
+
+    @api.model
+    def get_popular_times_data(self, company_id=None, day_of_week=None):
+        """Calculates Popular Times (Jam Ramai) & Quiet Days Analytics (Analisis Hari Sepi Cabang)"""
+        branches = self.env['res.company'].search([('name', 'ilike', 'Big Frozen Food')])
+        branch_list = [{'id': b.id, 'name': b.name} for b in branches]
+
+        domain = [('state', 'in', ['paid', 'done', 'invoiced'])]
+        if company_id and str(company_id).isdigit() and int(company_id) > 0:
+            target_company_id = int(company_id)
+            domain.append(('company_id', '=', target_company_id))
+            target_comp = self.env['res.company'].browse(target_company_id)
+            target_company_name = target_comp.name if target_comp.exists() else "Semua Cabang Toko"
+        else:
+            target_company_name = "Semua Cabang Toko"
+
+        cutoff_date = datetime.now() - timedelta(days=60)
+        domain.append(('date_order', '>=', cutoff_date))
+        orders = self.env['pos.order'].search(domain)
+
+        day_names_id = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+
+        day_counts = {d: {h: 0 for h in range(24)} for d in range(7)}
+        day_totals = {d: 0 for d in range(7)}
+
+        for ord_rec in orders:
+            if not ord_rec.date_order:
+                continue
+            dt = ord_rec.date_order
+            d_idx = dt.weekday()
+            hr = dt.hour
+            day_counts[d_idx][hr] += 1
+            day_totals[d_idx] += 1
+
+        num_weeks = max(1.0, 60.0 / 7.0)
+        daily_averages = {}
+        for d in range(7):
+            avg_o = day_totals[d] / num_weeks
+            daily_averages[d] = round(avg_o, 1)
+
+        sorted_days = sorted(daily_averages.items(), key=lambda x: x[1])
+        quietest_day_idx, quietest_avg = sorted_days[0]
+        busiest_day_idx, busiest_avg = sorted_days[-1]
+
+        overall_avg = (sum(daily_averages.values()) / 7.0) or 1.0
+        quietest_pct = round((quietest_avg / overall_avg) * 100, 1) if overall_avg > 0 else 0.0
+        busiest_pct = round((busiest_avg / overall_avg) * 100, 1) if overall_avg > 0 else 0.0
+
+        quietest_day_info = {
+            'day_name': day_names_id[quietest_day_idx],
+            'avg_orders': quietest_avg,
+            'percentage': quietest_pct
+        }
+        busiest_day_info = {
+            'day_name': day_names_id[busiest_day_idx],
+            'avg_orders': busiest_avg,
+            'percentage': busiest_pct
+        }
+
+        if day_of_week is not None and str(day_of_week).isdigit():
+            selected_day_idx = int(day_of_week) % 7
+        else:
+            selected_day_idx = quietest_day_idx
+
+        current_day_name = day_names_id[selected_day_idx]
+        hourly_raw = day_counts[selected_day_idx]
+
+        max_hour_count = max([hourly_raw[h] for h in range(6, 23)] or [1])
+        if max_hour_count == 0:
+            max_hour_count = 1
+
+        peak_hour = 12
+        max_h_cnt = -1
+
+        hourly_data = []
+        for h in range(6, 23):
+            cnt = hourly_raw[h]
+            pct = round((cnt / float(max_hour_count)) * 100, 1)
+            if cnt > max_h_cnt:
+                max_h_cnt = cnt
+                peak_hour = h
+
+            hourly_data.append({
+                'hour': h,
+                'label': f"{h:02d}",
+                'count': cnt,
+                'percentage': pct
+            })
+
+        peak_hours_label = f"{peak_hour:02d}:00 - {(peak_hour+2):02d}:00 WIB"
+
+        day_avg = daily_averages[selected_day_idx]
+        if day_avg <= quietest_avg * 1.25:
+            status_level = "quiet"
+            status_badge = "🔴 HARI SANGAT SEPI"
+            status_pill_text = f"Tidak ramai — hanya {day_avg} transaksi/hari ({quietest_pct}% dari normal)"
+            status_desc = "Tingkat kunjungan & transaksi sangat sepi"
+            option_a = f"Menetapkan hari {current_day_name} sebagai HARI LIBUR OPERASIONAL CABANG untuk efisiensi listrik freezer & biaya operasional."
+            option_b = f"Pengurangan shift kasir (cukup 1 kasir part-time) & selenggarakan promo Flash Sale khusus hari {current_day_name}."
+            recommendation = (
+                f"Berdasarkan analisis historis 60 hari terakhir, cabang {target_company_name} "
+                f"pada hari {current_day_name} memiliki tingkat transaksi paling sepi "
+                f"(rata-rata {day_avg} transaksi/hari, atau {quietest_pct}% dari rata-rata normal)."
+            )
+        elif day_avg >= busiest_avg * 0.75:
+            status_level = "busy"
+            status_badge = "🟢 HARI SANGAT RAMAI"
+            status_pill_text = f"Sangat ramai — rata-rata {day_avg} transaksi/hari ({busiest_pct}% dari normal)"
+            status_desc = "Tingkat kunjungan & transaksi sangat padat"
+            option_a = f"Pastikan seluruh freezer terisi penuh (full restock H-1 sebelum hari {current_day_name})."
+            option_b = f"Buka seluruh lane kasir POS & siapkan staf tambahan untuk mengurai antrean pelanggan pada jam puncak ({peak_hours_label})."
+            recommendation = (
+                f"Berdasarkan analisis historis, cabang {target_company_name} pada hari {current_day_name} "
+                f"mencapai puncak keramaian (rata-rata {day_avg} transaksi/hari, jam puncak {peak_hours_label})."
+            )
+        else:
+            status_level = "normal"
+            status_badge = "🟡 TIDAK TERLALU RAMAI"
+            status_pill_text = f"Tingkat keramaian sedang — rata-rata {day_avg} transaksi/hari"
+            status_desc = "Tingkat kunjungan & transaksi stabil/sedang"
+            option_a = f"Pertahankan alokasi shift kasir & persediaan stok saat ini karena sudah berada pada kondisi optimal."
+            option_b = f"Monitor stok produk fast-moving agar kestabilan penjualan tetap terjaga."
+            recommendation = (
+                f"Cabang {target_company_name} pada hari {current_day_name} berada pada kondisi operasional normal "
+                f"(rata-rata {day_avg} transaksi/hari)."
+            )
+
+        return {
+            'branches': branch_list,
+            'selected_branch_id': company_id or 'all',
+            'selected_branch_name': target_company_name,
+            'selected_day_idx': selected_day_idx,
+            'selected_day_name': current_day_name,
+            'days_list': [{'idx': i, 'name': day_names_id[i]} for i in range(7)],
+            'hourly_data': hourly_data,
+            'daily_averages': [{'day_name': day_names_id[i], 'avg': daily_averages[i]} for i in range(7)],
+            'quietest_day': quietest_day_info,
+            'busiest_day': busiest_day_info,
+            'peak_hours_label': peak_hours_label,
+            'status_level': status_level,
+            'status_badge': status_badge,
+            'status_pill_text': status_pill_text,
+            'status_desc': status_desc,
+            'option_a': option_a,
+            'option_b': option_b,
+            'owner_recommendation': recommendation,
         }

@@ -149,7 +149,10 @@ class BffStockReportWizard(models.TransientModel):
         categ_str = self.categ_id.name if self.categ_id else 'Semua Kategori Produk'
         worksheet.merge_range('A3:G3', f'Kategori Produk: {categ_str}', fmt_meta_left)
 
-        domain = [('is_storable', '=', True)]
+        if 'is_storable' in self.env['product.product']._fields:
+            domain = [('is_storable', '=', True)]
+        else:
+            domain = [('type', '=', 'consu')]
         if self.categ_id:
             domain.append(('categ_id', '=', self.categ_id.id))
         products = self.env['product.product'].search(domain, order='name asc')

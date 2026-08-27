@@ -7,8 +7,8 @@
             <field name="name">Karyawan Kasir</field>
             <field name="res_model">hr.employee</field>
             <field name="view_mode">kanban,list,form</field>
-            <field name="domain">[('bff_role', '=', 'cashier')]</field>
-            <field name="context">{'default_bff_role': 'cashier'}</field>
+            <field name="domain">[('bff_role', '=', 'kasir')]</field>
+            <field name="context">{'default_bff_role': 'kasir'}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Belum ada data Karyawan Kasir.
@@ -24,8 +24,8 @@
             <field name="name">Orang / Staf Gudang</field>
             <field name="res_model">hr.employee</field>
             <field name="view_mode">kanban,list,form</field>
-            <field name="domain">[('bff_role', '=', 'warehouse')]</field>
-            <field name="context">{'default_bff_role': 'warehouse'}</field>
+            <field name="domain">[('bff_role', '=', 'kepala_gudang')]</field>
+            <field name="context">{'default_bff_role': 'kepala_gudang'}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Belum ada data Staf Gudang.
@@ -36,15 +36,9 @@
             </field>
         </record>
 
-<<<<<<< HEAD
         <!-- Sembunyikan Sub-menu Navbar yang tidak diperlukan / duplikat -->
         <menuitem id="hr.menu_hr_department_tree" active="False"/>
         <menuitem id="hr.menu_hr_employee_payroll" active="False"/>
-        <menuitem id="menu_bff_karyawan_cashier" active="False"/>
-        <menuitem id="menu_bff_karyawan_warehouse" active="False"/>
-=======
-        <!-- Actions stored for potential custom references -->
->>>>>>> 55b3152 (perbaikan beberapa bug dan penambahan role)
 
     </data>
 </odoo>

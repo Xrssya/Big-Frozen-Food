@@ -34,6 +34,8 @@
                         </div>
                     </t>
 
+
+
                     <!-- Rentang Tanggal Terintegrasi (Tombol Preset + Datepicker Otomatis Tanpa Tombol Terapkan/Refresh) -->
                     <div class="d-flex align-items-center flex-wrap gap-2">
                         <div class="bff-period-group">
@@ -249,6 +251,168 @@
                         </div>
                     </t>
                 </div>
+
+                <!-- JAM RAMAI & ANALISIS HARI SEPI CABANG (POPULAR TIMES WIDGET) -->
+                <t t-if="(state.mode === 'all' || state.mode === 'sales' || state.mode === 'pos') &amp;&amp; state.popularTimesData">
+                    <div class="row g-4 mb-4">
+
+                        <!-- Left column: 4 small KPI cards stacked -->
+                        <div class="col-12 col-xl-3">
+                            <div class="d-flex flex-column gap-3 h-100">
+
+                                <!-- Card: Sepi -->
+                                <div class="bff-card p-3 flex-fill">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">🔴 Hari Paling Sepi</div>
+                                            <div class="fw-bold fs-5 text-danger" t-out="state.popularTimesData.quietest_day.day_name"/>
+                                            <div class="mt-1">
+                                                <span class="trend-badge trend-badge-warn">
+                                                    Avg <t t-out="state.popularTimesData.quietest_day.avg_orders"/> Trx/Hari
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="icon-box icon-box-expiry"><i class="fa fa-moon-o"/></div>
+                                    </div>
+                                </div>
+
+                                <!-- Card: Ramai -->
+                                <div class="bff-card p-3 flex-fill">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">🟢 Hari Paling Ramai</div>
+                                            <div class="fw-bold fs-5 text-success" t-out="state.popularTimesData.busiest_day.day_name"/>
+                                            <div class="mt-1">
+                                                <span class="trend-badge trend-badge-up">
+                                                    Avg <t t-out="state.popularTimesData.busiest_day.avg_orders"/> Trx/Hari
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="icon-box icon-box-stock"><i class="fa fa-sun-o"/></div>
+                                    </div>
+                                </div>
+
+                                <!-- Card: Peak Hours -->
+                                <div class="bff-card p-3 flex-fill">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">⏰ Jam Puncak</div>
+                                            <div class="fw-bold fs-6 text-dark font-monospace" t-out="state.popularTimesData.peak_hours_label"/>
+                                            <div class="mt-1">
+                                                <span class="trend-badge trend-badge-neutral">WIB</span>
+                                            </div>
+                                        </div>
+                                        <div class="icon-box icon-box-sales"><i class="fa fa-clock-o"/></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right column: main chart card -->
+                        <div class="col-12 col-xl-9">
+                            <div class="bff-card p-4 h-100">
+                                <!-- Header -->
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <h6 class="fw-bold mb-0">🔥 Jam Ramai &amp; Analisis Hari Sepi Cabang</h6>
+                                            <!-- Status pill -->
+                                            <t t-if="state.popularTimesData.status_level === 'quiet'">
+                                                <span class="trend-badge" style="background:#fee2e2;color:#b91c1c;">🔴 HARI SANGAT SEPI</span>
+                                            </t>
+                                            <t t-elif="state.popularTimesData.status_level === 'busy'">
+                                                <span class="trend-badge trend-badge-up">🟢 HARI SANGAT RAMAI</span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="trend-badge trend-badge-neutral">🟡 NORMAL</span>
+                                            </t>
+                                        </div>
+                                        <p class="text-muted mb-0" style="font-size:0.78rem;">
+                                            Analisis pola kunjungan per cabang untuk keputusan libur &amp; shift operasional
+                                        </p>
+                                    </div>
+                                    <!-- Controls -->
+                                    <div class="d-flex align-items-center flex-wrap gap-2 mt-2 mt-sm-0">
+                                        <select class="form-select form-select-sm" style="width:185px;" t-on-change="(ev) => this.onBranchChange(ev)">
+                                            <option value="all" t-att-selected="state.companyId === 'all'">🏢 Semua Cabang</option>
+                                            <t t-foreach="state.popularTimesData.branches" t-as="b" t-key="b.id">
+                                                <option t-att-value="b.id" t-att-selected="state.companyId == b.id"><t t-out="b.name"/></option>
+                                            </t>
+                                        </select>
+                                        <select class="form-select form-select-sm" style="width:120px;" t-on-change="(ev) => this.onDayChange(ev)">
+                                            <t t-foreach="state.popularTimesData.days_list" t-as="d" t-key="d.idx">
+                                                <option t-att-value="d.idx" t-att-selected="state.selectedDayIdx == d.idx"><t t-out="d.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Chart label row -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small class="text-muted fw-semibold">
+                                        Intensitas kunjungan — Hari <strong t-out="state.popularTimesData.selected_day_name"/> (06:00–22:00 WIB)
+                                    </small>
+                                    <div class="d-flex gap-3">
+                                        <span class="d-flex align-items-center gap-1" style="font-size:0.72rem;color:#64748b;">
+                                            <span style="width:9px;height:9px;border-radius:2px;background:#ef4444;display:inline-block;"/> Puncak
+                                        </span>
+                                        <span class="d-flex align-items-center gap-1" style="font-size:0.72rem;color:#64748b;">
+                                            <span style="width:9px;height:9px;border-radius:2px;background:#3b82f6;display:inline-block;"/> Aktif
+                                        </span>
+                                        <span class="d-flex align-items-center gap-1" style="font-size:0.72rem;color:#64748b;">
+                                            <span style="width:9px;height:9px;border-radius:2px;background:#cbd5e1;display:inline-block;"/> Sepi
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Bar Chart -->
+                                <div style="position:relative;height:170px;">
+                                    <canvas t-ref="popularTimesCanvas"/>
+                                </div>
+
+                                <!-- Weekly mini heatmap -->
+                                <div class="mt-3 pt-3 border-top">
+                                    <div class="text-muted fw-semibold mb-2" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.04em;">Rata-Rata Transaksi Per Hari (60 Hari)</div>
+                                    <div class="d-flex gap-1">
+                                        <t t-foreach="state.popularTimesData.daily_averages" t-as="da" t-key="da.day_name">
+                                            <div class="flex-fill text-center" style="min-width:0;">
+                                                <div style="font-size:0.65rem;color:#94a3b8;margin-bottom:3px;" t-out="da.day_name.slice(0,3)"/>
+                                                <div class="rounded-2 py-1"
+                                                     t-att-style="'font-size:0.68rem;font-weight:600;' + (da.day_name === state.popularTimesData.quietest_day.day_name ? 'background:#fee2e2;color:#b91c1c;' : (da.day_name === state.popularTimesData.busiest_day.day_name ? 'background:#dcfce7;color:#15803d;' : 'background:#f1f5f9;color:#64748b;'))">
+                                                    <t t-out="da.avg"/>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+
+                                <!-- Recommendation section -->
+                                <t t-if="state.popularTimesData.owner_recommendation">
+                                    <div class="mt-3 pt-3 border-top">
+                                        <div class="text-muted fw-semibold mb-2" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.04em;">
+                                            💡 Rekomendasi Keputusan — <span t-out="state.popularTimesData.selected_branch_name"/>
+                                        </div>
+                                        <p class="text-dark mb-3" style="font-size:0.82rem;line-height:1.6;" t-out="state.popularTimesData.owner_recommendation"/>
+                                        <div class="row g-2">
+                                            <div class="col-12 col-md-6">
+                                                <div class="rounded-3 p-3" style="background:#eff6ff;border:1px solid #bfdbfe;">
+                                                    <div class="fw-bold mb-1" style="font-size:0.72rem;color:#1d4ed8;text-transform:uppercase;">⓵ Opsi A</div>
+                                                    <div style="font-size:0.81rem;color:#1e293b;" t-out="state.popularTimesData.option_a"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <div class="rounded-3 p-3" style="background:#f0fdf4;border:1px solid #bbf7d0;">
+                                                    <div class="fw-bold mb-1" style="font-size:0.72rem;color:#15803d;text-transform:uppercase;">⓶ Opsi B</div>
+                                                    <div style="font-size:0.81rem;color:#1e293b;" t-out="state.popularTimesData.option_b"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
 
                 <!-- DEDICATED POS SECTION -->
                 <t t-if="state.mode === 'pos'">

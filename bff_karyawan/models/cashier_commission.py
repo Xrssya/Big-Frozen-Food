@@ -20,7 +20,7 @@ class CashierCommissionReport(models.Model):
     employee_id = fields.Many2one(
         'hr.employee',
         string='Kasir / Karyawan',
-        domain="[('bff_role', '=', 'cashier')]",
+        domain="[('bff_role', '=', 'kasir')]",
         required=True
     )
 

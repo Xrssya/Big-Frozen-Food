@@ -4,6 +4,8 @@ from odoo import models, fields, api, _
 class StockLot(models.Model):
     _inherit = 'stock.lot'
 
+    expiration_date = fields.Datetime(string='Tanggal Kadaluarsa')
+
     days_to_expiry = fields.Integer(
         string='Sisa Hari Kadaluarsa',
         compute='_compute_days_to_expiry',

@@ -74,17 +74,22 @@ export class BffDashboardComponent extends Component {
             dateFrom: initialDates.dateFrom,
             dateTo: initialDates.dateTo,
             salesView: "daily",
+            companyId: "all",
+            selectedDayIdx: null,
             loading: true,
             data: null,
+            popularTimesData: null,
         });
 
         this.salesChartCanvas = useRef("salesChartCanvas");
         this.channelChartCanvas = useRef("channelChartCanvas");
         this.supplierChartCanvas = useRef("supplierChartCanvas");
+        this.popularTimesCanvas = useRef("popularTimesCanvas");
 
         this.salesChartInstance = null;
         this.channelChartInstance = null;
         this.supplierChartInstance = null;
+        this.popularTimesChartInstance = null;
 
         this.autoRefreshInterval = null;
 
@@ -131,9 +136,10 @@ export class BffDashboardComponent extends Component {
             const data = await this.orm.call(
                 "bff.dashboard.api",
                 "get_dashboard_data",
-                [this.state.period, this.state.dateFrom, this.state.dateTo]
+                [this.state.period, this.state.dateFrom, this.state.dateTo, this.state.companyId]
             );
             this.state.data = data;
+            await this.loadPopularTimesData();
         } catch (err) {
             console.error("BFF Dashboard: Failed to load data:", err);
             this.state.data = null;
@@ -142,14 +148,45 @@ export class BffDashboardComponent extends Component {
         }
     }
 
+    async loadPopularTimesData() {
+        try {
+            const popularTimes = await this.orm.call(
+                "bff.dashboard.api",
+                "get_popular_times_data",
+                [this.state.companyId, this.state.selectedDayIdx]
+            );
+            this.state.popularTimesData = popularTimes;
+            if (this.state.selectedDayIdx === null && popularTimes) {
+                this.state.selectedDayIdx = popularTimes.selected_day_idx;
+            }
+        } catch (err) {
+            console.error("BFF Dashboard: Failed to load popular times data:", err);
+            this.state.popularTimesData = null;
+        }
+    }
+
+    async onBranchChange(ev) {
+        this.state.companyId = ev.target.value;
+        this.destroyCharts();
+        await this.loadData();
+    }
+
+    async onDayChange(ev) {
+        this.state.selectedDayIdx = parseInt(ev.target.value, 10);
+        this.destroyChartInstance("popularTimes");
+        await this.loadPopularTimesData();
+        this.renderPopularTimesChart();
+    }
+
     async silentReloadData() {
         try {
             const data = await this.orm.call(
                 "bff.dashboard.api",
                 "get_dashboard_data",
-                [this.state.period, this.state.dateFrom, this.state.dateTo]
+                [this.state.period, this.state.dateFrom, this.state.dateTo, this.state.companyId]
             );
             this.state.data = data;
+            await this.loadPopularTimesData();
             this.renderCharts();
         } catch (err) {
             console.error("BFF Dashboard: Background silent refresh failed:", err);
@@ -198,11 +235,14 @@ export class BffDashboardComponent extends Component {
         } else if (type === "supplier" && this.supplierChartInstance) {
             this.supplierChartInstance.destroy();
             this.supplierChartInstance = null;
+        } else if (type === "popularTimes" && this.popularTimesChartInstance) {
+            this.popularTimesChartInstance.destroy();
+            this.popularTimesChartInstance = null;
         }
     }
 
     destroyCharts() {
-        ["sales", "channel", "supplier"].forEach((t) => this.destroyChartInstance(t));
+        ["sales", "channel", "supplier", "popularTimes"].forEach((t) => this.destroyChartInstance(t));
     }
 
     renderCharts() {
@@ -213,6 +253,7 @@ export class BffDashboardComponent extends Component {
             if (mode !== "pos") {
                 this.renderChannelChart();
             }
+            this.renderPopularTimesChart();
         }
         if (mode === "all" || mode === "purchase") {
             this.renderSupplierChart();
@@ -416,6 +457,81 @@ export class BffDashboardComponent extends Component {
                                 v >= 1000000
                                     ? "Rp " + (v / 1000000).toFixed(1) + " Jt"
                                     : "Rp " + v.toLocaleString("id-ID"),
+                        },
+                    },
+                },
+            },
+        });
+    }
+
+    renderPopularTimesChart() {
+        const Chart = this._getChart();
+        if (!Chart) return;
+        const canvas = this.popularTimesCanvas.el;
+        if (!canvas) return;
+
+        this.destroyChartInstance("popularTimes");
+
+        const pData = this.state.popularTimesData;
+        if (!pData || !pData.hourly_data) return;
+
+        const labels = pData.hourly_data.map((h) => h.label);
+        const counts = pData.hourly_data.map((h) => h.count);
+        const pcts = pData.hourly_data.map((h) => h.percentage);
+
+        const ctx = canvas.getContext("2d");
+
+        const bgColors = pcts.map((pct) => {
+            if (pct >= 85) return "#ef4444";
+            if (pct >= 40) return "#06b6d4";
+            return "#94a3b8";
+        });
+
+        this.popularTimesChartInstance = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Intensitas Keramaian (%)",
+                        data: pcts,
+                        backgroundColor: bgColors,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: "#0f172a",
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: (c) => {
+                                const idx = c.dataIndex;
+                                const cnt = counts[idx] || 0;
+                                return `Keramaian: ${c.raw}% (${cnt} Transaksi)`;
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: "#64748b", font: { size: 10 } },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: "#f1f5f9" },
+                        ticks: {
+                            color: "#64748b",
+                            font: { size: 10 },
+                            callback: (v) => v + "%",
                         },
                     },
                 },
