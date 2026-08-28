@@ -431,6 +431,12 @@ export class BffDashboardComponent extends Component {
                     ["date_order", ">=", dateStr + " 00:00:00"],
                     ["date_order", "<=", dateStr + " 23:59:59"],
                 ],
+                context: {
+                    search_default_state_done: 1,
+                    search_default_group_by_province: 1,
+                    search_default_group_by_company: 1,
+                    search_default_group_by_user: 1,
+                },
             });
         } else if (isDaily) {
             const dates = (this.state.data && this.state.data.sales && this.state.data.sales.daily_dates) || [];
@@ -741,6 +747,12 @@ export class BffDashboardComponent extends Component {
             res_model: "pos.order",
             views: [[false, "list"], [false, "form"]],
             domain: [["id", "in", ids]],
+            context: {
+                search_default_state_done: 1,
+                search_default_group_by_province: 1,
+                search_default_group_by_company: 1,
+                search_default_group_by_user: 1,
+            },
         });
     }
 
