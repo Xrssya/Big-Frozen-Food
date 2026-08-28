@@ -100,5 +100,149 @@
             <field name="context">{'group_by': ['date:day', 'user_id']}</field>
         </record>
 
+        <!-- 6. View Tree: Rekap Transaksi POS Toko (Grouped by Provinsi & Cabang) -->
+        <record id="view_bff_pos_order_tree_grouped" model="ir.ui.view">
+            <field name="name">pos.order.tree.grouped.bff</field>
+            <field name="model">pos.order</field>
+            <field name="arch" type="xml">
+                <list string="Transaksi POS Toko (Pengelompokan Provinsi &amp; Cabang)" sample="1">
+                    <field name="province_id" string="Provinsi / Wilayah"/>
+                    <field name="company_id" string="Cabang Toko"/>
+                    <field name="date_order" string="Tanggal &amp; Jam"/>
+                    <field name="pos_reference" string="Referensi Order"/>
+                    <field name="session_id" string="Sesi POS"/>
+                    <field name="config_id" string="Mesin Kasir POS"/>
+                    <field name="printed_receipt_count" string="Jumlah Struk Dicetak" sum="Total Struk Dicetak"/>
+                    <field name="partner_id" string="Pelanggan"/>
+                    <field name="user_id" string="Kasir Penanggung Jawab"/>
+                    <field name="amount_total" string="Total Keseluruhan Sehari (Rp)" sum="Total Omset Sehari"/>
+                    <field name="state" widget="badge" decoration-success="state in ('paid', 'done', 'invoiced')" decoration-info="state == 'draft'" decoration-danger="state == 'cancel'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- 7. View Search: Search & Grouping for pos.order -->
+        <record id="view_bff_pos_order_search_grouped" model="ir.ui.view">
+            <field name="name">pos.order.search.grouped.bff</field>
+            <field name="model">pos.order</field>
+            <field name="arch" type="xml">
+                <search string="Cari Transaksi POS Toko">
+                    <field name="pos_reference"/>
+                    <field name="company_id"/>
+                    <field name="province_id"/>
+                    <field name="user_id"/>
+                    <field name="partner_id"/>
+                    <separator/>
+                    <filter string="Sudah Lunas / Selesai" name="state_done" domain="[('state', 'in', ('paid', 'done', 'invoiced'))]"/>
+                    <group expand="1" string="Group By / Kelompokkan Berdasarkan">
+                        <filter string="📍 Provinsi / Wilayah" name="group_by_province" context="{'group_by': 'province_id'}"/>
+                        <filter string="🏢 Cabang Toko" name="group_by_company" context="{'group_by': 'company_id'}"/>
+                        <filter string="📅 Hari / Tanggal" name="group_by_date_day" context="{'group_by': 'date_order:day'}"/>
+                        <filter string="👤 Kasir Penanggung Jawab" name="group_by_user" context="{'group_by': 'user_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- 8. View Pivot: Pivot Rekap Transaksi POS Toko -->
+        <record id="view_bff_pos_order_pivot_grouped" model="ir.ui.view">
+            <field name="name">pos.order.pivot.grouped.bff</field>
+            <field name="model">pos.order</field>
+            <field name="arch" type="xml">
+                <pivot string="Analisis Transaksi POS per Provinsi &amp; Cabang" sample="1">
+                    <field name="province_id" type="row" string="Provinsi / Area"/>
+                    <field name="company_id" type="row" string="Cabang Toko"/>
+                    <field name="date_order" interval="day" type="col" string="Hari / Tanggal"/>
+                    <field name="printed_receipt_count" type="measure" string="Jumlah Struk Dicetak"/>
+                    <field name="amount_total" type="measure" string="Total Omset Keseluruhan (Rp)"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Action Utama: Transaksi POS Toko (Pengelompokan Provinsi -> Cabang -> Kasir) -->
+        <record id="action_bff_pos_order_grouped" model="ir.actions.act_window">
+            <field name="name">Transaksi POS Toko</field>
+            <field name="res_model">pos.order</field>
+            <field name="view_mode">list,pivot,form</field>
+            <field name="search_view_id" ref="view_bff_pos_order_search_grouped"/>
+            <field name="context">{
+                'search_default_group_by_province': 1,
+                'search_default_group_by_company': 1,
+                'search_default_user_id': 1
+            }</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Rekapitulasi Transaksi POS Kasir Toko terkelompok per Provinsi, Cabang, dan Riwayat Kasir.
+                </p>
+            </field>
+        </record>
+
+        <!-- Override Default Action POS Odoo (Action ID point_of_sale.action_pos_pos_form) -->
+        <record id="point_of_sale.action_pos_pos_form" model="ir.actions.act_window">
+            <field name="search_view_id" ref="view_bff_pos_order_search_grouped"/>
+            <field name="context">{
+                'search_default_group_by_province': 1,
+                'search_default_group_by_company': 1,
+                'search_default_group_by_user': 1
+            }</field>
+        </record>
+
+        <!-- Inherit Default Tree View POS Odoo -->
+        <record id="view_pos_order_tree_bff_inherit" model="ir.ui.view">
+            <field name="name">pos.order.tree.bff.inherit</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='pos_reference']" position="before">
+                    <field name="province_id" string="Provinsi / Wilayah"/>
+                    <field name="company_id" string="Cabang Toko"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_total']" position="before">
+                    <field name="printed_receipt_count" string="Jumlah Struk" sum="Total Struk Dicetak"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit Default Search View POS Odoo (point_of_sale.view_pos_order_filter) -->
+        <record id="view_pos_order_filter_bff_inherit" model="ir.ui.view">
+            <field name="name">pos.order.filter.bff.inherit</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="province_id"/>
+                    <field name="company_id"/>
+                </xpath>
+                <xpath expr="//group" position="inside">
+                    <filter string="📍 Provinsi / Wilayah" name="group_by_province" context="{'group_by': 'province_id'}"/>
+                    <filter string="🏢 Cabang Toko" name="group_by_company" context="{'group_by': 'company_id'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit Custom Search View POS Odoo (view_bff_pos_order_search_grouped) -->
+        <record id="view_pos_order_search_bff_inherit" model="ir.ui.view">
+            <field name="name">pos.order.search.bff.inherit</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_order_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="pos_reference"/>
+                    <field name="company_id"/>
+                    <field name="province_id"/>
+                    <field name="user_id"/>
+                    <field name="partner_id"/>
+                    <separator/>
+                    <filter string="Sudah Lunas / Selesai" name="state_done" domain="[('state', 'in', ('paid', 'done', 'invoiced'))]"/>
+                    <group expand="1" string="Group By / Kelompokkan Berdasarkan">
+                        <filter string="📍 Provinsi / Wilayah" name="group_by_province" context="{'group_by': 'province_id'}"/>
+                        <filter string="🏢 Cabang Toko" name="group_by_company" context="{'group_by': 'company_id'}"/>
+                        <filter string="📅 Hari / Tanggal" name="group_by_date_day" context="{'group_by': 'date_order:day'}"/>
+                        <filter string="👤 Kasir Penanggung Jawab" name="user_id" context="{'group_by': 'user_id'}"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </odoo>
