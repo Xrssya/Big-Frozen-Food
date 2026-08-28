@@ -466,8 +466,17 @@
 
                     <!-- Top 5 POS Products Table -->
                     <div class="bff-card p-4 mb-4">
-                        <h6 class="fw-bold mb-1">Top 5 Produk Terlaris POS Toko</h6>
-                        <p class="text-muted mb-3" style="font-size:0.78rem;">Ranking produk berdasarkan omset penjualan retail kasir</p>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                            <div>
+                                <h6 class="fw-bold mb-0">Top 5 Produk Terlaris POS Toko</h6>
+                                <p class="text-muted mb-0" style="font-size:0.78rem;">Ranking produk berdasarkan omset penjualan retail kasir</p>
+                            </div>
+                            <select class="form-select form-select-sm border-light shadow-sm" style="width:auto;font-size:0.75rem;" t-model="state.topPosProductSort">
+                                <option value="revenue_desc">💰 Omset POS Terbanyak</option>
+                                <option value="qty_desc">📦 Qty Terbanyak</option>
+                                <option value="name_asc">🔤 Nama (A - Z)</option>
+                            </select>
+                        </div>
                         <div class="table-responsive">
                             <table class="table align-middle">
                                 <thead>
@@ -479,7 +488,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <t t-foreach="state.data.pos.top_5_products" t-as="prod" t-key="prod.id">
+                                    <t t-foreach="sortedTopPosProducts" t-as="prod" t-key="prod.id">
                                         <tr>
                                             <td class="text-center">
                                                 <t t-if="prod_index === 0"><span class="rank-medal rank-1">🥇</span></t>
@@ -547,8 +556,17 @@
 
                     <!-- Top Products Table -->
                     <div class="bff-card p-4 mb-4">
-                        <h6 class="fw-bold mb-1">Top 5 Produk Terlaris</h6>
-                        <p class="text-muted mb-3" style="font-size:0.78rem;">Ranking berdasarkan omset &amp; volume penjualan</p>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                            <div>
+                                <h6 class="fw-bold mb-0">Top 5 Produk Terlaris</h6>
+                                <p class="text-muted mb-0" style="font-size:0.78rem;">Ranking berdasarkan omset &amp; volume penjualan</p>
+                            </div>
+                            <select class="form-select form-select-sm border-light shadow-sm" style="width:auto;font-size:0.75rem;" t-model="state.topProductSort">
+                                <option value="revenue_desc">💰 Omset Terbanyak</option>
+                                <option value="qty_desc">📦 Qty Terbanyak</option>
+                                <option value="name_asc">🔤 Nama (A - Z)</option>
+                            </select>
+                        </div>
                         <div class="table-responsive">
                             <table class="table align-middle">
                                 <thead>
@@ -560,7 +578,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <t t-foreach="state.data.sales.top_5_products" t-as="prod" t-key="prod.id">
+                                    <t t-foreach="sortedTopProducts" t-as="prod" t-key="prod.id">
                                         <tr class="cursor-pointer bff-hover-row" t-on-click="() => this.openProductDetail(prod.id)">
                                             <td class="text-center">
                                                 <t t-if="prod_index === 0"><span class="rank-medal rank-1">🥇</span></t>
@@ -589,14 +607,22 @@
                     <div class="row g-4 mb-4">
                         <div class="col-12 col-lg-6">
                             <div class="bff-card p-4 h-100">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                                     <div>
                                         <h6 class="fw-bold mb-0">Stok Menipis</h6>
                                         <p class="text-muted mb-0" style="font-size:0.78rem;">Di bawah batas minimum reorder</p>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none" t-on-click="openLowStockAction">
-                                        Lihat Semua <i class="fa fa-arrow-right ms-1"/>
-                                    </button>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <select class="form-select form-select-sm border-light shadow-sm" style="width:auto;font-size:0.75rem;" t-model="state.lowStockSort">
+                                            <option value="stok_asc">📉 Stok Terendah</option>
+                                            <option value="stok_desc">📈 Stok Tertinggi</option>
+                                            <option value="name_asc">🔤 Nama (A - Z)</option>
+                                            <option value="name_desc">🔤 Nama (Z - A)</option>
+                                        </select>
+                                        <button type="button" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none ms-1" t-on-click="openLowStockAction">
+                                            Lihat Semua <i class="fa fa-arrow-right ms-1"/>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table align-middle">
@@ -609,7 +635,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <t t-foreach="state.data.stock.low_stock_items" t-as="item" t-key="item.id">
+                                            <t t-foreach="sortedLowStockItems" t-as="item" t-key="item.id">
                                                 <tr class="cursor-pointer bff-hover-row" t-on-click="() => this.openProductDetail(item.id)">
                                                     <td class="fw-semibold" t-out="item.name"/>
                                                     <td class="text-end fw-bold text-danger"><t t-out="item.qty_available"/> <small class="text-muted fw-normal" t-out="item.uom"/></td>
@@ -627,14 +653,21 @@
                         </div>
                         <div class="col-12 col-lg-6">
                             <div class="bff-card p-4 h-100">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                                     <div>
                                         <h6 class="fw-bold mb-0">Near-Expiry Watchlist</h6>
                                         <p class="text-muted mb-0" style="font-size:0.78rem;">Lot mendekati kadaluarsa (H-30)</p>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none" t-on-click="openExpiryAction">
-                                        Lihat Semua <i class="fa fa-arrow-right ms-1"/>
-                                    </button>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <select class="form-select form-select-sm border-light shadow-sm" style="width:auto;font-size:0.75rem;" t-model="state.nearExpirySort">
+                                            <option value="expiry_asc">⏳ Expiry Terdekat</option>
+                                            <option value="expiry_desc">⌛ Expiry Terjauh</option>
+                                            <option value="name_asc">🔤 Nama (A - Z)</option>
+                                        </select>
+                                        <button type="button" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none ms-1" t-on-click="openExpiryAction">
+                                            Lihat Semua <i class="fa fa-arrow-right ms-1"/>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table align-middle">
@@ -647,7 +680,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <t t-foreach="state.data.stock.near_expiry_items" t-as="lot" t-key="lot.id">
+                                            <t t-foreach="sortedNearExpiryItems" t-as="lot" t-key="lot.id">
                                                 <tr class="cursor-pointer bff-hover-row" t-on-click="() => this.openLotDetail(lot.id)">
                                                     <td>
                                                         <div class="fw-semibold" t-out="lot.product_name"/>
@@ -683,7 +716,7 @@
                 <!-- PURCHASE SECTION -->
                 <t t-if="state.mode === 'all' || state.mode === 'purchase'">
                     <div class="row g-4 mb-4">
-                        <div class="col-12 col-lg-7">
+                        <div class="col-12 col-lg-6">
                             <div class="bff-card p-4 h-100">
                                 <h6 class="fw-bold mb-1">Belanja per Supplier</h6>
                                 <p class="text-muted mb-3" style="font-size:0.78rem;">Distribusi alokasi belanja ke vendor</p>
@@ -692,29 +725,51 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-lg-5">
+                        <div class="col-12 col-lg-6">
                             <div class="bff-card p-4 h-100">
-                                <h6 class="fw-bold mb-1">Rekap Belanja Supplier</h6>
-                                <p class="text-muted mb-3" style="font-size:0.78rem;">Total nominal PO per vendor</p>
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Order Pembelian</h6>
+                                        <p class="text-muted mb-0" style="font-size:0.78rem;">Daftar transaksi purchase order terbaru</p>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <select class="form-select form-select-sm border-light shadow-sm" style="width:auto;font-size:0.75rem;" t-model="state.purchaseOrderSort">
+                                            <option value="date_desc">📅 Terbaru</option>
+                                            <option value="date_asc">📅 Terlama</option>
+                                            <option value="total_desc">💵 Nominal (Besar → Kecil)</option>
+                                            <option value="total_asc">💵 Nominal (Kecil → Besar)</option>
+                                            <option value="vendor_asc">🏢 Pemasok (A - Z)</option>
+                                        </select>
+                                        <button type="button" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none ms-1" t-on-click="openPurchaseAction">
+                                            Lihat Semua <i class="fa fa-arrow-right ms-1"/>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="table-responsive">
                                     <table class="table align-middle">
                                         <thead>
                                             <tr>
-                                                <th>Supplier</th>
-                                                <th class="text-center">PO</th>
+                                                <th>Referensi</th>
+                                                <th>Pemasok</th>
+                                                <th class="text-center">Tanggal</th>
                                                 <th class="text-end">Total (Rp)</th>
+                                                <th class="text-center">Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <t t-foreach="state.data.purchase.supplier_breakdown" t-as="supp" t-key="supp_index">
-                                                <tr class="cursor-pointer bff-hover-row" t-on-click="() => this.openSupplierDetail(supp.partner_id)">
-                                                    <td class="fw-semibold" t-out="supp.supplier"/>
-                                                    <td class="text-center"><span class="badge text-bg-light" t-out="supp.po_count"/></td>
-                                                    <td class="text-end fw-bold text-indigo" t-out="formatCurrency(supp.total)"/>
+                                            <t t-foreach="sortedRecentPurchaseOrders" t-as="po" t-key="po.id">
+                                                <tr class="cursor-pointer bff-hover-row" t-on-click="() => this.openPurchaseOrderDetail(po.id)">
+                                                    <td class="fw-bold text-primary" t-out="po.name"/>
+                                                    <td class="fw-semibold text-dark" t-out="po.partner_name"/>
+                                                    <td class="text-center text-muted" style="font-size:0.8rem;" t-out="po.date_order_short"/>
+                                                    <td class="text-end fw-bold text-indigo" t-out="formatCurrency(po.amount_total)"/>
+                                                    <td class="text-center">
+                                                        <span t-attf-class="badge text-bg-#{po.status_badge} px-2 py-1" t-out="po.status_label"/>
+                                                    </td>
                                                 </tr>
                                             </t>
-                                            <t t-if="!state.data.purchase.supplier_breakdown.length">
-                                                <tr><td colspan="3" class="text-center text-muted py-4">Belum ada data pembelian.</td></tr>
+                                            <t t-if="!state.data.purchase.recent_orders.length">
+                                                <tr><td colspan="5" class="text-center text-muted py-4">Belum ada transaksi purchase order.</td></tr>
                                             </t>
                                         </tbody>
                                     </table>

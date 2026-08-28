@@ -79,6 +79,11 @@ export class BffDashboardComponent extends Component {
             loading: true,
             data: null,
             popularTimesData: null,
+            lowStockSort: "stok_asc",
+            nearExpirySort: "expiry_asc",
+            topProductSort: "revenue_desc",
+            topPosProductSort: "revenue_desc",
+            purchaseOrderSort: "date_desc",
         });
 
         this.salesChartCanvas = useRef("salesChartCanvas");
@@ -133,13 +138,23 @@ export class BffDashboardComponent extends Component {
     async loadData() {
         this.state.loading = true;
         try {
-            const data = await this.orm.call(
-                "bff.dashboard.api",
-                "get_dashboard_data",
-                [this.state.period, this.state.dateFrom, this.state.dateTo, this.state.companyId]
-            );
+            const [data, popularTimes] = await Promise.all([
+                this.orm.call(
+                    "bff.dashboard.api",
+                    "get_dashboard_data",
+                    [this.state.period, this.state.dateFrom, this.state.dateTo, this.state.companyId]
+                ),
+                this.orm.call(
+                    "bff.dashboard.api",
+                    "get_popular_times_data",
+                    [this.state.companyId, this.state.selectedDayIdx]
+                ),
+            ]);
             this.state.data = data;
-            await this.loadPopularTimesData();
+            this.state.popularTimesData = popularTimes;
+            if (this.state.selectedDayIdx === null && popularTimes) {
+                this.state.selectedDayIdx = popularTimes.selected_day_idx;
+            }
         } catch (err) {
             console.error("BFF Dashboard: Failed to load data:", err);
             this.state.data = null;
@@ -173,20 +188,26 @@ export class BffDashboardComponent extends Component {
 
     async onDayChange(ev) {
         this.state.selectedDayIdx = parseInt(ev.target.value, 10);
-        this.destroyChartInstance("popularTimes");
         await this.loadPopularTimesData();
         this.renderPopularTimesChart();
     }
 
     async silentReloadData() {
         try {
-            const data = await this.orm.call(
-                "bff.dashboard.api",
-                "get_dashboard_data",
-                [this.state.period, this.state.dateFrom, this.state.dateTo, this.state.companyId]
-            );
+            const [data, popularTimes] = await Promise.all([
+                this.orm.call(
+                    "bff.dashboard.api",
+                    "get_dashboard_data",
+                    [this.state.period, this.state.dateFrom, this.state.dateTo, this.state.companyId]
+                ),
+                this.orm.call(
+                    "bff.dashboard.api",
+                    "get_popular_times_data",
+                    [this.state.companyId, this.state.selectedDayIdx]
+                ),
+            ]);
             this.state.data = data;
-            await this.loadPopularTimesData();
+            this.state.popularTimesData = popularTimes;
             this.renderCharts();
         } catch (err) {
             console.error("BFF Dashboard: Background silent refresh failed:", err);
@@ -270,8 +291,6 @@ export class BffDashboardComponent extends Component {
         const canvas = this.salesChartCanvas.el;
         if (!canvas) return;
 
-        this.destroyChartInstance("sales");
-
         const isPos = this.state.mode === "pos";
         const isDaily = this.state.salesView === "daily";
         
@@ -289,11 +308,21 @@ export class BffDashboardComponent extends Component {
             chartLabel = isDaily ? "Omset Harian (Rp)" : "Omset Bulanan (Rp)";
         }
 
-        const ctx = canvas.getContext("2d");
-        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
         const lineColor = isPos ? "#06b6d4" : "#2563eb";
         const stopColor = isPos ? "rgba(6, 182, 212, 0.3)" : "rgba(37, 99, 235, 0.28)";
 
+        if (this.salesChartInstance) {
+            this.salesChartInstance.data.labels = labels || [];
+            this.salesChartInstance.data.datasets[0].label = chartLabel;
+            this.salesChartInstance.data.datasets[0].data = values || [];
+            this.salesChartInstance.data.datasets[0].borderColor = lineColor;
+            this.salesChartInstance.data.datasets[0].pointBackgroundColor = lineColor;
+            this.salesChartInstance.update("none");
+            return;
+        }
+
+        const ctx = canvas.getContext("2d");
+        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
         gradient.addColorStop(0, stopColor);
         gradient.addColorStop(1, "rgba(255, 255, 255, 0.0)");
 
@@ -342,8 +371,23 @@ export class BffDashboardComponent extends Component {
                         cornerRadius: 8,
                         displayColors: false,
                         callbacks: {
-                            label: (context) =>
-                                "Omset: Rp " + (context.raw || 0).toLocaleString("id-ID"),
+                            label: (context) => {
+                                const idx = context.dataIndex;
+                                const val = context.raw || 0;
+                                if (this.state.mode === 'pos') {
+                                    return "Omset POS Toko: Rp " + val.toLocaleString("id-ID");
+                                } else if (this.state.mode === 'sales') {
+                                    return "Omset Sales B2B: Rp " + val.toLocaleString("id-ID");
+                                } else {
+                                    const soVal = (this.state.data?.sales?.daily_so && this.state.data.sales.daily_so[idx]) || 0;
+                                    const posVal = (this.state.data?.sales?.daily_pos && this.state.data.sales.daily_pos[idx]) || 0;
+                                    return [
+                                        "Total Omset: Rp " + val.toLocaleString("id-ID"),
+                                        " • B2B Sales: Rp " + soVal.toLocaleString("id-ID"),
+                                        " • POS Retail: Rp " + posVal.toLocaleString("id-ID"),
+                                    ];
+                                }
+                            },
                         },
                     },
                 },
@@ -392,17 +436,47 @@ export class BffDashboardComponent extends Component {
             const dates = (this.state.data && this.state.data.sales && this.state.data.sales.daily_dates) || [];
             const dateStr = dates[index];
             if (!dateStr) return;
-            this.actionService.doAction({
-                name: "Order Penjualan (" + dateStr + ")",
-                type: "ir.actions.act_window",
-                res_model: "sale.order",
-                views: [[false, "list"], [false, "form"]],
-                domain: [
-                    ["state", "in", ["sale", "done"]],
-                    ["date_order", ">=", dateStr + " 00:00:00"],
-                    ["date_order", "<=", dateStr + " 23:59:59"],
-                ],
-            });
+
+            const soVal = (this.state.data?.sales?.daily_so && this.state.data.sales.daily_so[index]) || 0;
+            const posVal = (this.state.data?.sales?.daily_pos && this.state.data.sales.daily_pos[index]) || 0;
+
+            if (this.state.mode === "sales" || (soVal > 0 && posVal === 0)) {
+                this.actionService.doAction({
+                    name: "Order Penjualan B2B (" + dateStr + ")",
+                    type: "ir.actions.act_window",
+                    res_model: "sale.order",
+                    views: [[false, "list"], [false, "form"]],
+                    domain: [
+                        ["state", "in", ["sale", "done"]],
+                        ["date_order", ">=", dateStr + " 00:00:00"],
+                        ["date_order", "<=", dateStr + " 23:59:59"],
+                    ],
+                });
+            } else if (soVal === 0 && posVal > 0) {
+                this.actionService.doAction({
+                    name: "Transaksi POS Toko (" + dateStr + ")",
+                    type: "ir.actions.act_window",
+                    res_model: "pos.order",
+                    views: [[false, "list"], [false, "form"]],
+                    domain: [
+                        ["state", "in", ["paid", "done", "invoiced"]],
+                        ["date_order", ">=", dateStr + " 00:00:00"],
+                        ["date_order", "<=", dateStr + " 23:59:59"],
+                    ],
+                });
+            } else {
+                this.actionService.doAction({
+                    name: "Order Penjualan B2B (" + dateStr + ") - POS Retail: Rp " + posVal.toLocaleString("id-ID"),
+                    type: "ir.actions.act_window",
+                    res_model: "sale.order",
+                    views: [[false, "list"], [false, "form"]],
+                    domain: [
+                        ["state", "in", ["sale", "done"]],
+                        ["date_order", ">=", dateStr + " 00:00:00"],
+                        ["date_order", "<=", dateStr + " 23:59:59"],
+                    ],
+                });
+            }
         } else {
             const infoList = (this.state.data && this.state.data.sales && this.state.data.sales.monthly_info) || [];
             const info = infoList[index];
@@ -427,9 +501,13 @@ export class BffDashboardComponent extends Component {
         const canvas = this.channelChartCanvas.el;
         if (!canvas) return;
 
-        this.destroyChartInstance("channel");
-
         const ch = this.state.data.sales.channel_comparison || {};
+
+        if (this.channelChartInstance) {
+            this.channelChartInstance.data.datasets[0].data = [ch.agen_sales || 0, ch.pos_sales || 0];
+            this.channelChartInstance.update("none");
+            return;
+        }
         this.channelChartInstance = new Chart(canvas.getContext("2d"), {
             type: "doughnut",
             data: {
@@ -484,13 +562,15 @@ export class BffDashboardComponent extends Component {
         const canvas = this.supplierChartCanvas.el;
         if (!canvas) return;
 
-        this.destroyChartInstance("supplier");
-
         const suppliers = this.state.data.purchase.supplier_breakdown || [];
+
+        if (this.supplierChartInstance) {
+            this.supplierChartInstance.data.labels = suppliers.map((s) => s.supplier);
+            this.supplierChartInstance.data.datasets[0].data = suppliers.map((s) => s.total);
+            this.supplierChartInstance.update("none");
+            return;
+        }
         const ctx = canvas.getContext("2d");
-        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-        gradient.addColorStop(0, "#818cf8");
-        gradient.addColorStop(1, "#4338ca");
 
         this.supplierChartInstance = new Chart(ctx, {
             type: "bar",
@@ -500,7 +580,8 @@ export class BffDashboardComponent extends Component {
                     {
                         label: "Total Belanja (Rp)",
                         data: suppliers.map((s) => s.total),
-                        backgroundColor: gradient,
+                        backgroundColor: "#6366f1",
+                        hoverBackgroundColor: "#4f46e5",
                         borderRadius: 8,
                         borderSkipped: false,
                     },
@@ -562,8 +643,6 @@ export class BffDashboardComponent extends Component {
         const canvas = this.popularTimesCanvas.el;
         if (!canvas) return;
 
-        this.destroyChartInstance("popularTimes");
-
         const pData = this.state.popularTimesData;
         if (!pData || !pData.hourly_data) return;
 
@@ -571,14 +650,21 @@ export class BffDashboardComponent extends Component {
         const counts = pData.hourly_data.map((h) => h.count);
         const pcts = pData.hourly_data.map((h) => h.percentage);
 
-        const ctx = canvas.getContext("2d");
-
         const bgColors = pcts.map((pct) => {
             if (pct >= 85) return "#ef4444";
             if (pct >= 40) return "#06b6d4";
             return "#94a3b8";
         });
 
+        if (this.popularTimesChartInstance) {
+            this.popularTimesChartInstance.data.labels = labels;
+            this.popularTimesChartInstance.data.datasets[0].data = pcts;
+            this.popularTimesChartInstance.data.datasets[0].backgroundColor = bgColors;
+            this.popularTimesChartInstance.update("none");
+            return;
+        }
+
+        const ctx = canvas.getContext("2d");
         this.popularTimesChartInstance = new Chart(ctx, {
             type: "bar",
             data: {
@@ -705,6 +791,18 @@ export class BffDashboardComponent extends Component {
         });
     }
 
+    openPurchaseOrderDetail(poId) {
+        if (!poId) return;
+        this.actionService.doAction({
+            name: "Order Pembelian",
+            type: "ir.actions.act_window",
+            res_model: "purchase.order",
+            res_id: poId,
+            views: [[false, "form"]],
+            target: "current",
+        });
+    }
+
     openProductDetail(productId) {
         if (!productId) return;
         this.actionService.doAction({
@@ -742,6 +840,82 @@ export class BffDashboardComponent extends Component {
             views: [[false, "list"], [false, "form"]],
             domain: [["partner_id", "=", partnerId], ["id", "in", poIds]],
         });
+    }
+
+    get sortedLowStockItems() {
+        const items = (this.state.data && this.state.data.stock && this.state.data.stock.low_stock_items) || [];
+        const copy = [...items];
+        const sort = this.state.lowStockSort;
+        if (sort === "stok_asc") {
+            copy.sort((a, b) => a.qty_available - b.qty_available);
+        } else if (sort === "stok_desc") {
+            copy.sort((a, b) => b.qty_available - a.qty_available);
+        } else if (sort === "name_asc") {
+            copy.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        } else if (sort === "name_desc") {
+            copy.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
+        }
+        return copy;
+    }
+
+    get sortedNearExpiryItems() {
+        const items = (this.state.data && this.state.data.stock && this.state.data.stock.near_expiry_items) || [];
+        const copy = [...items];
+        const sort = this.state.nearExpirySort;
+        if (sort === "expiry_asc") {
+            copy.sort((a, b) => a.days_left - b.days_left);
+        } else if (sort === "expiry_desc") {
+            copy.sort((a, b) => b.days_left - a.days_left);
+        } else if (sort === "name_asc") {
+            copy.sort((a, b) => (a.product_name || "").localeCompare(b.product_name || ""));
+        }
+        return copy;
+    }
+
+    get sortedTopProducts() {
+        const items = (this.state.data && this.state.data.sales && this.state.data.sales.top_5_products) || [];
+        const copy = [...items];
+        const sort = this.state.topProductSort;
+        if (sort === "revenue_desc") {
+            copy.sort((a, b) => b.revenue - a.revenue);
+        } else if (sort === "qty_desc") {
+            copy.sort((a, b) => b.qty - a.qty);
+        } else if (sort === "name_asc") {
+            copy.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        }
+        return copy;
+    }
+
+    get sortedTopPosProducts() {
+        const items = (this.state.data && this.state.data.pos && this.state.data.pos.top_5_products) || [];
+        const copy = [...items];
+        const sort = this.state.topPosProductSort || "revenue_desc";
+        if (sort === "revenue_desc") {
+            copy.sort((a, b) => b.revenue - a.revenue);
+        } else if (sort === "qty_desc") {
+            copy.sort((a, b) => b.qty - a.qty);
+        } else if (sort === "name_asc") {
+            copy.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        }
+        return copy;
+    }
+
+    get sortedRecentPurchaseOrders() {
+        const items = (this.state.data && this.state.data.purchase && this.state.data.purchase.recent_orders) || [];
+        const copy = [...items];
+        const sort = this.state.purchaseOrderSort;
+        if (sort === "date_desc") {
+            // default date desc
+        } else if (sort === "date_asc") {
+            copy.reverse();
+        } else if (sort === "total_desc") {
+            copy.sort((a, b) => b.amount_total - a.amount_total);
+        } else if (sort === "total_asc") {
+            copy.sort((a, b) => a.amount_total - b.amount_total);
+        } else if (sort === "vendor_asc") {
+            copy.sort((a, b) => (a.partner_name || "").localeCompare(b.partner_name || ""));
+        }
+        return copy;
     }
 }
 
