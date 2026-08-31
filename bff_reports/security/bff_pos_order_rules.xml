@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        noupdate="1": perubahan ini hanya di-apply sekali saat install pertama.
+        Saat -u (update), record dengan noupdate=1 TIDAK akan di-reset ke nilai asal.
+        Ini penting agar domain rule tetap [(1,'=',1)] meski modul di-update.
+    -->
+    <data noupdate="1">
+
+        <!--
+            Override rule bawaan Odoo: 'Point Of Sale Order' (point_of_sale.rule_pos_multi_company)
+            Rule bawaan: [('company_id', 'in', company_ids)] -> hanya tampil 1 company aktif.
+            Kita ubah ke [(1,'=',1)] agar semua cabang/provinsi bisa tampil di laporan.
+        -->
+        <record id="point_of_sale.rule_pos_multi_company" model="ir.rule">
+            <field name="name">Point Of Sale Order</field>
+            <field name="model_id" ref="point_of_sale.model_pos_order"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+    </data>
+</odoo>
+

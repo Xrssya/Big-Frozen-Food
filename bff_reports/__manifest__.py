@@ -28,6 +28,7 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'security/bff_pos_order_rules.xml',
         'wizard/bff_report_wizard_views.xml',
         'views/sales_reports_views.xml',
         'views/stock_reports_views.xml',

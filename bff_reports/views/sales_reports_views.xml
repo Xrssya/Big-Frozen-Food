@@ -168,7 +168,7 @@
             <field name="context">{
                 'search_default_group_by_province': 1,
                 'search_default_group_by_company': 1,
-                'search_default_user_id': 1
+                'bff_cross_company_pos': True
             }</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
@@ -183,7 +183,7 @@
             <field name="context">{
                 'search_default_group_by_province': 1,
                 'search_default_group_by_company': 1,
-                'search_default_group_by_user': 1
+                'bff_cross_company_pos': True
             }</field>
         </record>
 
