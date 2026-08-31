@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, api
+from odoo import models, fields, api
 from datetime import date, datetime, timedelta
 
 
@@ -65,6 +65,27 @@ class BffDashboardApi(models.AbstractModel):
             'pos_sales': round(total_pos_revenue, 2),
         }
 
+        # Pre-group orders by local date (%Y-%m-%d) and local month (%Y-%m) in memory using user timezone
+        so_by_date = {}
+        so_by_month = {}
+        for so in sale_orders:
+            if so.date_order:
+                local_dt = fields.Datetime.context_timestamp(self, so.date_order)
+                d_str = local_dt.strftime('%Y-%m-%d')
+                so_by_date[d_str] = so_by_date.get(d_str, 0.0) + so.amount_total
+                m_str = local_dt.strftime('%Y-%m')
+                so_by_month[m_str] = so_by_month.get(m_str, 0.0) + so.amount_total
+
+        pos_by_date = {}
+        pos_by_month = {}
+        for po in pos_orders:
+            if po.date_order:
+                local_dt = fields.Datetime.context_timestamp(self, po.date_order)
+                d_str = local_dt.strftime('%Y-%m-%d')
+                pos_by_date[d_str] = pos_by_date.get(d_str, 0.0) + po.amount_total
+                m_str = local_dt.strftime('%Y-%m')
+                pos_by_month[m_str] = pos_by_month.get(m_str, 0.0) + po.amount_total
+
         # Daily Turnover Calculation
         daily_labels = []
         daily_dates = []
@@ -74,34 +95,23 @@ class BffDashboardApi(models.AbstractModel):
 
         total_days = (end_date - start_date).days + 1
         if total_days > 31:
-            # Step size to limit chart points to ~30 max
             step = max(1, total_days // 30)
             date_list = [start_date + timedelta(days=i) for i in range(0, total_days, step)]
         else:
             date_list = [start_date + timedelta(days=i) for i in range(total_days)]
 
         for d in date_list:
-            d_start = datetime.combine(d, datetime.min.time())
-            d_end = datetime.combine(d, datetime.max.time())
-
-            d_so = sum(so.amount_total for so in self.env['sale.order'].search([
-                ('state', 'in', ['sale', 'done']),
-                ('date_order', '>=', d_start),
-                ('date_order', '<=', d_end)
-            ]))
-            d_pos = sum(po.amount_total for po in self.env['pos.order'].search([
-                ('state', 'in', ['paid', 'done', 'invoiced']),
-                ('date_order', '>=', d_start),
-                ('date_order', '<=', d_end)
-            ]))
+            d_key = d.strftime('%Y-%m-%d')
+            d_so = so_by_date.get(d_key, 0.0)
+            d_pos = pos_by_date.get(d_key, 0.0)
 
             daily_labels.append(d.strftime('%d %b'))
-            daily_dates.append(d.strftime('%Y-%m-%d'))
+            daily_dates.append(d_key)
             daily_so_values.append(round(d_so, 2))
             daily_pos_values.append(round(d_pos, 2))
             daily_total_values.append(round(d_so + d_pos, 2))
 
-        # Monthly Turnover
+        # Monthly Turnover Calculation
         monthly_labels = []
         monthly_info = []
         monthly_revenue_values = []
@@ -116,16 +126,9 @@ class BffDashboardApi(models.AbstractModel):
                 next_month = datetime(current_year, m + 1, 1, 0, 0, 0)
                 m_end = next_month - timedelta(seconds=1)
 
-            m_so = sum(so.amount_total for so in self.env['sale.order'].search([
-                ('state', 'in', ['sale', 'done']),
-                ('date_order', '>=', m_start),
-                ('date_order', '<=', m_end)
-            ]))
-            m_pos = sum(po.amount_total for po in self.env['pos.order'].search([
-                ('state', 'in', ['paid', 'done', 'invoiced']),
-                ('date_order', '>=', m_start),
-                ('date_order', '<=', m_end)
-            ]))
+            m_key = m_start.strftime('%Y-%m')
+            m_so = so_by_month.get(m_key, 0.0)
+            m_pos = pos_by_month.get(m_key, 0.0)
 
             monthly_labels.append(m_start.strftime('%b %Y'))
             monthly_info.append({
@@ -196,17 +199,24 @@ class BffDashboardApi(models.AbstractModel):
         else:
             storable_products = self.env['product.product'].search([('type', '=', 'consu')])
         low_stock_list = []
-        for p in storable_products:
-            min_alert = getattr(p, 'min_stock_alert_qty', 10.0) or 10.0
-            on_hand = p.qty_available
-            if on_hand <= min_alert:
-                low_stock_list.append({
-                    'id': p.id,
-                    'name': p.display_name,
-                    'qty_available': round(on_hand, 2),
-                    'min_alert_qty': round(min_alert, 2),
-                    'uom': p.uom_id.name or 'pcs',
-                })
+        if storable_products:
+            read_fields = ['display_name', 'qty_available', 'uom_id']
+            if 'min_stock_alert_qty' in self.env['product.product']._fields:
+                read_fields.append('min_stock_alert_qty')
+            prod_records = storable_products.read(read_fields)
+            for p in prod_records:
+                min_alert = p.get('min_stock_alert_qty') or 10.0
+                on_hand = p.get('qty_available', 0.0)
+                if on_hand <= min_alert:
+                    uom_info = p.get('uom_id')
+                    uom_name = uom_info[1] if uom_info and len(uom_info) > 1 else 'pcs'
+                    low_stock_list.append({
+                        'id': p['id'],
+                        'name': p['display_name'],
+                        'qty_available': round(on_hand, 2),
+                        'min_alert_qty': round(min_alert, 2),
+                        'uom': uom_name,
+                    })
 
         low_stock_count = len(low_stock_list)
         low_stock_items = sorted(low_stock_list, key=lambda x: x['qty_available'])[:8]
@@ -262,6 +272,39 @@ class BffDashboardApi(models.AbstractModel):
             'po_count': s['po_count'],
             'total': round(s['total'], 2)
         } for s in sorted_suppliers]
+
+        # Recent Purchase Orders for Order Pembelian table widget
+        recent_pos = self.env['purchase.order'].search(po_domain, order='date_order desc', limit=8)
+        recent_orders = []
+        has_inv_status = 'invoice_status' in self.env['purchase.order']._fields
+        for po in recent_pos:
+            inv_stat = po.invoice_status if has_inv_status else False
+            if inv_stat == 'to invoice':
+                status_label = 'Siap Difakturkan'
+                status_badge = 'info'
+            elif inv_stat == 'invoiced':
+                status_label = 'Telah Difakturkan'
+                status_badge = 'success'
+            elif po.state == 'purchase':
+                status_label = 'Order Pembelian'
+                status_badge = 'primary'
+            elif po.state == 'done':
+                status_label = 'Selesai'
+                status_badge = 'secondary'
+            else:
+                status_label = po.state.capitalize() if po.state else '-'
+                status_badge = 'secondary'
+
+            recent_orders.append({
+                'id': po.id,
+                'name': po.name,
+                'partner_name': po.partner_id.display_name or po.partner_id.name or '-',
+                'date_order_short': po.date_order.strftime('%d/%m/%Y') if po.date_order else '-',
+                'amount_total': round(po.amount_total, 2),
+                'state': po.state,
+                'status_label': status_label,
+                'status_badge': status_badge,
+            })
 
         # ----------------------------------------------------
         # 4. POS RETAIL DASHBOARD SPECIFIC DATA
@@ -334,6 +377,7 @@ class BffDashboardApi(models.AbstractModel):
             'purchase': {
                 'monthly_total': round(monthly_purchase_total, 2),
                 'supplier_breakdown': supplier_breakdown,
+                'recent_orders': recent_orders,
                 'po_ids': purchase_orders.ids,
             },
             'pos': {
