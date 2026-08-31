@@ -22,6 +22,9 @@ class PosOrder(models.Model):
 
     @api.model
     def web_search_read(self, domain=None, specification=None, offset=0, limit=None, order=None, count_limit=None):
+        """Override untuk menampilkan transaksi POS dari SEMUA cabang (cross-company),
+        bukan hanya company yang sedang aktif saja.
+        """
         ctx = self.env.context
         if not any(k.startswith('search_default_group_by') for k in ctx.keys()):
             self = self.with_context(
@@ -29,7 +32,8 @@ class PosOrder(models.Model):
                 search_default_group_by_company=1,
                 search_default_group_by_user=1,
             )
-        return super(PosOrder, self).web_search_read(
+        # Gunakan sudo() agar semua company/cabang bisa tampil (bypass multi-company rule)
+        return super(PosOrder, self.sudo()).web_search_read(
             domain=domain,
             specification=specification,
             offset=offset,
@@ -37,3 +41,26 @@ class PosOrder(models.Model):
             order=order,
             count_limit=count_limit,
         )
+
+    @api.model
+    def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+        """Override read_group untuk cross-company grouping di pivot/graph view."""
+        return super(PosOrder, self.sudo()).read_group(
+            domain=domain,
+            fields=fields,
+            groupby=groupby,
+            offset=offset,
+            limit=limit,
+            orderby=orderby,
+            lazy=lazy,
+        )
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        """Override _search agar cross-company: tampilkan semua cabang dari semua provinsi."""
+        # Cek apakah dipanggil dari context view laporan POS (bukan dari transaksi aktif)
+        if self.env.context.get('bff_cross_company_pos'):
+            return super(PosOrder, self.sudo())._search(
+                domain, offset=offset, limit=limit, order=order
+            )
+        return super()._search(domain, offset=offset, limit=limit, order=order)
