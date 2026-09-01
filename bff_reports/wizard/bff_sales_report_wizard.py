@@ -134,7 +134,7 @@ class BffSalesReportWizard(models.TransientModel):
                 }),
                 'qty': workbook.add_format({
                     'font_name': 'Arial', 'font_size': 9, 'align': 'right', 'valign': 'vcenter',
-                    'num_format': '#,##0.00', 'bg_color': bg_color, 'border': 1, 'border_color': '#E2E8F0'
+                    'num_format': '#,##0', 'bg_color': bg_color, 'border': 1, 'border_color': '#E2E8F0'
                 }),
             }
 
@@ -156,7 +156,7 @@ class BffSalesReportWizard(models.TransientModel):
         fmt_total_qty = workbook.add_format({
             'font_name': 'Arial', 'font_size': 9.5, 'bold': True,
             'font_color': NAVY_DARK, 'align': 'right', 'valign': 'vcenter',
-            'num_format': '#,##0.00', 'bg_color': '#E2E8F0',
+            'num_format': '#,##0', 'bg_color': '#E2E8F0',
             'top': 1, 'bottom': 6, 'left': 1, 'right': 1, 'border_color': NAVY_HEADER
         })
 
@@ -356,7 +356,7 @@ class BffSalesReportWizard(models.TransientModel):
             worksheet.merge_range('A5:B5', 'TOTAL VARIATIF PRODUK', fmt_kpi_label)
             worksheet.merge_range('A6:B6', f'{len(sorted_prods)} Produk', fmt_kpi_val_num)
             worksheet.merge_range('C5:D5', 'TOTAL VOLUME TERJUAL', fmt_kpi_label)
-            worksheet.merge_range('C6:D6', f'{grand_qty:,.2f} Unit/Kg', fmt_kpi_val_blue)
+            worksheet.merge_range('C6:D6', f'{int(round(grand_qty)):,} Unit/Kg', fmt_kpi_val_blue)
             worksheet.merge_range('E5:F5', 'TOTAL OMSET PENJUALAN', fmt_kpi_label)
             worksheet.merge_range('E6:F6', grand_rev, fmt_kpi_val_green)
 

@@ -273,7 +273,7 @@
                 </div>
 
                 <!-- JAM RAMAI & ANALISIS HARI SEPI CABANG (POPULAR TIMES WIDGET) -->
-                <t t-if="(state.mode === 'all' || state.mode === 'sales' || state.mode === 'pos') &amp;&amp; state.popularTimesData">
+                <t t-if="(state.mode === 'all' || state.mode === 'pos') &amp;&amp; state.popularTimesData">
                     <div class="row g-4 mb-4">
 
                         <!-- Left column: 4 small KPI cards stacked -->

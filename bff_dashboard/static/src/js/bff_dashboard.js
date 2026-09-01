@@ -274,7 +274,9 @@ export class BffDashboardComponent extends Component {
             if (mode !== "pos") {
                 this.renderChannelChart();
             }
-            this.renderPopularTimesChart();
+            if (mode !== "sales") {
+                this.renderPopularTimesChart();
+            }
         }
         if (mode === "all" || mode === "purchase") {
             this.renderSupplierChart();
