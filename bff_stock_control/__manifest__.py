@@ -18,7 +18,9 @@
         'views/product_views.xml',
         'views/inventory_low_stock_views.xml',
         'views/stock_transfer_request_views.xml',
+        'views/bff_spoilage_log_views.xml',
     ],
+
     'assets': {
         'point_of_sale._assets_pos': [
             'bff_stock_control/static/src/css/pos_stock.css',

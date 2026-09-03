@@ -23,6 +23,13 @@
                 </div>
 
                 <div class="d-flex align-items-center flex-wrap gap-3 mt-3 mt-md-0">
+                    <!-- Spotlight Command Palette Trigger -->
+                    <button type="button" class="btn btn-sm btn-light border d-flex align-items-center gap-2 px-3 py-1 rounded-pill shadow-sm" t-on-click="openCommandPalette" title="Buka Pencarian Perintah (Ctrl+K)">
+                        <i class="fa fa-search text-muted"/>
+                        <span class="text-muted small fw-medium">Cari Perintah...</span>
+                        <span class="badge bg-secondary-subtle text-secondary border px-1 font-monospace ms-1" style="font-size:0.65rem;">Ctrl K</span>
+                    </button>
+
                     <!-- Mode Pills (Hanya tampil di Dashboard Eksekutif Utama, tersembunyi jika dibuka dari modul spesifik) -->
                     <t t-if="!state.isEmbedded">
                         <div class="bff-pill-group">
@@ -56,11 +63,49 @@
                 </div>
             </div>
 
-            <!-- LOADING -->
+            <!-- LOADING SKELETON SCREEN -->
             <t t-if="state.loading">
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status"/>
-                    <p class="mt-3 text-muted">Memuat data dashboard...</p>
+                <!-- 1. KPI Cards Skeleton Row -->
+                <div class="row g-3 mb-4">
+                    <t t-foreach="[1, 2, 3, 4, 5]" t-as="i" t-key="i">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl">
+                            <div class="bff-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="w-100 me-2">
+                                        <div class="bff-skeleton bff-skeleton-title mb-2"/>
+                                        <div class="bff-skeleton bff-skeleton-value mb-2"/>
+                                        <div><div class="bff-skeleton bff-skeleton-badge"/></div>
+                                    </div>
+                                    <div class="bff-skeleton bff-skeleton-icon flex-shrink-0"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- 2. Chart & Analytics Skeleton Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-12 col-lg-8">
+                        <div class="bff-card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="w-50"><div class="bff-skeleton bff-skeleton-title"/></div>
+                                <div class="w-25 text-end"><div class="bff-skeleton bff-skeleton-badge"/></div>
+                            </div>
+                            <div class="bff-skeleton bff-skeleton-box"/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <div class="bff-card p-4">
+                            <div class="w-75 mb-3"><div class="bff-skeleton bff-skeleton-title"/></div>
+                            <div class="d-flex flex-column gap-3">
+                                <div class="bff-skeleton bff-skeleton-line"/>
+                                <div class="bff-skeleton bff-skeleton-line"/>
+                                <div class="bff-skeleton bff-skeleton-line"/>
+                                <div class="bff-skeleton bff-skeleton-line"/>
+                                <div class="bff-skeleton bff-skeleton-line"/>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </t>
 
@@ -779,6 +824,45 @@
                     </div>
                 </t>
 
+            </t>
+
+            <!-- COMMAND PALETTE MODAL OVERLAY -->
+            <t t-if="state.showCommandPalette">
+                <div class="bff-command-palette-backdrop" t-on-click.self="closeCommandPalette">
+                    <div class="bff-command-palette-modal">
+                        <div class="bff-command-search-header">
+                            <i class="fa fa-search"/>
+                            <input type="text" placeholder="Ketik perintah atau cari modul..." t-model="state.commandQuery" autofocus="autofocus"/>
+                            <button type="button" class="btn-close" t-on-click="closeCommandPalette"/>
+                        </div>
+                        <div class="bff-command-list">
+                            <t t-foreach="filteredCommands" t-as="cmd" t-key="cmd.id">
+                                <div class="bff-command-item" t-on-click="() => this.executeCommand(cmd)">
+                                    <div class="command-icon">
+                                        <i t-att-class="'fa ' + cmd.icon + ' ' + cmd.color"/>
+                                    </div>
+                                    <div>
+                                        <div class="command-title" t-out="cmd.title"/>
+                                        <div class="command-desc" t-out="cmd.desc"/>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-if="!filteredCommands.length">
+                                <div class="text-center text-muted py-4">
+                                    <i class="fa fa-info-circle mb-2 fs-4 text-secondary"/>
+                                    <div>Tidak ada perintah yang sesuai dengan "<t t-out="state.commandQuery"/>"</div>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="bff-command-footer">
+                            <span>Petunjuk Navigasi</span>
+                            <div>
+                                <span class="me-2"><kbd>Pilih</kbd> Klik / Enter</span>
+                                <span><kbd>Esc</kbd> Tutup</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </t>
         </div>
     </t>

@@ -34,8 +34,10 @@
         'views/stock_reports_views.xml',
         'views/purchase_reports_views.xml',
         'views/finance_reports_views.xml',
+        'views/bff_waste_ratio_report_views.xml',
         'views/bff_reports_menus.xml',
     ],
+
     'installable': True,
     'application': True,
     'license': 'LGPL-3',

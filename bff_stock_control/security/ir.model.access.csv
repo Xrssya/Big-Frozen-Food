@@ -1,3 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_stock_transfer_request_user,stock.transfer.request.user,model_stock_transfer_request,stock.group_stock_user,1,1,1,1
 access_stock_transfer_request_line_user,stock.transfer.request.line.user,model_stock_transfer_request_line,stock.group_stock_user,1,1,1,1
+access_bff_spoilage_log_user,bff.spoilage.log.user,model_bff_spoilage_log,stock.group_stock_user,1,1,1,1
+access_bff_spoilage_log_line_user,bff.spoilage.log.line.user,model_bff_spoilage_log_line,stock.group_stock_user,1,1,1,1
+
