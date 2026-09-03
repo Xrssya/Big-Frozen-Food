@@ -75,7 +75,7 @@ class BffStockReportWizard(models.TransientModel):
             'font_name': 'Arial', 'font_size': 12, 'bold': True,
             'font_color': '#059669', 'align': 'center', 'valign': 'vcenter',
             'bg_color': SLATE_LIGHT, 'bottom': 1, 'left': 1, 'right': 1, 'border_color': SLATE_BORDER,
-            'num_format': '#,##0.00'
+            'num_format': '#,##0'
         })
 
         fmt_table_header = workbook.add_format({
@@ -101,7 +101,7 @@ class BffStockReportWizard(models.TransientModel):
                 }),
                 'qty': workbook.add_format({
                     'font_name': 'Arial', 'font_size': 9, 'align': 'right', 'valign': 'vcenter',
-                    'num_format': '#,##0.00', 'bg_color': bg_color, 'border': 1, 'border_color': '#E2E8F0'
+                    'num_format': '#,##0', 'bg_color': bg_color, 'border': 1, 'border_color': '#E2E8F0'
                 }),
             }
 
@@ -122,7 +122,7 @@ class BffStockReportWizard(models.TransientModel):
         fmt_total_qty = workbook.add_format({
             'font_name': 'Arial', 'font_size': 9.5, 'bold': True,
             'font_color': NAVY_DARK, 'align': 'right', 'valign': 'vcenter',
-            'num_format': '#,##0.00', 'bg_color': '#E2E8F0',
+            'num_format': '#,##0', 'bg_color': '#E2E8F0',
             'top': 1, 'bottom': 6, 'left': 1, 'right': 1, 'border_color': NAVY_HEADER
         })
 
@@ -153,8 +153,8 @@ class BffStockReportWizard(models.TransientModel):
             domain = [('is_storable', '=', True)]
         else:
             domain = [('type', '=', 'consu')]
-        if self.categ_id:
-            domain.append(('categ_id', '=', self.categ_id.id))
+        if self.categ_id and self.categ_id.name.lower() != 'all' and self.categ_id.id != 1:
+            domain.append(('categ_id', 'child_of', self.categ_id.id))
         products = self.env['product.product'].search(domain, order='name asc')
 
         tot_qty = sum(p.qty_available for p in products)
