@@ -192,8 +192,9 @@ patch(PosOrder.prototype, {
                 ...result.headerData,
                 ref_code,
                 ticket_code,
-                company: this.company,
+                company: result.headerData?.company || this.company || this.pos?.company,
             },
         };
     },
 });
+
