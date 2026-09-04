@@ -65,12 +65,12 @@ export class BffDashboardComponent extends Component {
             };
         };
 
-        const initialDates = this.getPresetDates("month");
+        const initialDates = this.getPresetDates("30days");
 
         this.state = useState({
             mode: defaultMode,
             isEmbedded: isEmbedded,
-            period: "month",
+            period: "30days",
             dateFrom: initialDates.dateFrom,
             dateTo: initialDates.dateTo,
             salesView: "daily",

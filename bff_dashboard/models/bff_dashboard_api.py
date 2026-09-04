@@ -8,7 +8,7 @@ class BffDashboardApi(models.AbstractModel):
     _description = 'Big Frozen Food Executive & Module Dashboard API'
 
     @api.model
-    def get_dashboard_data(self, period='month', date_from=None, date_to=None, company_id=None):
+    def get_dashboard_data(self, period='30days', date_from=None, date_to=None, company_id=None):
         today = date.today()
         end_date = today
 
@@ -18,16 +18,16 @@ class BffDashboardApi(models.AbstractModel):
                 start_date = datetime.strptime(date_from, '%Y-%m-%d').date()
                 end_date = datetime.strptime(date_to, '%Y-%m-%d').date()
             except Exception:
-                start_date = date(today.year, today.month, 1)
+                start_date = today - timedelta(days=30)
                 end_date = today
-        elif period == '30days':
-            start_date = today - timedelta(days=30)
+        elif period == 'month':
+            start_date = date(today.year, today.month, 1)
         elif period == 'year':
             start_date = date(today.year, 1, 1)
         elif period == 'all':
             start_date = date(2020, 1, 1)
-        else:  # 'month' default
-            start_date = date(today.year, today.month, 1)
+        else:  # '30days' default
+            start_date = today - timedelta(days=30)
 
         start_datetime = datetime.combine(start_date, datetime.min.time())
         end_datetime = datetime.combine(end_date, datetime.max.time())
@@ -454,7 +454,8 @@ class BffDashboardApi(models.AbstractModel):
         if day_of_week is not None and str(day_of_week).isdigit():
             selected_day_idx = int(day_of_week) % 7
         else:
-            selected_day_idx = quietest_day_idx
+            today_dt = fields.Datetime.context_timestamp(self, datetime.now())
+            selected_day_idx = today_dt.weekday()
 
         current_day_name = day_names_id[selected_day_idx]
         hourly_raw = day_counts[selected_day_idx]

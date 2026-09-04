@@ -10,7 +10,6 @@
                         <span class="badge text-bg-primary fw-bold px-2 py-1 rounded-2" style="font-size:0.7rem;">BIG FROZEN FOOD</span>
                         <span class="live-indicator">
                             <span class="pulse-dot"/>
-                            Live Analytics
                         </span>
                     </div>
                     <h2 class="fw-bold mb-0">
@@ -76,7 +75,7 @@
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Omset Sales B2B</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.sales.so_revenue)"/>
-                                        <div class="mt-2">
+                                        <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-up">
                                                 <i class="fa fa-arrow-up me-1"/>Agen &amp; Reseller
                                             </span>
@@ -96,7 +95,7 @@
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Omset POS Retail</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.sales.pos_revenue)"/>
-                                        <div class="mt-2">
+                                        <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-up">
                                                 <i class="fa fa-shopping-bag me-1"/>Kasir Toko
                                             </span>
@@ -117,7 +116,7 @@
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total Omset POS Toko</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.pos.total_revenue)"/>
-                                        <div class="mt-2">
+                                        <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-up">
                                                 <i class="fa fa-shopping-bag me-1"/>Retail Toko
                                             </span>
@@ -138,7 +137,7 @@
                                             <t t-out="state.data.pos.orders_count"/>
                                             <small class="fw-normal text-muted fs-6"> Struk</small>
                                         </div>
-                                        <div class="mt-2">
+                                        <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-neutral">
                                                 <i class="fa fa-ticket me-1"/>Struk Kasir
                                             </span>
@@ -156,7 +155,7 @@
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Rata-Rata per Struk</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.pos.avg_basket_size)"/>
-                                        <div class="mt-2">
+                                        <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-neutral">
                                                 <i class="fa fa-calculator me-1"/>Basket Size
                                             </span>
@@ -177,7 +176,7 @@
                                             <t t-out="state.data.pos.active_sessions_count"/>
                                             <small class="fw-normal text-muted fs-6"> Sesi Open</small>
                                         </div>
-                                        <div class="mt-2">
+                                        <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-up">
                                                 <i class="fa fa-circle text-success me-1"/>Kasir Buka
                                             </span>
@@ -196,7 +195,7 @@
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Nilai Stok Fisik</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.stock.total_valuation)"/>
-                                        <div class="mt-2">
+                                        <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-neutral">
                                                 <i class="fa fa-database me-1"/>Cold-Chain
                                             </span>
@@ -218,7 +217,7 @@
                                             <t t-out="state.data.stock.low_stock_count"/>
                                             <small class="fw-normal text-muted fs-6"> Item</small>
                                         </div>
-                                        <div class="mt-2">
+                                        <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-warn">
                                                 <i class="fa fa-warning me-1"/>Reorder Alert
                                             </span>
@@ -240,7 +239,7 @@
                                             <t t-out="state.data.stock.near_expiry_count"/>
                                             <small class="fw-normal text-muted fs-6"> Lot</small>
                                         </div>
-                                        <div class="mt-2">
+                                        <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-warn">
                                                 <i class="fa fa-clock-o me-1"/>FEFO H-30
                                             </span>
@@ -259,7 +258,7 @@
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Belanja Supplier</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.purchase.monthly_total)"/>
-                                        <div class="mt-2">
+                                        <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-neutral">
                                                 <i class="fa fa-truck me-1"/>PO Supplier
                                             </span>
@@ -286,7 +285,7 @@
                                         <div>
                                             <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">🔴 Hari Paling Sepi</div>
                                             <div class="fw-bold fs-5 text-danger" t-out="state.popularTimesData.quietest_day.day_name"/>
-                                            <div class="mt-1">
+                                            <div class="mt-1 d-none">
                                                 <span class="trend-badge trend-badge-warn">
                                                     Avg <t t-out="state.popularTimesData.quietest_day.avg_orders"/> Trx/Hari
                                                 </span>
@@ -302,7 +301,7 @@
                                         <div>
                                             <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">🟢 Hari Paling Ramai</div>
                                             <div class="fw-bold fs-5 text-success" t-out="state.popularTimesData.busiest_day.day_name"/>
-                                            <div class="mt-1">
+                                            <div class="mt-1 d-none">
                                                 <span class="trend-badge trend-badge-up">
                                                     Avg <t t-out="state.popularTimesData.busiest_day.avg_orders"/> Trx/Hari
                                                 </span>
@@ -318,7 +317,7 @@
                                         <div>
                                             <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">⏰ Jam Puncak</div>
                                             <div class="fw-bold fs-6 text-dark font-monospace" t-out="state.popularTimesData.peak_hours_label"/>
-                                            <div class="mt-1">
+                                            <div class="mt-1 d-none">
                                                 <span class="trend-badge trend-badge-neutral">WIB</span>
                                             </div>
                                         </div>
@@ -347,7 +346,7 @@
                                                 <span class="trend-badge trend-badge-neutral">🟡 NORMAL</span>
                                             </t>
                                         </div>
-                                        <p class="text-muted mb-0" style="font-size:0.78rem;">
+                                        <p class="text-muted mb-0 d-none" style="font-size:0.78rem;">
                                             Analisis pola kunjungan per cabang untuk keputusan libur &amp; shift operasional
                                         </p>
                                     </div>
@@ -420,7 +419,7 @@
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
                                         <h6 class="fw-bold mb-0">Penjualan Toko POS</h6>
-                                        <p class="text-muted mb-0" style="font-size:0.78rem;">Tren omset harian transaksi kasir</p>
+                                        <p class="text-muted mb-0 d-none" style="font-size:0.78rem;">Tren omset harian transaksi kasir</p>
                                     </div>
                                 </div>
                                 <div style="position:relative;height:260px;">
@@ -430,8 +429,8 @@
                         </div>
                         <div class="col-12 col-lg-4">
                             <div class="bff-card p-4 h-100">
-                                <h6 class="fw-bold mb-1">Status Sesi Kasir POS</h6>
-                                <p class="text-muted mb-3" style="font-size:0.78rem;">Daftar kasir yang sedang buka</p>
+                                <h6 class="fw-bold mb-3">Status Sesi Kasir POS</h6>
+                                <p class="text-muted mb-3 d-none" style="font-size:0.78rem;">Daftar kasir yang sedang buka</p>
                                 <div class="table-responsive">
                                     <table class="table align-middle">
                                         <thead>
@@ -469,7 +468,7 @@
                         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                             <div>
                                 <h6 class="fw-bold mb-0">Top 5 Produk Terlaris POS Toko</h6>
-                                <p class="text-muted mb-0" style="font-size:0.78rem;">Ranking produk berdasarkan omset penjualan retail kasir</p>
+                                <p class="text-muted mb-0 d-none" style="font-size:0.78rem;">Ranking produk berdasarkan omset penjualan retail kasir</p>
                             </div>
                             <select class="form-select form-select-sm border-light shadow-sm" style="width:auto;font-size:0.75rem;" t-model="state.topPosProductSort">
                                 <option value="revenue_desc">💰 Omset POS Terbanyak</option>
@@ -520,7 +519,7 @@
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
                                         <h6 class="fw-bold mb-0">Omset Penjualan</h6>
-                                        <p class="text-muted mb-0" style="font-size:0.78rem;">Tren harian &amp; bulanan</p>
+                                        <p class="text-muted mb-0 d-none" style="font-size:0.78rem;">Tren harian &amp; bulanan</p>
                                     </div>
                                     <div class="bff-pill-group">
                                         <button type="button" t-att-class="state.salesView === 'daily' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.toggleSalesView('daily')">Harian</button>
@@ -534,8 +533,8 @@
                         </div>
                         <div class="col-12 col-lg-5">
                             <div class="bff-card p-4 h-100">
-                                <h6 class="fw-bold mb-1">Channel Penjualan</h6>
-                                <p class="text-muted mb-3" style="font-size:0.78rem;">B2B Agen vs POS Retail</p>
+                                <h6 class="fw-bold mb-3">Channel Penjualan</h6>
+                                <p class="text-muted mb-3 d-none" style="font-size:0.78rem;">B2B Agen vs POS Retail</p>
                                 <div style="position:relative;height:200px;">
                                     <canvas t-ref="channelChartCanvas"/>
                                 </div>
@@ -559,7 +558,7 @@
                         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                             <div>
                                 <h6 class="fw-bold mb-0">Top 5 Produk Terlaris</h6>
-                                <p class="text-muted mb-0" style="font-size:0.78rem;">Ranking berdasarkan omset &amp; volume penjualan</p>
+                                <p class="text-muted mb-0 d-none" style="font-size:0.78rem;">Ranking berdasarkan omset &amp; volume penjualan</p>
                             </div>
                             <select class="form-select form-select-sm border-light shadow-sm" style="width:auto;font-size:0.75rem;" t-model="state.topProductSort">
                                 <option value="revenue_desc">💰 Omset Terbanyak</option>
@@ -610,7 +609,7 @@
                                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                                     <div>
                                         <h6 class="fw-bold mb-0">Stok Menipis</h6>
-                                        <p class="text-muted mb-0" style="font-size:0.78rem;">Di bawah batas minimum reorder</p>
+                                        <p class="text-muted mb-0 d-none" style="font-size:0.78rem;">Di bawah batas minimum reorder</p>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <select class="form-select form-select-sm border-light shadow-sm" style="width:auto;font-size:0.75rem;" t-model="state.lowStockSort">
@@ -656,7 +655,7 @@
                                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                                     <div>
                                         <h6 class="fw-bold mb-0">Near-Expiry Watchlist</h6>
-                                        <p class="text-muted mb-0" style="font-size:0.78rem;">Lot mendekati kadaluarsa (H-30)</p>
+                                        <p class="text-muted mb-0 d-none" style="font-size:0.78rem;">Lot mendekati kadaluarsa (H-30)</p>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <select class="form-select form-select-sm border-light shadow-sm" style="width:auto;font-size:0.75rem;" t-model="state.nearExpirySort">
@@ -718,8 +717,8 @@
                     <div class="row g-4 mb-4">
                         <div class="col-12 col-lg-6">
                             <div class="bff-card p-4 h-100">
-                                <h6 class="fw-bold mb-1">Belanja per Supplier</h6>
-                                <p class="text-muted mb-3" style="font-size:0.78rem;">Distribusi alokasi belanja ke vendor</p>
+                                <h6 class="fw-bold mb-3">Belanja per Supplier</h6>
+                                <p class="text-muted mb-3 d-none" style="font-size:0.78rem;">Distribusi alokasi belanja ke vendor</p>
                                 <div style="position:relative;height:260px;">
                                     <canvas t-ref="supplierChartCanvas"/>
                                 </div>
@@ -730,7 +729,7 @@
                                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                                     <div>
                                         <h6 class="fw-bold mb-0">Order Pembelian</h6>
-                                        <p class="text-muted mb-0" style="font-size:0.78rem;">Daftar transaksi purchase order terbaru</p>
+                                        <p class="text-muted mb-0 d-none" style="font-size:0.78rem;">Daftar transaksi purchase order terbaru</p>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <select class="form-select form-select-sm border-light shadow-sm" style="width:auto;font-size:0.75rem;" t-model="state.purchaseOrderSort">
