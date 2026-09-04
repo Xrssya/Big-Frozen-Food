@@ -108,7 +108,7 @@
                 </div>
             </t>
 
-            <t t-else="">
+            <t t-elif="state.data">
                 <!-- KPI CARDS -->
                 <div class="row g-3 mb-4">
 
@@ -119,7 +119,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Omset Sales B2B</div>
-                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.sales.so_revenue)"/>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.sales?.so_revenue)"/>
                                         <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-up">
                                                 <i class="fa fa-arrow-up me-1"/>Agen &amp; Reseller
@@ -139,7 +139,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Omset POS Retail</div>
-                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.sales.pos_revenue)"/>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.sales?.pos_revenue)"/>
                                         <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-up">
                                                 <i class="fa fa-shopping-bag me-1"/>Kasir Toko
@@ -160,7 +160,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total Omset POS Toko</div>
-                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.pos.total_revenue)"/>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.pos?.total_revenue)"/>
                                         <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-up">
                                                 <i class="fa fa-shopping-bag me-1"/>Retail Toko
@@ -179,7 +179,7 @@
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Jumlah Transaksi POS</div>
                                         <div class="fw-bold fs-4 text-dark">
-                                            <t t-out="state.data.pos.orders_count"/>
+                                            <t t-out="state.data?.pos?.orders_count"/>
                                             <small class="fw-normal text-muted fs-6"> Struk</small>
                                         </div>
                                         <div class="mt-2 d-none">
@@ -199,7 +199,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Rata-Rata per Struk</div>
-                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.pos.avg_basket_size)"/>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.pos?.avg_basket_size)"/>
                                         <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-neutral">
                                                 <i class="fa fa-calculator me-1"/>Basket Size
@@ -218,7 +218,7 @@
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Sesi Kasir Aktif</div>
                                         <div class="fw-bold fs-4 text-dark">
-                                            <t t-out="state.data.pos.active_sessions_count"/>
+                                            <t t-out="state.data?.pos?.active_sessions_count"/>
                                             <small class="fw-normal text-muted fs-6"> Sesi Open</small>
                                         </div>
                                         <div class="mt-2 d-none">
@@ -239,7 +239,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Nilai Stok Fisik</div>
-                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.stock.total_valuation)"/>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.stock?.total_valuation)"/>
                                         <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-neutral">
                                                 <i class="fa fa-database me-1"/>Cold-Chain
@@ -259,7 +259,7 @@
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Stok Menipis</div>
                                         <div class="fw-bold fs-4 text-dark">
-                                            <t t-out="state.data.stock.low_stock_count"/>
+                                            <t t-out="state.data?.stock?.low_stock_count"/>
                                             <small class="fw-normal text-muted fs-6"> Item</small>
                                         </div>
                                         <div class="mt-2 d-none">
@@ -281,7 +281,7 @@
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Near-Expiry</div>
                                         <div class="fw-bold fs-4 text-dark">
-                                            <t t-out="state.data.stock.near_expiry_count"/>
+                                            <t t-out="state.data?.stock?.near_expiry_count"/>
                                             <small class="fw-normal text-muted fs-6"> Lot</small>
                                         </div>
                                         <div class="mt-2 d-none">
@@ -302,7 +302,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Belanja Supplier</div>
-                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data.purchase.monthly_total)"/>
+                                        <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.purchase?.monthly_total)"/>
                                         <div class="mt-2 d-none">
                                             <span class="trend-badge trend-badge-neutral">
                                                 <i class="fa fa-truck me-1"/>PO Supplier
@@ -485,7 +485,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <t t-foreach="state.data.pos.session_list" t-as="sess" t-key="sess.id">
+                                            <t t-foreach="state.data?.pos?.session_list || []" t-as="sess" t-key="sess.id">
                                                 <tr>
                                                     <td>
                                                         <div class="fw-semibold text-dark" t-out="sess.config_name"/>
@@ -496,7 +496,7 @@
                                                     </td>
                                                 </tr>
                                             </t>
-                                            <t t-if="!state.data.pos.session_list.length">
+                                            <t t-if="!state.data?.pos?.session_list?.length">
                                                 <tr>
                                                     <td colspan="2" class="text-center text-muted py-4">Belum ada sesi kasir yang aktif saat ini.</td>
                                                 </tr>
@@ -547,7 +547,7 @@
                                             <td class="text-end fw-bold text-success" t-out="formatCurrency(prod.revenue)"/>
                                         </tr>
                                     </t>
-                                    <t t-if="!state.data.pos.top_5_products.length">
+                                    <t t-if="!state.data?.pos?.top_5_products?.length">
                                         <tr><td colspan="4" class="text-center text-muted py-4">Belum ada transaksi POS pada periode ini.</td></tr>
                                     </t>
                                 </tbody>
@@ -586,12 +586,12 @@
                                 <div class="d-flex justify-content-around text-center mt-3 pt-3 border-top">
                                     <div class="cursor-pointer" t-on-click="openSalesAction">
                                         <div class="text-muted" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;">Agen B2B</div>
-                                        <div class="fw-bold text-primary" t-out="formatCurrency(state.data.sales.so_revenue)"/>
+                                        <div class="fw-bold text-primary" t-out="formatCurrency(state.data?.sales?.so_revenue)"/>
                                     </div>
                                     <div class="border-start"/>
                                     <div class="cursor-pointer" t-on-click="openPosAction">
                                         <div class="text-muted" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;">POS Retail</div>
-                                        <div class="fw-bold text-info" t-out="formatCurrency(state.data.sales.pos_revenue)"/>
+                                        <div class="fw-bold text-info" t-out="formatCurrency(state.data?.sales?.pos_revenue)"/>
                                     </div>
                                 </div>
                             </div>
@@ -637,7 +637,7 @@
                                             <td class="text-end fw-bold text-success" t-out="formatCurrency(prod.revenue)"/>
                                         </tr>
                                     </t>
-                                    <t t-if="!state.data.sales.top_5_products.length">
+                                    <t t-if="!state.data?.sales?.top_5_products?.length">
                                         <tr><td colspan="4" class="text-center text-muted py-4">Belum ada data penjualan.</td></tr>
                                     </t>
                                 </tbody>
@@ -687,7 +687,7 @@
                                                     <td class="text-center"><span class="badge-pill-danger">MENIPIS</span></td>
                                                 </tr>
                                             </t>
-                                            <t t-if="!state.data.stock.low_stock_items.length">
+                                            <t t-if="!state.data?.stock?.low_stock_items?.length">
                                                 <tr><td colspan="4" class="text-center text-success py-4"><i class="fa fa-check-circle me-1"/>Semua stok aman.</td></tr>
                                             </t>
                                         </tbody>
@@ -746,7 +746,7 @@
                                                     </td>
                                                 </tr>
                                             </t>
-                                            <t t-if="!state.data.stock.near_expiry_items.length">
+                                            <t t-if="!state.data?.stock?.near_expiry_items?.length">
                                                 <tr><td colspan="4" class="text-center text-success py-4"><i class="fa fa-check-circle me-1"/>Tidak ada lot mendekati kadaluarsa.</td></tr>
                                             </t>
                                         </tbody>
@@ -812,7 +812,7 @@
                                                     </td>
                                                 </tr>
                                             </t>
-                                            <t t-if="!state.data.purchase.recent_orders.length">
+                                            <t t-if="!state.data?.purchase?.recent_orders?.length">
                                                 <tr><td colspan="5" class="text-center text-muted py-4">Belum ada transaksi purchase order.</td></tr>
                                             </t>
                                         </tbody>
@@ -823,6 +823,13 @@
                     </div>
                 </t>
 
+            </t>
+            <t t-else="">
+                <div class="alert alert-warning text-center my-4 p-4 rounded-3 shadow-sm">
+                    <i class="fa fa-exclamation-triangle fa-2x mb-2 text-warning"/>
+                    <div class="fw-bold fs-5">Data Dashboard Tidak Tersedia</div>
+                    <div class="text-muted small">Gagal memuat data atau sedang menyinkronkan data...</div>
+                </div>
             </t>
 
             <!-- COMMAND PALETTE MODAL OVERLAY -->

@@ -40,5 +40,36 @@
         <menuitem id="hr.menu_hr_department_tree" active="False"/>
         <menuitem id="hr.menu_hr_employee_payroll" active="False"/>
 
+        <!-- Batasi Akses Menu Utama (Sidebar) Agar Kasir Hanya Melihat POS, Kontak, dan Diskusi -->
+        <record id="bff_dashboard.menu_bff_dashboard_root" model="ir.ui.menu">
+            <field name="groups_id" eval="[(6, 0, [
+                ref('bff_karyawan.group_bff_kepala_toko'),
+                ref('bff_karyawan.group_bff_asisten_kepala_toko'),
+                ref('bff_karyawan.group_bff_kepala_gudang'),
+                ref('base.group_system')
+            ])]"/>
+        </record>
+
+        <record id="sale.sale_menu_root" model="ir.ui.menu">
+            <field name="groups_id" eval="[(6, 0, [
+                ref('sales_team.group_sale_salesman'),
+                ref('base.group_system')
+            ])]"/>
+        </record>
+
+        <record id="base.menu_management" model="ir.ui.menu">
+            <field name="groups_id" eval="[(6, 0, [
+                ref('base.group_system')
+            ])]"/>
+        </record>
+
+        <record id="hr.menu_hr_root" model="ir.ui.menu">
+            <field name="groups_id" eval="[(6, 0, [
+                ref('hr.group_hr_user'),
+                ref('bff_karyawan.group_bff_kepala_toko'),
+                ref('base.group_system')
+            ])]"/>
+        </record>
+
     </data>
 </odoo>

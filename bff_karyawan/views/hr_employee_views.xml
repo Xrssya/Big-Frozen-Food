@@ -35,6 +35,18 @@
                         </group>
                     </group>
                 </xpath>
+
+                <xpath expr="//page[@name='hr_settings']" position="inside">
+                    <group string="Kredensial Login Akun (Khusus Admin / Pemilik)">
+                        <label for="account_password" string="Password Akun Login"/>
+                        <div class="o_row">
+                            <field name="account_password" password="true" invisible="show_password" placeholder="Ketik / ubah password login Odoo di sini..."/>
+                            <field name="account_password" invisible="not show_password" placeholder="Ketik / ubah password login Odoo di sini..."/>
+                            <field name="show_password" widget="boolean_toggle" class="oe_inline"/>
+                            <span class="text-muted ms-2">👁️ Perlihatkan Password</span>
+                        </div>
+                    </group>
+                </xpath>
             </field>
         </record>
 
