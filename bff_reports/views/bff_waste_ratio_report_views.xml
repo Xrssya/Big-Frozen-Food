@@ -55,10 +55,10 @@
         </field>
     </record>
 
-    <!-- Menu Item (Di bawah Laporan Stok / Inventory) -->
+    <!-- Menu Item (Di bawah Operasi Inventaris / Gudang) -->
     <menuitem id="menu_bff_waste_ratio_report"
               name="Waste Ratio vs Sales Ratio"
-              parent="stock.menu_warehouse_report"
+              parent="stock.menu_stock_warehouse_mgmt"
               action="action_bff_waste_ratio_report"
               sequence="30"
               active="False"/>

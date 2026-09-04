@@ -53,7 +53,7 @@ class BffSpoilageLog(models.Model):
         ('draft', 'Draft'),
         ('confirmed', 'Disetujui & Potong Stok'),
         ('cancel', 'Dibatalkan')
-    ], string='Status', default='draft', required=True, tracking=True)
+    ], string='Status', default='draft', required=True)
 
     line_ids = fields.One2many(
         'bff.spoilage.log.line',
