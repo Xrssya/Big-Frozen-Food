@@ -8,7 +8,10 @@ Format baru:
   Staf Gudang   -> SG{NamaKota}      misal: SGBandung
 """
 import sys, os
-sys.path.insert(0, '/home/adi-purwanto/developer/odoo18')
+if os.path.exists('/home/setyo/developer/odoo18'):
+    sys.path.insert(0, '/home/setyo/developer/odoo18')
+else:
+    sys.path.insert(0, '/home/adi-purwanto/developer/odoo18')
 import odoo
 from odoo import api, SUPERUSER_ID
 
