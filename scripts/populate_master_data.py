@@ -40,7 +40,7 @@ def run():
         print(f" Company updated: Big Frozen Food (Main Currency: {company.currency_id.name})")
 
         # 1b. Logo
-        logo_path = '/home/adi-purwanto/.gemini/antigravity-ide/brain/e1380b57-9c9f-4a04-a671-291c8c166c51/big_frozen_food_logo_1786343821764.png'
+        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'image.png'))
         if os.path.exists(logo_path):
             with open(logo_path, 'rb') as f:
                 logo_b64 = base64.b64encode(f.read())
