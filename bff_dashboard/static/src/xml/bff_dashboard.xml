@@ -464,7 +464,11 @@
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
                                         <h6 class="fw-bold mb-0">Penjualan Toko POS</h6>
-                                        <p class="text-muted mb-0 d-none" style="font-size:0.78rem;">Tren omset harian transaksi kasir</p>
+                                        <p class="text-muted mb-0 d-none" style="font-size:0.78rem;">Tren omset harian &amp; bulanan transaksi kasir</p>
+                                    </div>
+                                    <div class="bff-pill-group">
+                                        <button type="button" t-att-class="state.salesView === 'daily' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.toggleSalesView('daily')">Harian</button>
+                                        <button type="button" t-att-class="state.salesView === 'monthly' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.toggleSalesView('monthly')">Bulanan</button>
                                     </div>
                                 </div>
                                 <div style="position:relative;height:260px;">

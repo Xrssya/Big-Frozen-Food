@@ -19,32 +19,24 @@ class BffSpoilageLog(models.Model):
         string='Tanggal Kejadian',
         required=True,
         default=fields.Datetime.now,
-        readonly=True,
-        states={'draft': [('readonly', False)]}
     )
     user_id = fields.Many2one(
         'res.users',
         string='Pelapor / Penanggung Jawab',
         required=True,
         default=lambda self: self.env.user,
-        readonly=True,
-        states={'draft': [('readonly', False)]}
     )
     company_id = fields.Many2one(
         'res.company',
         string='Cabang / Perusahaan',
         required=True,
         default=lambda self: self.env.company,
-        readonly=True,
-        states={'draft': [('readonly', False)]}
     )
     location_id = fields.Many2one(
         'stock.location',
         string='Lokasi Gudang / Freezer Origin',
         required=True,
         domain="[('usage', '=', 'internal'), ('company_id', 'in', [company_id, False])]",
-        readonly=True,
-        states={'draft': [('readonly', False)]}
     )
     reason_code = fields.Selection([
         ('defrost_power', '⚡ Listrik Padam / Mesin Freezer Mati'),
@@ -53,9 +45,9 @@ class BffSpoilageLog(models.Model):
         ('expired', '⏳ Kadaluarsa / Past Expiry Date'),
         ('quality_decay', '🧪 Penurunan Kualitas / Berbau'),
         ('other', '📝 Lain-lain')
-    ], string='Alasan Kerusakan', required=True, default='defrost_power', readonly=True, states={'draft': [('readonly', False)]})
+    ], string='Alasan Kerusakan', required=True, default='defrost_power')
 
-    notes = fields.Text(string='Catatan / Kronologi Kejadian', readonly=True, states={'draft': [('readonly', False)]})
+    notes = fields.Text(string='Catatan / Kronologi Kejadian')
 
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -67,8 +59,6 @@ class BffSpoilageLog(models.Model):
         'bff.spoilage.log.line',
         'spoilage_id',
         string='Daftar Barang Rusak / Lumer',
-        readonly=True,
-        states={'draft': [('readonly', False)]}
     )
     total_financial_loss = fields.Float(
         string='Total Kerugian Finansial (HPP)',
@@ -139,7 +129,7 @@ class BffSpoilageLog(models.Model):
             'name': _('Penyesuaian Scrap Stok'),
             'type': 'ir.actions.act_window',
             'res_model': 'stock.scrap',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('spoilage_log_id', '=', self.id)],
         }
 

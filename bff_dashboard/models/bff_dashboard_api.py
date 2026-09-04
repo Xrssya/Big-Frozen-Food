@@ -115,6 +115,7 @@ class BffDashboardApi(models.AbstractModel):
         monthly_labels = []
         monthly_info = []
         monthly_revenue_values = []
+        monthly_pos_values = []
         current_year = today.year
         for m in range(1, 13):
             if m > today.month and period != 'year' and period != 'all':
@@ -137,6 +138,7 @@ class BffDashboardApi(models.AbstractModel):
                 'label': m_start.strftime('%b %Y')
             })
             monthly_revenue_values.append(round(m_so + m_pos, 2))
+            monthly_pos_values.append(round(m_pos, 2))
 
         # Top 5 Best Selling Products
         product_totals = {}
@@ -219,7 +221,7 @@ class BffDashboardApi(models.AbstractModel):
                     })
 
         low_stock_count = len(low_stock_list)
-        low_stock_items = sorted(low_stock_list, key=lambda x: x['qty_available'])[:8]
+        low_stock_items = sorted(low_stock_list, key=lambda x: x['qty_available'])[:5]
 
         near_expiry_list = []
         near_expiry_count = 0
@@ -243,7 +245,7 @@ class BffDashboardApi(models.AbstractModel):
                             'status': status,
                         })
 
-        near_expiry_items = sorted(near_expiry_list, key=lambda x: x['days_left'])[:8]
+        near_expiry_items = sorted(near_expiry_list, key=lambda x: x['days_left'])[:5]
 
         # ----------------------------------------------------
         # 3. PURCHASE DASHBOARD DATA
@@ -274,7 +276,7 @@ class BffDashboardApi(models.AbstractModel):
         } for s in sorted_suppliers]
 
         # Recent Purchase Orders for Order Pembelian table widget
-        recent_pos = self.env['purchase.order'].search(po_domain, order='date_order desc', limit=8)
+        recent_pos = self.env['purchase.order'].search(po_domain, order='date_order desc', limit=5)
         recent_orders = []
         has_inv_status = 'invoice_status' in self.env['purchase.order']._fields
         for po in recent_pos:
@@ -390,6 +392,8 @@ class BffDashboardApi(models.AbstractModel):
                 'daily_labels': daily_labels,
                 'daily_dates': daily_dates,
                 'daily_values': daily_pos_values,
+                'monthly_labels': monthly_labels,
+                'monthly_values': monthly_pos_values,
             }
         }
 

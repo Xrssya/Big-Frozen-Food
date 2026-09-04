@@ -30,12 +30,12 @@
         'security/ir.model.access.csv',
         'security/bff_pos_order_rules.xml',
         'wizard/bff_report_wizard_views.xml',
+        'views/bff_reports_menus.xml',
         'views/sales_reports_views.xml',
         'views/stock_reports_views.xml',
         'views/purchase_reports_views.xml',
         'views/finance_reports_views.xml',
         'views/bff_waste_ratio_report_views.xml',
-        'views/bff_reports_menus.xml',
     ],
 
     'installable': True,

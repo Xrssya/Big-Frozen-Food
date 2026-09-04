@@ -3,6 +3,14 @@
     <data>
 
         <!-- ============================================================
+             0. MENU UTAMA LAPORAN TERPUSAT (ROOT MENU)
+             ============================================================ -->
+        <menuitem id="menu_bff_reports_root"
+                  name="📊 Laporan Terpusat"
+                  sequence="80"
+                  active="False"/>
+
+        <!-- ============================================================
              1. PENJUALAN: KLIK MENU LAPORAN LANGSUNG MUNCUL WIZARD
              ============================================================ -->
         <!-- Sembunyikan Submenu Default Odoo -->

@@ -314,9 +314,9 @@ export class BffDashboardComponent extends Component {
         let chartLabel = "";
 
         if (isPos) {
-            labels = this.state.data.pos.daily_labels || [];
-            values = this.state.data.pos.daily_values || [];
-            chartLabel = "Omset POS Toko (Rp)";
+            labels = isDaily ? (this.state.data.pos.daily_labels || []) : (this.state.data.pos.monthly_labels || []);
+            values = isDaily ? (this.state.data.pos.daily_values || []) : (this.state.data.pos.monthly_values || []);
+            chartLabel = isDaily ? "Omset POS Toko (Rp)" : "Omset POS Toko Bulanan (Rp)";
         } else {
             labels = isDaily ? this.state.data.sales.daily_labels : this.state.data.sales.monthly_labels;
             values = isDaily ? this.state.data.sales.daily_total : this.state.data.sales.monthly_revenue;
@@ -390,7 +390,7 @@ export class BffDashboardComponent extends Component {
                                 const idx = context.dataIndex;
                                 const val = context.raw || 0;
                                 if (this.state.mode === 'pos') {
-                                    return "Omset POS Toko: Rp " + val.toLocaleString("id-ID");
+                                    return (isDaily ? "Omset POS Harian: Rp " : "Omset POS Bulanan: Rp ") + val.toLocaleString("id-ID");
                                 } else if (this.state.mode === 'sales') {
                                     return "Omset Sales B2B: Rp " + val.toLocaleString("id-ID");
                                 } else {
@@ -433,26 +433,49 @@ export class BffDashboardComponent extends Component {
         const isDaily = this.state.salesView === "daily";
 
         if (isPos) {
-            const dates = (this.state.data && this.state.data.pos && this.state.data.pos.daily_dates) || [];
-            const dateStr = dates[index];
-            if (!dateStr) return;
-            this.actionService.doAction({
-                name: "Transaksi POS Toko (" + dateStr + ")",
-                type: "ir.actions.act_window",
-                res_model: "pos.order",
-                views: [[false, "list"], [false, "form"]],
-                domain: [
-                    ["state", "in", ["paid", "done", "invoiced"]],
-                    ["date_order", ">=", dateStr + " 00:00:00"],
-                    ["date_order", "<=", dateStr + " 23:59:59"],
-                ],
-                context: {
-                    search_default_state_done: 1,
-                    search_default_group_by_province: 1,
-                    search_default_group_by_company: 1,
-                    search_default_group_by_user: 1,
-                },
-            });
+            if (isDaily) {
+                const dates = (this.state.data && this.state.data.pos && this.state.data.pos.daily_dates) || [];
+                const dateStr = dates[index];
+                if (!dateStr) return;
+                this.actionService.doAction({
+                    name: "Transaksi POS Toko (" + dateStr + ")",
+                    type: "ir.actions.act_window",
+                    res_model: "pos.order",
+                    views: [[false, "list"], [false, "form"]],
+                    domain: [
+                        ["state", "in", ["paid", "done", "invoiced"]],
+                        ["date_order", ">=", dateStr + " 00:00:00"],
+                        ["date_order", "<=", dateStr + " 23:59:59"],
+                    ],
+                    context: {
+                        search_default_state_done: 1,
+                        search_default_group_by_province: 1,
+                        search_default_group_by_company: 1,
+                        search_default_group_by_user: 1,
+                    },
+                });
+            } else {
+                const infoList = (this.state.data && this.state.data.sales && this.state.data.sales.monthly_info) || [];
+                const info = infoList[index];
+                if (!info) return;
+                this.actionService.doAction({
+                    name: "Transaksi POS Toko (" + info.label + ")",
+                    type: "ir.actions.act_window",
+                    res_model: "pos.order",
+                    views: [[false, "list"], [false, "form"]],
+                    domain: [
+                        ["state", "in", ["paid", "done", "invoiced"]],
+                        ["date_order", ">=", info.start],
+                        ["date_order", "<=", info.end],
+                    ],
+                    context: {
+                        search_default_state_done: 1,
+                        search_default_group_by_province: 1,
+                        search_default_group_by_company: 1,
+                        search_default_group_by_user: 1,
+                    },
+                });
+            }
         } else if (isDaily) {
             const dates = (this.state.data && this.state.data.sales && this.state.data.sales.daily_dates) || [];
             const dateStr = dates[index];
@@ -882,7 +905,7 @@ export class BffDashboardComponent extends Component {
         } else if (sort === "name_desc") {
             copy.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
         }
-        return copy;
+        return copy.slice(0, 5);
     }
 
     get sortedNearExpiryItems() {
@@ -896,7 +919,7 @@ export class BffDashboardComponent extends Component {
         } else if (sort === "name_asc") {
             copy.sort((a, b) => (a.product_name || "").localeCompare(b.product_name || ""));
         }
-        return copy;
+        return copy.slice(0, 5);
     }
 
     get sortedTopProducts() {
@@ -942,7 +965,7 @@ export class BffDashboardComponent extends Component {
         } else if (sort === "vendor_asc") {
             copy.sort((a, b) => (a.partner_name || "").localeCompare(b.partner_name || ""));
         }
-        return copy;
+        return copy.slice(0, 5);
     }
 
     openCommandPalette() {
