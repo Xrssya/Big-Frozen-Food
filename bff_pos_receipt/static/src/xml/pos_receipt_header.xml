@@ -4,10 +4,16 @@
 
         <!-- Replace logo with controlled wrapper -->
         <xpath expr="//img[hasclass('pos-receipt-logo')]" position="replace">
-            <t t-if="props.data and props.data.company and props.data.company.id">
-                <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.company.id}}&amp;field=logo"
-                     alt="Logo" class="bff-logo"/>
-            </t>
+            <div class="bff-logo-wrapper text-center my-1">
+                <t t-if="props.data and props.data.company and props.data.company.id">
+                    <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.company.id}}&amp;field=logo"
+                         alt="Big Frozen Food Logo" class="bff-logo"/>
+                </t>
+                <t t-else="">
+                    <img src="/bff_pos_receipt/static/src/img/bff_logo.png"
+                         alt="Big Frozen Food Logo" class="bff-logo"/>
+                </t>
+            </div>
         </xpath>
 
         <!-- Replace contact block entirely -->
