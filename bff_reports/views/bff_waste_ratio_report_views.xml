@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_bff_waste_ratio_report_tree" model="ir.ui.view">
+        <field name="name">bff.waste.ratio.report.tree</field>
+        <field name="model">bff.waste.ratio.report</field>
+        <field name="arch" type="xml">
+            <tree string="Laporan Waste Ratio vs Sales Ratio" create="false" edit="false" delete="false">
+                <field name="date"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="sales_revenue" sum="Total Omset"/>
+                <field name="spoilage_loss" sum="Total Kerugian"/>
+                <field name="waste_ratio" widget="progressbar"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_bff_waste_ratio_report_pivot" model="ir.ui.view">
+        <field name="name">bff.waste.ratio.report.pivot</field>
+        <field name="model">bff.waste.ratio.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Pivot Waste Ratio vs Sales Ratio">
+                <field name="date" interval="month" type="row"/>
+                <field name="company_id" type="col"/>
+                <field name="sales_revenue" type="measure"/>
+                <field name="spoilage_loss" type="measure"/>
+                <field name="waste_ratio" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_bff_waste_ratio_report_graph" model="ir.ui.view">
+        <field name="name">bff.waste.ratio.report.graph</field>
+        <field name="model">bff.waste.ratio.report</field>
+        <field name="arch" type="xml">
+            <graph string="Grafik Waste Ratio vs Sales Ratio" type="bar">
+                <field name="date"/>
+                <field name="spoilage_loss" type="measure"/>
+                <field name="sales_revenue" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Action Window -->
+    <record id="action_bff_waste_ratio_report" model="ir.actions.act_window">
+        <field name="name">Laporan Waste Ratio vs Sales Ratio</field>
+        <field name="res_model">bff.waste.ratio.report</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada data laporan Waste Ratio vs Sales Ratio.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item (Di bawah Laporan Terpusat bff_reports) -->
+    <menuitem id="menu_bff_waste_ratio_report"
+              name="Waste Ratio vs Sales Ratio"
+              parent="bff_reports.menu_bff_reports_root"
+              action="action_bff_waste_ratio_report"
+              sequence="30"/>
+</odoo>

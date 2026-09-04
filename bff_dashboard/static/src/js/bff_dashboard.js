@@ -84,7 +84,18 @@ export class BffDashboardComponent extends Component {
             topProductSort: "revenue_desc",
             topPosProductSort: "revenue_desc",
             purchaseOrderSort: "date_desc",
+            showCommandPalette: false,
+            commandQuery: "",
         });
+
+        this.onGlobalKeydown = (ev) => {
+            if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "k") {
+                ev.preventDefault();
+                this.openCommandPalette();
+            } else if (ev.key === "Escape" && this.state.showCommandPalette) {
+                this.closeCommandPalette();
+            }
+        };
 
         this.salesChartCanvas = useRef("salesChartCanvas");
         this.channelChartCanvas = useRef("channelChartCanvas");
@@ -116,6 +127,7 @@ export class BffDashboardComponent extends Component {
 
         onMounted(() => {
             this.renderCharts();
+            window.addEventListener("keydown", this.onGlobalKeydown);
             // Live Background Polling every 15 seconds without interrupting UI
             this.autoRefreshInterval = setInterval(() => {
                 this.silentReloadData();
@@ -123,6 +135,7 @@ export class BffDashboardComponent extends Component {
         });
 
         onWillUnmount(() => {
+            window.removeEventListener("keydown", this.onGlobalKeydown);
             if (this.autoRefreshInterval) {
                 clearInterval(this.autoRefreshInterval);
                 this.autoRefreshInterval = null;
@@ -931,7 +944,46 @@ export class BffDashboardComponent extends Component {
         }
         return copy;
     }
+
+    openCommandPalette() {
+        this.state.showCommandPalette = true;
+        this.state.commandQuery = "";
+    }
+
+    closeCommandPalette() {
+        this.state.showCommandPalette = false;
+        this.state.commandQuery = "";
+    }
+
+    executeCommand(cmd) {
+        this.closeCommandPalette();
+        if (cmd && typeof cmd.action === "function") {
+            cmd.action();
+        }
+    }
+
+    get allCommands() {
+        return [
+            { id: "pos", icon: "fa-shopping-bag", color: "text-primary", title: "Sesi Kasir POS Toko", desc: "Buka halaman transaksi retail kasir", action: () => this.openPosAction() },
+            { id: "sales", icon: "fa-line-chart", color: "text-success", title: "Omset Sales B2B", desc: "Lihat laporan order penjualan agen & reseller", action: () => this.openSalesAction() },
+            { id: "low_stock", icon: "fa-exclamation-triangle", color: "text-warning", title: "Cek Stok Menipis & Reorder Alert", desc: "Daftar produk di bawah batas minimum stok", action: () => this.openLowStockAction() },
+            { id: "expiry", icon: "fa-calendar-times-o", color: "text-danger", title: "Kontrol FEFO Near-Expiry", desc: "Daftar lot produk mendekati tanggal kadaluarsa", action: () => this.openExpiryAction() },
+            { id: "purchase", icon: "fa-truck", color: "text-info", title: "Order Pembelian (PO) Supplier", desc: "Kelola order pembelian ke vendor supplier", action: () => this.openPurchaseAction() },
+            { id: "mode_all", icon: "fa-dashboard", color: "text-secondary", title: "Tampilan Dashboard Utama (Semua)", desc: "Ringkasan lengkap performa bisnis", action: () => this.changeMode('all') },
+            { id: "mode_pos", icon: "fa-shopping-cart", color: "text-primary", title: "Filter Dashboard Penjualan POS", desc: "Analisis transaksi toko retail", action: () => this.changeMode('pos') },
+            { id: "mode_stock", icon: "fa-cubes", color: "text-success", title: "Filter Dashboard Pergudangan & Stok", desc: "Analisis stok fisik & nilai persediaan", action: () => this.changeMode('stock') },
+        ];
+    }
+
+    get filteredCommands() {
+        const q = (this.state.commandQuery || "").toLowerCase().trim();
+        if (!q) return this.allCommands;
+        return this.allCommands.filter((c) =>
+            c.title.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q)
+        );
+    }
 }
+
 
 registry.category("actions").add("bff_dashboard_main", BffDashboardComponent);
 registry.category("actions").add("bff_dashboard_sales", BffDashboardComponent);

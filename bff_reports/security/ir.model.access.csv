@@ -6,3 +6,5 @@ access_bff_sales_report_wizard,bff.sales.report.wizard,model_bff_sales_report_wi
 access_bff_stock_report_wizard,bff.stock.report.wizard,model_bff_stock_report_wizard,base.group_user,1,1,1,1
 access_bff_purchase_report_wizard,bff.purchase.report.wizard,model_bff_purchase_report_wizard,base.group_user,1,1,1,1
 access_bff_finance_report_wizard,bff.finance.report.wizard,model_bff_finance_report_wizard,base.group_user,1,1,1,1
+access_bff_waste_ratio_report,bff.waste.ratio.report,model_bff_waste_ratio_report,base.group_user,1,0,0,0
+

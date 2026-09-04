@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sequence for Spoilage Log -->
+    <record id="seq_bff_spoilage_log" model="ir.sequence">
+        <field name="name">Spoilage Log Sequence</field>
+        <field name="code">bff.spoilage.log</field>
+        <field name="prefix">SPL/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_bff_spoilage_log_form" model="ir.ui.view">
+        <field name="name">bff.spoilage.log.form</field>
+        <field name="model">bff.spoilage.log</field>
+        <field name="arch" type="xml">
+            <form string="Pencatatan Barang Rusak / Lumer">
+                <header>
+                    <button name="action_confirm" string="✓ Disetujui &amp; Potong Stok" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Batalkan" type="object" invisible="state != 'draft'"/>
+                    <button name="action_draft" string="Set ke Draft" type="object" invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,cancel"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_scraps" type="object" class="oe_stat_button" icon="fa-trash" invisible="scrap_count == 0">
+                            <field name="scrap_count" widget="statinfo" string="Scrap Stok"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Nomor Referensi Log"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informasi Kejadian">
+                            <field name="date"/>
+                            <field name="user_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="location_id"/>
+                        </group>
+                        <group string="Klasifikasi &amp; Estimasi Kerugian">
+                            <field name="reason_code"/>
+                            <field name="total_financial_loss" class="oe_subtotal_footer_separator text-danger fw-bold" style="font-size: 1.25rem;"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Daftar Produk Lumer / Rusak" name="lines">
+                            <field name="line_ids">
+                                <tree editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="lot_id" optional="show"/>
+                                    <field name="qty"/>
+                                    <field name="uom_id"/>
+                                    <field name="cost_price" widget="monetary"/>
+                                    <field name="total_loss" widget="monetary" sum="Total Kerugian"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Kronologi / Catatan Kejadian" name="notes">
+                            <field name="notes" placeholder="Tuliskan kronologi singkat kejadian (misal: Listrik padam dari jam 02:00 - 06:00 WIB, freezer A lumer)..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree / List View -->
+    <record id="view_bff_spoilage_log_tree" model="ir.ui.view">
+        <field name="name">bff.spoilage.log.tree</field>
+        <field name="model">bff.spoilage.log</field>
+        <field name="arch" type="xml">
+            <tree string="Pencatatan Barang Rusak / Lumer" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="location_id"/>
+                <field name="reason_code"/>
+                <field name="user_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="total_financial_loss" sum="Total Loss"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'cancel'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_bff_spoilage_log_pivot" model="ir.ui.view">
+        <field name="name">bff.spoilage.log.pivot</field>
+        <field name="model">bff.spoilage.log</field>
+        <field name="arch" type="xml">
+            <pivot string="Analisis Kerugian Barang Rusak">
+                <field name="reason_code" type="row"/>
+                <field name="date" interval="month" type="col"/>
+                <field name="total_financial_loss" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_bff_spoilage_log_graph" model="ir.ui.view">
+        <field name="name">bff.spoilage.log.graph</field>
+        <field name="model">bff.spoilage.log</field>
+        <field name="arch" type="xml">
+            <graph string="Grafik Kerugian Spoilage" type="bar">
+                <field name="reason_code"/>
+                <field name="total_financial_loss" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_bff_spoilage_log_search" model="ir.ui.view">
+        <field name="name">bff.spoilage.log.search</field>
+        <field name="model">bff.spoilage.log</field>
+        <field name="arch" type="xml">
+            <search string="Cari Spoilage Log">
+                <field name="name"/>
+                <field name="location_id"/>
+                <field name="reason_code"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Disetujui" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Alasan Kerusakan" name="groupby_reason" context="{'group_by': 'reason_code'}"/>
+                    <filter string="Lokasi Gudang" name="groupby_location" context="{'group_by': 'location_id'}"/>
+                    <filter string="Bulan Kejadian" name="groupby_date" context="{'group_by': 'date:month'}"/>
+                    <filter string="Status" name="groupby_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action Window -->
+    <record id="action_bff_spoilage_log" model="ir.actions.act_window">
+        <field name="name">Barang Rusak / Lumer (Spoilage Log)</field>
+        <field name="res_model">bff.spoilage.log</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_bff_spoilage_log_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada pencatatan barang rusak / lumer.
+            </p>
+            <p>
+                Buat form pencatatan baru saat terjadi kerusakan stok akibat listrik padam, freezer bermasalah, kemasan bocor, atau produk kadaluarsa.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="menu_bff_spoilage_log"
+              name="Barang Rusak / Lumer (Spoilage)"
+              parent="stock.menu_stock_warehouse_mgmt"
+              action="action_bff_spoilage_log"
+              sequence="45"/>
+</odoo>

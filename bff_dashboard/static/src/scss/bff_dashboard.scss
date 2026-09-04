@@ -321,4 +321,189 @@
             }
         }
     }
+
+    /* Shimmering Skeleton Loading Screen */
+    .bff-skeleton {
+        background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+        background-size: 200% 100%;
+        animation: bff-shimmer 1.5s infinite linear;
+        border-radius: 8px;
+        display: inline-block;
+    }
+
+    @keyframes bff-shimmer {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    .bff-skeleton-title {
+        height: 14px;
+        width: 65%;
+    }
+
+    .bff-skeleton-value {
+        height: 28px;
+        width: 80%;
+    }
+
+    .bff-skeleton-badge {
+        height: 18px;
+        width: 45%;
+        border-radius: 9999px;
+    }
+
+    .bff-skeleton-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+    }
+
+    .bff-skeleton-box {
+        width: 100%;
+        height: 220px;
+        border-radius: 12px;
+    }
+
+    .bff-skeleton-line {
+        height: 14px;
+        width: 100%;
+    }
+
+    /* Command Palette Overlay */
+    .bff-command-palette-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 10vh;
+        animation: bff-fade-in 0.2s ease-out;
+    }
+
+    .bff-command-palette-modal {
+        background: #ffffff;
+        width: 100%;
+        max-width: 620px;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+        overflow: hidden;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        animation: bff-scale-up 0.2s ease-out;
+    }
+
+    .bff-command-search-header {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        gap: 12px;
+
+        i {
+            font-size: 1.2rem;
+            color: #64748b;
+        }
+
+        input {
+            border: 0;
+            outline: none;
+            box-shadow: none !important;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #0f172a;
+            width: 100%;
+            background: transparent;
+
+            &::placeholder {
+                color: #94a3b8;
+            }
+        }
+    }
+
+    .bff-command-list {
+        max-height: 380px;
+        overflow-y: auto;
+        padding: 8px;
+
+        .bff-command-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            gap: 14px;
+            transition: all 0.15s ease;
+
+            &:hover, &.active {
+                background: #f1f5f9;
+                transform: translateX(2px);
+            }
+
+            .command-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 10px;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.1rem;
+            }
+
+            .command-title {
+                font-weight: 600;
+                font-size: 0.925rem;
+                color: #0f172a;
+            }
+
+            .command-desc {
+                font-size: 0.775rem;
+                color: #64748b;
+            }
+        }
+    }
+
+    .bff-command-footer {
+        padding: 10px 20px;
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: #64748b;
+
+        kbd {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            color: #334155;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+    }
+
+    @keyframes bff-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes bff-scale-up {
+        from { opacity: 0; transform: scale(0.96); }
+        to { opacity: 1; transform: scale(1); }
+    }
 }
+
+
