@@ -48,14 +48,14 @@
                     <notebook>
                         <page string="Daftar Produk Lumer / Rusak" name="lines">
                             <field name="line_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="product_id"/>
                                     <field name="lot_id" optional="show"/>
                                     <field name="qty"/>
                                     <field name="uom_id"/>
                                     <field name="cost_price" widget="monetary"/>
                                     <field name="total_loss" widget="monetary" sum="Total Kerugian"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Kronologi / Catatan Kejadian" name="notes">
@@ -67,12 +67,12 @@
         </field>
     </record>
 
-    <!-- Tree / List View -->
-    <record id="view_bff_spoilage_log_tree" model="ir.ui.view">
-        <field name="name">bff.spoilage.log.tree</field>
+    <!-- List View -->
+    <record id="view_bff_spoilage_log_list" model="ir.ui.view">
+        <field name="name">bff.spoilage.log.list</field>
         <field name="model">bff.spoilage.log</field>
         <field name="arch" type="xml">
-            <tree string="Pencatatan Barang Rusak / Lumer" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'cancel'">
+            <list string="Pencatatan Barang Rusak / Lumer" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'cancel'">
                 <field name="name"/>
                 <field name="date"/>
                 <field name="location_id"/>
@@ -81,7 +81,7 @@
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="total_financial_loss" sum="Total Loss"/>
                 <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'cancel'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -135,7 +135,7 @@
     <record id="action_bff_spoilage_log" model="ir.actions.act_window">
         <field name="name">Barang Rusak / Lumer (Spoilage Log)</field>
         <field name="res_model">bff.spoilage.log</field>
-        <field name="view_mode">tree,form,pivot,graph</field>
+        <field name="view_mode">list,form,pivot,graph</field>
         <field name="search_view_id" ref="view_bff_spoilage_log_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">

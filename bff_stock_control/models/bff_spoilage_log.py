@@ -139,7 +139,7 @@ class BffSpoilageLog(models.Model):
             'name': _('Penyesuaian Scrap Stok'),
             'type': 'ir.actions.act_window',
             'res_model': 'stock.scrap',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('spoilage_log_id', '=', self.id)],
         }
 

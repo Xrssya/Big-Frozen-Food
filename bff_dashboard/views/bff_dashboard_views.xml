@@ -100,11 +100,16 @@
               action="action_bff_dashboard_purchase"
               sequence="-10"/>
 
-    <!-- POS in Point of Sale Module (point_of_sale.menu_point_root) -->
+    <!-- Dashboard POS Analytics in Point of Sale Module (point_of_sale.menu_point_root) -->
     <menuitem id="menu_bff_dashboard_pos_item"
-              name="POS"
+              name="Dashboard"
               parent="point_of_sale.menu_point_root"
               action="action_bff_dashboard_pos"
               sequence="-10"/>
+
+    <!-- Ubah Nama Menu Dashboard Default Odoo POS Menjadi 'POS' -->
+    <record id="point_of_sale.menu_pos_dashboard" model="ir.ui.menu">
+        <field name="name">POS</field>
+    </record>
 
 </odoo>

@@ -206,6 +206,13 @@ export class BffDashboardComponent extends Component {
     }
 
     async silentReloadData() {
+        const isConnected =
+            (this.salesChartCanvas?.el && this.salesChartCanvas.el.isConnected) ||
+            (this.channelChartCanvas?.el && this.channelChartCanvas.el.isConnected) ||
+            (this.supplierChartCanvas?.el && this.supplierChartCanvas.el.isConnected) ||
+            (this.popularTimesCanvas?.el && this.popularTimesCanvas.el.isConnected);
+        if (!isConnected) return;
+
         try {
             const [data, popularTimes] = await Promise.all([
                 this.orm.call(
@@ -260,18 +267,15 @@ export class BffDashboardComponent extends Component {
     }
 
     destroyChartInstance(type) {
-        if (type === "sales" && this.salesChartInstance) {
-            this.salesChartInstance.destroy();
-            this.salesChartInstance = null;
-        } else if (type === "channel" && this.channelChartInstance) {
-            this.channelChartInstance.destroy();
-            this.channelChartInstance = null;
-        } else if (type === "supplier" && this.supplierChartInstance) {
-            this.supplierChartInstance.destroy();
-            this.supplierChartInstance = null;
-        } else if (type === "popularTimes" && this.popularTimesChartInstance) {
-            this.popularTimesChartInstance.destroy();
-            this.popularTimesChartInstance = null;
+        const propName = type + "ChartInstance";
+        if (this[propName]) {
+            try {
+                this[propName].destroy();
+            } catch (e) {
+                // Ignore errors when canvas is already detached
+            } finally {
+                this[propName] = null;
+            }
         }
     }
 
@@ -304,7 +308,14 @@ export class BffDashboardComponent extends Component {
         const Chart = this._getChart();
         if (!Chart) return;
         const canvas = this.salesChartCanvas.el;
-        if (!canvas) return;
+        if (!canvas || !canvas.isConnected || !document.body.contains(canvas)) return;
+
+        if (this.salesChartInstance) {
+            const c = this.salesChartInstance.canvas;
+            if (!c || c !== canvas || !c.isConnected || !document.body.contains(c)) {
+                this.destroyChartInstance("sales");
+            }
+        }
 
         const isPos = this.state.mode === "pos";
         const isDaily = this.state.salesView === "daily";
@@ -314,12 +325,12 @@ export class BffDashboardComponent extends Component {
         let chartLabel = "";
 
         if (isPos) {
-            labels = this.state.data.pos.daily_labels || [];
-            values = this.state.data.pos.daily_values || [];
+            labels = this.state.data?.pos?.daily_labels || [];
+            values = this.state.data?.pos?.daily_values || [];
             chartLabel = "Omset POS Toko (Rp)";
         } else {
-            labels = isDaily ? this.state.data.sales.daily_labels : this.state.data.sales.monthly_labels;
-            values = isDaily ? this.state.data.sales.daily_total : this.state.data.sales.monthly_revenue;
+            labels = isDaily ? this.state.data?.sales?.daily_labels : this.state.data?.sales?.monthly_labels;
+            values = isDaily ? this.state.data?.sales?.daily_total : this.state.data?.sales?.monthly_revenue;
             chartLabel = isDaily ? "Omset Harian (Rp)" : "Omset Bulanan (Rp)";
         }
 
@@ -327,105 +338,116 @@ export class BffDashboardComponent extends Component {
         const stopColor = isPos ? "rgba(6, 182, 212, 0.3)" : "rgba(37, 99, 235, 0.28)";
 
         if (this.salesChartInstance) {
-            this.salesChartInstance.data.labels = labels || [];
-            this.salesChartInstance.data.datasets[0].label = chartLabel;
-            this.salesChartInstance.data.datasets[0].data = values || [];
-            this.salesChartInstance.data.datasets[0].borderColor = lineColor;
-            this.salesChartInstance.data.datasets[0].pointBackgroundColor = lineColor;
-            this.salesChartInstance.update("none");
-            return;
+            try {
+                this.salesChartInstance.data.labels = labels || [];
+                this.salesChartInstance.data.datasets[0].label = chartLabel;
+                this.salesChartInstance.data.datasets[0].data = values || [];
+                this.salesChartInstance.data.datasets[0].borderColor = lineColor;
+                this.salesChartInstance.data.datasets[0].pointBackgroundColor = lineColor;
+                this.salesChartInstance.update("none");
+                return;
+            } catch (e) {
+                console.warn("BFF Dashboard: Failed updating sales chart instance, re-creating", e);
+                this.destroyChartInstance("sales");
+            }
         }
 
-        const ctx = canvas.getContext("2d");
-        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-        gradient.addColorStop(0, stopColor);
-        gradient.addColorStop(1, "rgba(255, 255, 255, 0.0)");
+        try {
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+            gradient.addColorStop(0, stopColor);
+            gradient.addColorStop(1, "rgba(255, 255, 255, 0.0)");
 
-        this.salesChartInstance = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: labels || [],
-                datasets: [
-                    {
-                        label: chartLabel,
-                        data: values || [],
-                        borderColor: lineColor,
-                        borderWidth: 2.5,
-                        backgroundColor: gradient,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: lineColor,
-                        pointBorderColor: "#ffffff",
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 7,
+            this.salesChartInstance = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: labels || [],
+                    datasets: [
+                        {
+                            label: chartLabel,
+                            data: values || [],
+                            borderColor: lineColor,
+                            borderWidth: 2.5,
+                            backgroundColor: gradient,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: lineColor,
+                            pointBorderColor: "#ffffff",
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 7,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onHover: (event, chartElement) => {
+                        if (event.native && event.native.target) {
+                            event.native.target.style.cursor = chartElement && chartElement.length ? "pointer" : "default";
+                        }
                     },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                onHover: (event, chartElement) => {
-                    if (event.native && event.native.target) {
-                        event.native.target.style.cursor = chartElement && chartElement.length ? "pointer" : "default";
-                    }
-                },
-                onClick: (event, elements) => {
-                    if (elements && elements.length > 0) {
-                        const idx = elements[0].index;
-                        this.onSalesChartPointClick(idx);
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: "#0f172a",
-                        titleFont: { size: 12, weight: "bold" },
-                        bodyFont: { size: 13 },
-                        padding: 12,
-                        cornerRadius: 8,
-                        displayColors: false,
-                        callbacks: {
-                            label: (context) => {
-                                const idx = context.dataIndex;
-                                const val = context.raw || 0;
-                                if (this.state.mode === 'pos') {
-                                    return "Omset POS Toko: Rp " + val.toLocaleString("id-ID");
-                                } else if (this.state.mode === 'sales') {
-                                    return "Omset Sales B2B: Rp " + val.toLocaleString("id-ID");
-                                } else {
-                                    const soVal = (this.state.data?.sales?.daily_so && this.state.data.sales.daily_so[idx]) || 0;
-                                    const posVal = (this.state.data?.sales?.daily_pos && this.state.data.sales.daily_pos[idx]) || 0;
-                                    return [
-                                        "Total Omset: Rp " + val.toLocaleString("id-ID"),
-                                        " • B2B Sales: Rp " + soVal.toLocaleString("id-ID"),
-                                        " • POS Retail: Rp " + posVal.toLocaleString("id-ID"),
-                                    ];
-                                }
+                    onClick: (event, elements) => {
+                        if (elements && elements.length > 0) {
+                            const idx = elements[0].index;
+                            this.onSalesChartPointClick(idx);
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: "#0f172a",
+                            titleFont: { size: 12, weight: "bold" },
+                            bodyFont: { size: 13 },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: {
+                                label: (context) => {
+                                    const idx = context.dataIndex;
+                                    const val = context.raw || 0;
+                                    if (this.state.mode === 'pos') {
+                                        return "Omset POS Toko: Rp " + val.toLocaleString("id-ID");
+                                    } else if (this.state.mode === 'sales') {
+                                        return "Omset Sales B2B: Rp " + val.toLocaleString("id-ID");
+                                    } else {
+                                        const soVal = (this.state.data?.sales?.daily_so && this.state.data.sales.daily_so[idx]) || 0;
+                                        const posVal = (this.state.data?.sales?.daily_pos && this.state.data.sales.daily_pos[idx]) || 0;
+                                        return [
+                                            "Total Omset: Rp " + val.toLocaleString("id-ID"),
+                                            " • B2B Sales: Rp " + soVal.toLocaleString("id-ID"),
+                                            " • POS Retail: Rp " + posVal.toLocaleString("id-ID"),
+                                        ];
+                                    }
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: "#64748b", font: { size: 11 } },
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "#f1f5f9" },
+                            ticks: {
+                                color: "#64748b",
+                                font: { size: 11 },
+                                callback: (v) =>
+                                    v >= 1000000
+                                        ? "Rp " + (v / 1000000).toFixed(1) + " Jt"
+                                        : "Rp " + v.toLocaleString("id-ID"),
                             },
                         },
                     },
                 },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: "#64748b", font: { size: 11 } },
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: "#f1f5f9" },
-                        ticks: {
-                            color: "#64748b",
-                            font: { size: 11 },
-                            callback: (v) =>
-                                v >= 1000000
-                                    ? "Rp " + (v / 1000000).toFixed(1) + " Jt"
-                                    : "Rp " + v.toLocaleString("id-ID"),
-                        },
-                    },
-                },
-            },
-        });
+            });
+        } catch (e) {
+            console.error("BFF Dashboard: Failed creating sales chart", e);
+            this.salesChartInstance = null;
+        }
     }
 
     onSalesChartPointClick(index) {
@@ -520,149 +542,194 @@ export class BffDashboardComponent extends Component {
         const Chart = this._getChart();
         if (!Chart) return;
         const canvas = this.channelChartCanvas.el;
-        if (!canvas) return;
-
-        const ch = this.state.data.sales.channel_comparison || {};
+        if (!canvas || !canvas.isConnected || !document.body.contains(canvas)) return;
 
         if (this.channelChartInstance) {
-            this.channelChartInstance.data.datasets[0].data = [ch.agen_sales || 0, ch.pos_sales || 0];
-            this.channelChartInstance.update("none");
-            return;
+            const c = this.channelChartInstance.canvas;
+            if (!c || c !== canvas || !c.isConnected || !document.body.contains(c)) {
+                this.destroyChartInstance("channel");
+            }
         }
-        this.channelChartInstance = new Chart(canvas.getContext("2d"), {
-            type: "doughnut",
-            data: {
-                labels: ["Agen & Reseller (B2B)", "POS Toko Retail"],
-                datasets: [
-                    {
-                        data: [ch.agen_sales || 0, ch.pos_sales || 0],
-                        backgroundColor: ["#2563eb", "#06b6d4"],
-                        borderWidth: 3,
-                        borderColor: "#ffffff",
-                        hoverOffset: 6,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: "72%",
-                onHover: (event, chartElement) => {
-                    if (event.native && event.native.target) {
-                        event.native.target.style.cursor = chartElement && chartElement.length ? "pointer" : "default";
-                    }
+
+        const ch = this.state.data?.sales?.channel_comparison || {};
+
+        if (this.channelChartInstance) {
+            try {
+                this.channelChartInstance.data.datasets[0].data = [ch.agen_sales || 0, ch.pos_sales || 0];
+                this.channelChartInstance.update("none");
+                return;
+            } catch (e) {
+                console.warn("BFF Dashboard: Failed updating channel chart instance, re-creating", e);
+                this.destroyChartInstance("channel");
+            }
+        }
+
+        try {
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            this.channelChartInstance = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: ["Agen & Reseller (B2B)", "POS Toko Retail"],
+                    datasets: [
+                        {
+                            data: [ch.agen_sales || 0, ch.pos_sales || 0],
+                            backgroundColor: ["#2563eb", "#06b6d4"],
+                            borderWidth: 3,
+                            borderColor: "#ffffff",
+                            hoverOffset: 6,
+                        },
+                    ],
                 },
-                onClick: (event, elements) => {
-                    if (elements && elements.length > 0) {
-                        const idx = elements[0].index;
-                        if (idx === 0) {
-                            this.openSalesAction();
-                        } else {
-                            this.openPosAction();
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "72%",
+                    onHover: (event, chartElement) => {
+                        if (event.native && event.native.target) {
+                            event.native.target.style.cursor = chartElement && chartElement.length ? "pointer" : "default";
                         }
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: "#0f172a",
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: (c) => " Rp " + (c.raw || 0).toLocaleString("id-ID"),
+                    },
+                    onClick: (event, elements) => {
+                        if (elements && elements.length > 0) {
+                            const idx = elements[0].index;
+                            if (idx === 0) {
+                                this.openSalesAction();
+                            } else {
+                                this.openPosAction();
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: "#0f172a",
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: (c) => " Rp " + (c.raw || 0).toLocaleString("id-ID"),
+                            },
                         },
                     },
                 },
-            },
-        });
+            });
+        } catch (e) {
+            console.error("BFF Dashboard: Failed creating channel chart", e);
+            this.channelChartInstance = null;
+        }
     }
 
     renderSupplierChart() {
         const Chart = this._getChart();
         if (!Chart) return;
         const canvas = this.supplierChartCanvas.el;
-        if (!canvas) return;
-
-        const suppliers = this.state.data.purchase.supplier_breakdown || [];
+        if (!canvas || !canvas.isConnected || !document.body.contains(canvas)) return;
 
         if (this.supplierChartInstance) {
-            this.supplierChartInstance.data.labels = suppliers.map((s) => s.supplier);
-            this.supplierChartInstance.data.datasets[0].data = suppliers.map((s) => s.total);
-            this.supplierChartInstance.update("none");
-            return;
+            const c = this.supplierChartInstance.canvas;
+            if (!c || c !== canvas || !c.isConnected || !document.body.contains(c)) {
+                this.destroyChartInstance("supplier");
+            }
         }
-        const ctx = canvas.getContext("2d");
 
-        this.supplierChartInstance = new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: suppliers.map((s) => s.supplier),
-                datasets: [
-                    {
-                        label: "Total Belanja (Rp)",
-                        data: suppliers.map((s) => s.total),
-                        backgroundColor: "#6366f1",
-                        hoverBackgroundColor: "#4f46e5",
-                        borderRadius: 8,
-                        borderSkipped: false,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                onHover: (event, chartElement) => {
-                    if (event.native && event.native.target) {
-                        event.native.target.style.cursor = chartElement && chartElement.length ? "pointer" : "default";
-                    }
+        const suppliers = this.state.data?.purchase?.supplier_breakdown || [];
+
+        if (this.supplierChartInstance) {
+            try {
+                this.supplierChartInstance.data.labels = suppliers.map((s) => s.supplier);
+                this.supplierChartInstance.data.datasets[0].data = suppliers.map((s) => s.total);
+                this.supplierChartInstance.update("none");
+                return;
+            } catch (e) {
+                console.warn("BFF Dashboard: Failed updating supplier chart instance, re-creating", e);
+                this.destroyChartInstance("supplier");
+            }
+        }
+
+        try {
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            this.supplierChartInstance = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: suppliers.map((s) => s.supplier),
+                    datasets: [
+                        {
+                            label: "Total Belanja (Rp)",
+                            data: suppliers.map((s) => s.total),
+                            backgroundColor: "#6366f1",
+                            hoverBackgroundColor: "#4f46e5",
+                            borderRadius: 8,
+                            borderSkipped: false,
+                        },
+                    ],
                 },
-                onClick: (event, elements) => {
-                    if (elements && elements.length > 0) {
-                        const idx = elements[0].index;
-                        const supp = suppliers[idx];
-                        if (supp) {
-                            this.openSupplierDetail(supp.partner_id);
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onHover: (event, chartElement) => {
+                        if (event.native && event.native.target) {
+                            event.native.target.style.cursor = chartElement && chartElement.length ? "pointer" : "default";
                         }
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: "#0f172a",
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: (c) => " Rp " + (c.raw || 0).toLocaleString("id-ID"),
+                    },
+                    onClick: (event, elements) => {
+                        if (elements && elements.length > 0) {
+                            const idx = elements[0].index;
+                            const supp = suppliers[idx];
+                            if (supp) {
+                                this.openSupplierDetail(supp.partner_id);
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: "#0f172a",
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: (c) => " Rp " + (c.raw || 0).toLocaleString("id-ID"),
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: "#64748b", font: { size: 11 } },
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "#f1f5f9" },
+                            ticks: {
+                                color: "#64748b",
+                                font: { size: 11 },
+                                callback: (v) =>
+                                    v >= 1000000
+                                        ? "Rp " + (v / 1000000).toFixed(1) + " Jt"
+                                        : "Rp " + v.toLocaleString("id-ID"),
+                            },
                         },
                     },
                 },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: "#64748b", font: { size: 11 } },
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: "#f1f5f9" },
-                        ticks: {
-                            color: "#64748b",
-                            font: { size: 11 },
-                            callback: (v) =>
-                                v >= 1000000
-                                    ? "Rp " + (v / 1000000).toFixed(1) + " Jt"
-                                    : "Rp " + v.toLocaleString("id-ID"),
-                        },
-                    },
-                },
-            },
-        });
+            });
+        } catch (e) {
+            console.error("BFF Dashboard: Failed creating supplier chart", e);
+            this.supplierChartInstance = null;
+        }
     }
 
     renderPopularTimesChart() {
         const Chart = this._getChart();
         if (!Chart) return;
         const canvas = this.popularTimesCanvas.el;
-        if (!canvas) return;
+        if (!canvas || !canvas.isConnected || !document.body.contains(canvas)) return;
+
+        if (this.popularTimesChartInstance) {
+            const c = this.popularTimesChartInstance.canvas;
+            if (!c || c !== canvas || !c.isConnected || !document.body.contains(c)) {
+                this.destroyChartInstance("popularTimes");
+            }
+        }
 
         const pData = this.state.popularTimesData;
         if (!pData || !pData.hourly_data) return;
@@ -678,64 +745,75 @@ export class BffDashboardComponent extends Component {
         });
 
         if (this.popularTimesChartInstance) {
-            this.popularTimesChartInstance.data.labels = labels;
-            this.popularTimesChartInstance.data.datasets[0].data = pcts;
-            this.popularTimesChartInstance.data.datasets[0].backgroundColor = bgColors;
-            this.popularTimesChartInstance.update("none");
-            return;
+            try {
+                this.popularTimesChartInstance.data.labels = labels;
+                this.popularTimesChartInstance.data.datasets[0].data = pcts;
+                this.popularTimesChartInstance.data.datasets[0].backgroundColor = bgColors;
+                this.popularTimesChartInstance.update("none");
+                return;
+            } catch (e) {
+                console.warn("BFF Dashboard: Failed updating popular times chart instance, re-creating", e);
+                this.destroyChartInstance("popularTimes");
+            }
         }
 
-        const ctx = canvas.getContext("2d");
-        this.popularTimesChartInstance = new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: "Intensitas Keramaian (%)",
-                        data: pcts,
-                        backgroundColor: bgColors,
-                        borderRadius: 6,
-                        borderSkipped: false,
+        try {
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            this.popularTimesChartInstance = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Intensitas Keramaian (%)",
+                            data: pcts,
+                            backgroundColor: bgColors,
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: "#0f172a",
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: (c) => {
+                                    const idx = c.dataIndex;
+                                    const cnt = counts[idx] || 0;
+                                    return `Keramaian: ${c.raw}% (${cnt} Transaksi)`;
+                                },
+                            },
+                        },
                     },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: "#0f172a",
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: (c) => {
-                                const idx = c.dataIndex;
-                                const cnt = counts[idx] || 0;
-                                return `Keramaian: ${c.raw}% (${cnt} Transaksi)`;
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: "#64748b", font: { size: 10 } },
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: "#f1f5f9" },
+                            ticks: {
+                                color: "#64748b",
+                                font: { size: 10 },
+                                callback: (v) => v + "%",
                             },
                         },
                     },
                 },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: "#64748b", font: { size: 10 } },
-                    },
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: { color: "#f1f5f9" },
-                        ticks: {
-                            color: "#64748b",
-                            font: { size: 10 },
-                            callback: (v) => v + "%",
-                        },
-                    },
-                },
-            },
-        });
+            });
+        } catch (e) {
+            console.error("BFF Dashboard: Failed creating popular times chart", e);
+            this.popularTimesChartInstance = null;
+        }
     }
 
     formatCurrency(value) {
