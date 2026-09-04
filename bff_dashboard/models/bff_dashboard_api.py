@@ -9,6 +9,7 @@ class BffDashboardApi(models.AbstractModel):
 
     @api.model
     def get_dashboard_data(self, period='30days', date_from=None, date_to=None, company_id=None):
+        self = self.sudo()
         today = date.today()
         end_date = today
 
@@ -399,6 +400,7 @@ class BffDashboardApi(models.AbstractModel):
 
     @api.model
     def get_popular_times_data(self, company_id=None, day_of_week=None):
+        self = self.sudo()
         """Calculates Popular Times (Jam Ramai) & Quiet Days Analytics (Analisis Hari Sepi Cabang)"""
         branches = self.env['res.company'].search([('name', 'ilike', 'Big Frozen Food')])
         branch_list = [{'id': b.id, 'name': b.name} for b in branches]

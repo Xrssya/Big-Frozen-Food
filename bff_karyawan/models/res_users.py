@@ -8,6 +8,7 @@ class ResUsers(models.Model):
         ('asisten_kepala_toko', 'Asisten Kepala Toko'),
         ('kasir', 'Kasir'),
         ('kepala_gudang', 'Kepala Gudang'),
+        ('staf_gudang', 'Staf Gudang'),
     ], string='Role Big Frozen Food', compute='_compute_bff_role', inverse='_inverse_bff_role', store=True)
 
     @api.depends('employee_ids.bff_role')

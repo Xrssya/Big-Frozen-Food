@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Tree / List View -->
-    <record id="view_bff_waste_ratio_report_tree" model="ir.ui.view">
-        <field name="name">bff.waste.ratio.report.tree</field>
+    <!-- List View -->
+    <record id="view_bff_waste_ratio_report_list" model="ir.ui.view">
+        <field name="name">bff.waste.ratio.report.list</field>
         <field name="model">bff.waste.ratio.report</field>
         <field name="arch" type="xml">
             <list string="Laporan Waste Ratio vs Sales Ratio" create="false" edit="false" delete="false">
@@ -55,10 +55,10 @@
         </field>
     </record>
 
-    <!-- Menu Item (Di bawah Laporan Terpusat bff_reports) -->
+    <!-- Menu Item (Di bawah Laporan Stok / Inventory) -->
     <menuitem id="menu_bff_waste_ratio_report"
               name="Waste Ratio vs Sales Ratio"
-              parent="bff_reports.menu_bff_reports_root"
+              parent="stock.menu_warehouse_report"
               action="action_bff_waste_ratio_report"
               sequence="30"
               active="False"/>

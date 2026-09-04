@@ -4,35 +4,48 @@
 
         <!-- Replace logo with controlled wrapper -->
         <xpath expr="//img[hasclass('pos-receipt-logo')]" position="replace">
-            <t t-if="props.data.company and props.data.company.id">
-                <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.company.id}}&amp;field=logo"
-                     alt="Logo" class="bff-logo"/>
-            </t>
+            <div class="bff-logo-wrapper text-center my-1">
+                <t t-if="props.data and props.data.company and props.data.company.id">
+                    <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.company.id}}&amp;field=logo"
+                         alt="Big Frozen Food Logo" class="bff-logo"/>
+                </t>
+                <t t-else="">
+                    <img src="/bff_pos_receipt/static/src/img/bff_logo.png"
+                         alt="Big Frozen Food Logo" class="bff-logo"/>
+                </t>
+            </div>
         </xpath>
 
         <!-- Replace contact block entirely -->
         <xpath expr="//div[hasclass('pos-receipt-contact')]" position="replace">
-            <div class="bff-header">
+            <div class="bff-header" t-if="props.data">
                 <!-- Company Name -->
-                <div class="bff-store-name">
-                    <t t-esc="props.data.company.name"/>
-                </div>
+                <t t-if="props.data.company and props.data.company.name">
+                    <div class="bff-store-name">
+                        <t t-esc="props.data.company.name"/>
+                    </div>
+                </t>
+                <t t-elif="props.data.company_name">
+                    <div class="bff-store-name">
+                        <t t-esc="props.data.company_name"/>
+                    </div>
+                </t>
 
                 <!-- Address line -->
-                <t t-if="props.data.company.street">
+                <t t-if="props.data.company and props.data.company.street">
                     <div class="bff-store-info"><t t-esc="props.data.company.street"/></div>
                 </t>
-                <t t-if="props.data.company.city">
+                <t t-if="props.data.company and props.data.company.city">
                     <div class="bff-store-info"><t t-esc="props.data.company.city"/></div>
                 </t>
 
                 <!-- Phone -->
-                <t t-if="props.data.company.phone">
+                <t t-if="props.data.company and props.data.company.phone">
                     <div class="bff-store-info">Telp: <t t-esc="props.data.company.phone"/></div>
                 </t>
 
                 <!-- NPWP -->
-                <t t-if="props.data.company.vat">
+                <t t-if="props.data.company and props.data.company.vat">
                     <div class="bff-store-info">NPWP: <t t-esc="props.data.company.vat"/></div>
                 </t>
 

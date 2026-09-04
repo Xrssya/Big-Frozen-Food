@@ -67,9 +67,9 @@
         </field>
     </record>
 
-    <!-- Tree / List View -->
-    <record id="view_bff_spoilage_log_tree" model="ir.ui.view">
-        <field name="name">bff.spoilage.log.tree</field>
+    <!-- List View -->
+    <record id="view_bff_spoilage_log_list" model="ir.ui.view">
+        <field name="name">bff.spoilage.log.list</field>
         <field name="model">bff.spoilage.log</field>
         <field name="arch" type="xml">
             <list string="Pencatatan Barang Rusak / Lumer" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'cancel'">
