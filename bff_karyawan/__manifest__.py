@@ -4,7 +4,7 @@
     'category': 'Human Resources',
     'summary': 'Manajemen karyawan dan definisi role khusus Kasir & Staf Gudang Big Frozen Food',
     'author': 'Big Frozen Food Team',
-    'depends': ['hr', 'point_of_sale', 'stock'],
+    'depends': ['hr', 'point_of_sale', 'stock', 'sale', 'sales_team', 'purchase', 'account', 'bff_dashboard'],
     'data': [
         'security/bff_karyawan_groups.xml',
         'security/ir.model.access.csv',

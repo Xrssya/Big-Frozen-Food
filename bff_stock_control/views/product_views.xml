@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Product Template Kanban View Inherit (Geser Foto ke Kiri & Perbesar Bulatan Status) -->
+    <!-- Product Template Kanban View Inherit (Ubah "Di tangan" -> "Stok", Geser Foto ke Kiri & Perbesar Bulatan Status) -->
     <record id="view_product_template_kanban_stock_status_dot" model="ir.ui.view">
         <field name="name">product.template.kanban.stock.status.dot</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_kanban_view"/>
+        <field name="inherit_id" ref="stock.product_template_kanban_stock_view"/>
         <field name="arch" type="xml">
             <xpath expr="//kanban" position="inside">
                 <field name="stock_status"/>
                 <field name="min_stock_alert_qty"/>
                 <field name="is_storable"/>
+            </xpath>
+
+            <!-- Ubah teks "On hand: / Di tangan:" menjadi "Stok:" -->
+            <xpath expr="//div[@t-if='record.show_on_hand_qty_status_button.raw_value']" position="replace">
+                <div groups="stock.group_stock_user" t-if="record.show_on_hand_qty_status_button.raw_value">
+                    Stok: <field name="qty_available"/> <field name="uom_id" groups="uom.group_uom"/>
+                </div>
             </xpath>
 
             <!-- Geser foto produk ke kiri dengan menambahkan margin kanan agar tidak bertumpuk dengan bulatan status -->
@@ -24,6 +31,18 @@
                      t-att-title="'Status Stok: ' + (record.stock_status ? record.stock_status.value || '' : '')"
                      t-attf-style="width: 20px; height: 20px; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.35); background-color: {{ record.stock_status &amp;&amp; record.stock_status.raw_value == 'empty' ? '#dc3545' : (record.stock_status &amp;&amp; record.stock_status.raw_value == 'low' ? '#ffc107' : '#28a745') }};">
                 </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Product Product Kanban Catalog Inherit (Ubah "On Hand: / Di tangan:" Menjadi "Stok:") -->
+    <record id="view_product_kanban_catalog_stock_label" model="ir.ui.view">
+        <field name="name">product.kanban.catalog.stock.label</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="stock.product_view_kanban_catalog"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='o_kanban_qty_available']/span" position="replace">
+                <span>Stok: </span>
             </xpath>
         </field>
     </record>
@@ -54,6 +73,9 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='qty_available']" position="attributes">
+                <attribute name="string">Stok</attribute>
+            </xpath>
             <xpath expr="//field[@name='qty_available']" position="after">
                 <field name="min_stock_alert_qty" string="Min Stok" optional="show"/>
                 <field name="stock_status" string="Status Stok" widget="badge"
