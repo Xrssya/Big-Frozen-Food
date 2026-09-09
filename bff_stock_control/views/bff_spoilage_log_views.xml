@@ -33,7 +33,7 @@
                             <field name="name" readonly="1"/>
                         </h1>
                     </div>
-                    <group>
+                    <group readonly="state != 'draft'">
                         <group string="Informasi Kejadian">
                             <field name="date" readonly="state != 'draft'"/>
                             <field name="user_id" readonly="state != 'draft'"/>

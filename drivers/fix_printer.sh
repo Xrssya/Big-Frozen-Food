@@ -184,7 +184,7 @@ echo -e "${GREEN}   [OK] Printer CX58D terdaftar & PPD permission dieset ke 644.
 # 6. PEMBERSIHAN ASSET CACHE ODOO & TES CETAK PDF
 # ------------------------------------------------------------------------------
 echo -e "${YELLOW}[6/6] Membersihkan cache Odoo asset & menguji cetak...${NC}"
-psql -U setyo -d bigfrozenfood_db -c "DELETE FROM ir_attachment WHERE name LIKE '%assets%' OR name LIKE '%.bundle%';" 2>/dev/null || true
+psql -U setyo -d odoo-big-frozen -c "DELETE FROM ir_attachment WHERE name LIKE '%assets%' OR name LIKE '%.bundle%';" 2>/dev/null || true
 
 echo ""
 echo "========================================================================"
