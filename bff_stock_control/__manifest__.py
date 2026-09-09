@@ -12,13 +12,15 @@
         - Filter & Menu "Stok Menipis" pada modul Inventaris Odoo.
     """,
     'author': 'Big Frozen Food Team',
-    'depends': ['stock', 'point_of_sale', 'sale'],
+    'depends': ['stock', 'point_of_sale', 'sale', 'purchase'],
     'data': [
         'security/ir.model.access.csv',
         'views/product_views.xml',
         'views/inventory_low_stock_views.xml',
         'views/stock_transfer_request_views.xml',
         'views/bff_spoilage_log_views.xml',
+        'views/purchase_order_views.xml',
+        'views/sale_order_views.xml',
     ],
 
     'assets': {

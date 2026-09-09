@@ -55,6 +55,7 @@
         <field name="arch" type="xml">
             <xpath expr="//group[@name='group_lots_and_weight']" position="after">
                 <group string="Kontrol &amp; Limit Stok (Big Frozen Food)" name="group_stock_control">
+                    <field name="pcs_per_box" widget="integer"/>
                     <field name="min_stock_alert_qty" widget="integer"/>
                     <field name="min_stock_reserve_qty" widget="integer"/>
                     <field name="allow_negative_stock"/>

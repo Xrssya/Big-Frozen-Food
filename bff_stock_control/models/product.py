@@ -24,6 +24,12 @@ class ProductTemplate(models.Model):
         help='Jika diaktifkan, produk ini tetap dapat dijual meskipun stok di tangan habis/0.'
     )
 
+    pcs_per_box = fields.Integer(
+        string='Isi per Kardus / Box',
+        default=12,
+        help='Jumlah pack/pcs satuan dalam 1 box atau kardus.'
+    )
+
     is_low_stock = fields.Boolean(
         string='Stok Menipis',
         compute='_compute_is_low_stock',
@@ -92,6 +98,11 @@ class ProductProduct(models.Model):
         readonly=False,
         store=True
     )
+    pcs_per_box = fields.Integer(
+        related='product_tmpl_id.pcs_per_box',
+        readonly=False,
+        store=True
+    )
     is_low_stock = fields.Boolean(
         related='product_tmpl_id.is_low_stock',
         store=False
@@ -104,7 +115,7 @@ class ProductProduct(models.Model):
     @api.model
     def _load_pos_data_fields(self, config_id):
         fields_list = super()._load_pos_data_fields(config_id)
-        for field_name in ['qty_available', 'min_stock_alert_qty', 'min_stock_reserve_qty', 'is_low_stock', 'stock_status', 'allow_negative_stock']:
+        for field_name in ['qty_available', 'min_stock_alert_qty', 'min_stock_reserve_qty', 'pcs_per_box', 'is_low_stock', 'stock_status', 'allow_negative_stock']:
             if field_name not in fields_list:
                 fields_list.append(field_name)
         return fields_list

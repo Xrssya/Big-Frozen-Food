@@ -86,14 +86,19 @@ export class BffDashboardComponent extends Component {
             purchaseOrderSort: "date_desc",
             showCommandPalette: false,
             commandQuery: "",
+            showLowStockModal: false,
         });
 
         this.onGlobalKeydown = (ev) => {
             if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "k") {
                 ev.preventDefault();
                 this.openCommandPalette();
-            } else if (ev.key === "Escape" && this.state.showCommandPalette) {
-                this.closeCommandPalette();
+            } else if (ev.key === "Escape") {
+                if (this.state.showCommandPalette) {
+                    this.closeCommandPalette();
+                } else if (this.state.showLowStockModal) {
+                    this.closeLowStockModal();
+                }
             }
         };
 
@@ -128,10 +133,10 @@ export class BffDashboardComponent extends Component {
         onMounted(() => {
             this.renderCharts();
             window.addEventListener("keydown", this.onGlobalKeydown);
-            // Live Background Polling every 15 seconds without interrupting UI
+            // Live Background Polling every 60 seconds when tab is active
             this.autoRefreshInterval = setInterval(() => {
                 this.silentReloadData();
-            }, 15000);
+            }, 60000);
         });
 
         onWillUnmount(() => {
@@ -167,6 +172,15 @@ export class BffDashboardComponent extends Component {
             this.state.popularTimesData = popularTimes;
             if (this.state.selectedDayIdx === null && popularTimes) {
                 this.state.selectedDayIdx = popularTimes.selected_day_idx;
+            }
+
+            // Trigger Low Stock Popup Notification on project/session launch
+            if (data && data.stock && data.stock.low_stock_count > 0) {
+                const sessionAlertKey = "bff_low_stock_alert_shown";
+                if (!sessionStorage.getItem(sessionAlertKey)) {
+                    this.state.showLowStockModal = true;
+                    sessionStorage.setItem(sessionAlertKey, "true");
+                }
             }
         } catch (err) {
             console.error("BFF Dashboard: Failed to load data:", err);
@@ -206,6 +220,7 @@ export class BffDashboardComponent extends Component {
     }
 
     async silentReloadData() {
+        if (document.hidden) return;
         const isConnected =
             (this.salesChartCanvas?.el && this.salesChartCanvas.el.isConnected) ||
             (this.channelChartCanvas?.el && this.channelChartCanvas.el.isConnected) ||
@@ -1054,6 +1069,23 @@ export class BffDashboardComponent extends Component {
     closeCommandPalette() {
         this.state.showCommandPalette = false;
         this.state.commandQuery = "";
+    }
+
+    openLowStockModal() {
+        this.state.showLowStockModal = true;
+    }
+
+    closeLowStockModal() {
+        this.state.showLowStockModal = false;
+    }
+
+    viewAllLowStockFromModal() {
+        this.closeLowStockModal();
+        this.openLowStockAction();
+    }
+
+    get modalLowStockItems() {
+        return (this.state.data && this.state.data.stock && (this.state.data.stock.low_stock_all || this.state.data.stock.low_stock_items)) || [];
     }
 
     executeCommand(cmd) {
