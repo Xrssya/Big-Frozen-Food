@@ -1,36 +1,167 @@
-.pos-stock-badge {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 10px;
-    font-weight: 700;
-    z-index: 10;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-    letter-spacing: 0.3px;
+/* ==========================================================================
+   BIG FROZEN FOOD - POS INTERACTIVE ANIMATIONS & MODERN CARD STYLING
+   ========================================================================== */
+
+/* 1. Base Product Card Styling & Transitions */
+.product-card,
+article.product {
+    position: relative !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.25s ease,
+                border-color 0.2s ease,
+                background-color 0.2s ease !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    user-select: none !important;
 }
 
+/* Image Container Sizing & Aspect-Fit Setup (Prevents Photo Cropping & Restores Default Large Size) */
+.pos .product-img,
+.product-card .product-img,
+article.product .product-img {
+    width: 100% !important;
+    height: 125px !important;
+    max-height: 125px !important;
+    min-height: 125px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 4px !important;
+    background-color: #ffffff !important;
+    border-top-left-radius: 9px !important;
+    border-top-right-radius: 9px !important;
+    box-sizing: border-box !important;
+}
+
+.pos .product-img img,
+.product-card .product-img img,
+article.product .product-img img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border-radius: 4px !important;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                filter 0.3s ease !important;
+}
+
+/* 2. Dynamic Hover Animation (Cursor ke barang) */
+.product-card:hover,
+article.product:hover {
+    transform: translateY(-6px) scale(1.02) !important;
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.15),
+                0 4px 12px -2px rgba(13, 110, 253, 0.2) !important;
+    border-color: rgba(13, 110, 253, 0.5) !important;
+    z-index: 5 !important;
+}
+
+.product-card:hover .product-img img,
+article.product:hover .product-img img {
+    transform: scale(1.08) !important;
+    filter: brightness(1.03) !important;
+}
+
+.product-card:hover .product-name,
+article.product:hover .product-name {
+    color: #0d6efd !important;
+    transition: color 0.2s ease !important;
+}
+
+/* 3. Tactile Active Click Animation (Saat barang diklik) */
+.product-card:active,
+article.product:active {
+    transform: translateY(-2px) scale(0.96) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.08s ease-out, box-shadow 0.08s ease-out !important;
+}
+
+/* 4. Stock Badges & Admin Buttons Positioning & Micro-interactions */
+.pos-stock-badge-wrapper {
+    z-index: 20 !important;
+    top: 6px !important;
+    right: 6px !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.product-card:hover .pos-stock-badge-wrapper,
+article.product:hover .pos-stock-badge-wrapper {
+    transform: translateY(-2px) scale(1.04) !important;
+}
+
+.pos-stock-badge {
+    padding: 3px 9px !important;
+    border-radius: 14px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+    display: flex !important;
+    align-items: center !important;
+    letter-spacing: 0.3px !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+.pos-add-stock-btn {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    border-radius: 14px !important;
+    padding: 3px 9px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    border: none !important;
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
+    color: #ffffff !important;
+}
+
+.pos-add-stock-btn:hover {
+    transform: scale(1.12) !important;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4) !important;
+    background: linear-gradient(135deg, #0b5ed7, #0a58ca) !important;
+}
+
+.pos-add-stock-btn:active {
+    transform: scale(0.92) !important;
+}
+
+/* Badge Color Themes */
 .pos-stock-safe {
-    background-color: #28a745;
-    color: #ffffff;
+    background: linear-gradient(135deg, #28a745, #218838) !important;
+    color: #ffffff !important;
 }
 
 .pos-stock-warning {
-    background-color: #ff9800;
-    color: #ffffff;
+    background: linear-gradient(135deg, #ff9800, #e68a00) !important;
+    color: #ffffff !important;
 }
 
 .pos-stock-danger {
-    background-color: #dc3545;
-    color: #ffffff;
-    animation: pulse-stock-danger 1.5s infinite;
+    background: linear-gradient(135deg, #dc3545, #c82333) !important;
+    color: #ffffff !important;
 }
 
-@keyframes pulse-stock-danger {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.06); }
-    100% { transform: scale(1); }
+/* 5. Category Navigation Pills Interactive Hover & Active Effects */
+.category-button,
+.category-item {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.2s ease,
+                background-color 0.2s ease !important;
+}
+
+.category-button:hover,
+.category-item:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+.category-button:active,
+.category-item:active {
+    transform: scale(0.96) !important;
 }

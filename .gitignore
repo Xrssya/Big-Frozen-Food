@@ -34,4 +34,5 @@ Thumbs.db
 # POS Drivers & Temp
 posdrv_temp/
 install_pos_driver.sh
+start_odoo.sh
 

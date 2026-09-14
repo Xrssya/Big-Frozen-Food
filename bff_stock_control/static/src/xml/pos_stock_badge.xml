@@ -1,24 +1,127 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
+    <!-- Extension to ProductCard component (compatible with default Odoo & pos_theme_sapphire) -->
     <t t-name="bff_stock_control.ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
-        <xpath expr="//article" position="inside">
-            <t t-if="props.product">
-                <div class="pos-stock-badge"
-                     t-att-class="{
-                        'pos-stock-danger': (props.product.qty_available || 0) &lt;= 0,
-                        'pos-stock-warning': (props.product.qty_available || 0) &gt; 0 &amp;&amp; (props.product.qty_available || 0) &lt;= (props.product.min_stock_alert_qty || 10),
-                        'pos-stock-safe': (props.product.qty_available || 0) &gt; (props.product.min_stock_alert_qty || 10)
-                     }">
-                    <i class="fa fa-cubes me-1"/>
-                    <t t-if="(props.product.qty_available || 0) &lt;= 0">Stok Habis</t>
-                    <t t-elif="(props.product.qty_available || 0) &lt;= (props.product.min_stock_alert_qty || 10)">
-                        Menipis: <t t-esc="Math.floor(props.product.qty_available || 0)"/>
-                    </t>
-                    <t t-else="">
-                        Stok: <t t-esc="Math.floor(props.product.qty_available || 0)"/>
-                    </t>
+        <xpath expr="//*[contains(@class, 'product-card') or self::article]" position="inside">
+            <t t-if="props.product &amp;&amp; this.isAdmin">
+                <t t-set="productQty" t-value="this.getProductQty()"/>
+                <t t-set="minAlert" t-value="props.product.min_stock_alert_qty || 10"/>
+                <div class="pos-stock-badge-wrapper position-absolute top-0 end-0 m-1 d-flex align-items-center gap-1 z-3">
+                    <div class="pos-stock-badge shadow-sm"
+                         t-att-class="{
+                            'pos-stock-danger': productQty &lt;= 0,
+                            'pos-stock-warning': productQty &gt; 0 &amp;&amp; productQty &lt;= minAlert,
+                            'pos-stock-safe': productQty &gt; minAlert
+                         }">
+                        <i class="fa fa-cubes me-1"/>
+                        Stok: <t t-esc="productQty &lt;= 0 ? 0 : Math.floor(productQty)"/>
+                    </div>
+                    <button class="pos-add-stock-btn btn btn-sm btn-primary shadow-sm"
+                            t-on-click.stop="onAddStockClick"
+                            title="Edit Stok &amp; Harga Produk (Admin)">
+                        <i class="fa fa-pencil me-1"/>Edit
+                    </button>
                 </div>
             </t>
         </xpath>
+    </t>
+
+    <!-- Dialog Template for AddStockPopup (Admin Quick Edit: Stok & Harga) -->
+    <t t-name="bff_stock_control.AddStockPopup">
+        <Dialog title="'📦 Quick Edit Admin (Stok &amp; Harga Produk)'">
+            <div class="p-3">
+                <div class="mb-3 p-3 bg-light rounded-3 border">
+                    <h5 class="fw-bold text-primary mb-1" t-esc="props.product.display_name"/>
+                    <div class="d-flex justify-content-between align-items-center text-muted fs-6 mt-2">
+                        <span>Stok Fisik Saat Ini:</span>
+                        <span class="badge bg-success fs-6">
+                            <t t-esc="Math.floor((props.product.qty_available || (props.product.raw &amp;&amp; props.product.raw.qty_available) || 0))"/> Pack / Satuan
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center text-muted fs-6 mt-1">
+                        <span>Harga Jual Saat Ini:</span>
+                        <strong class="text-dark">
+                            Rp <t t-esc="state.currentPrice.toLocaleString('id-ID')"/>
+                        </strong>
+                    </div>
+                </div>
+
+                <!-- Section 1: Update Selling Price with Lock/Unlock Toggle -->
+                <div class="card mb-3 border-secondary">
+                    <div class="card-header bg-body-tertiary d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-bold">
+                            <i class="fa fa-tag me-1"/> Pengaturan Harga Jual
+                        </span>
+                        <button class="btn btn-sm"
+                                t-att-class="state.isPriceLocked ? 'btn-outline-danger' : 'btn-success'"
+                                t-on-click="togglePriceLock">
+                            <t t-if="state.isPriceLocked">
+                                <i class="fa fa-lock me-1"/> 🔒 Harga Dikunci
+                            </t>
+                            <t t-else="">
+                                <i class="fa fa-unlock me-1"/> 🔓 Edit Harga Dibuka
+                            </t>
+                        </button>
+                    </div>
+                    <div class="card-body py-2">
+                        <label class="form-label small fw-bold text-muted mb-1">
+                            Harga Jual Baru (Rp)
+                            <t t-if="state.isPriceLocked">
+                                <span class="text-danger ms-1 small">(Buka kunci untuk mengubah)</span>
+                            </t>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold">Rp</span>
+                            <input type="number" step="100" class="form-control form-control-lg fw-bold text-primary"
+                                   t-att-disabled="state.isPriceLocked"
+                                   t-att-value="state.newPrice" t-on-input="onPriceChange" min="0"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Add Stock Quantity (Box & Pack) -->
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white py-2 fw-bold">
+                        <i class="fa fa-cubes me-1"/> Penambahan Stok Produk
+                    </div>
+                    <div class="card-body py-2">
+                        <div class="row g-3 mb-2">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Tambah (Jml Box/Kardus)</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.1" class="form-control fw-bold text-primary"
+                                           t-att-value="state.qtyBox" t-on-input="onQtyBoxChange" min="0"/>
+                                    <span class="input-group-text small">Box</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Tambah (Jml Pack/Satuan)</label>
+                                <div class="input-group">
+                                    <input type="number" step="1" class="form-control fw-bold text-success"
+                                           t-att-value="state.qtyPcs" t-on-input="onQtyPcsChange" min="0"/>
+                                    <span class="input-group-text small">Pack</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div t-if="state.qtyPcs &gt; 0" class="alert alert-info py-1 px-2 small d-flex align-items-center mb-0 mt-1">
+                            <i class="fa fa-info-circle me-2"/>
+                            <div>
+                                Stok baru setelah penambahan: 
+                                <strong>
+                                    <t t-esc="Math.floor(((props.product.qty_available || (props.product.raw &amp;&amp; props.product.raw.qty_available) || 0)) + state.qtyPcs)"/> Pack
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <t t-slot="footer">
+                <button class="btn btn-secondary me-2" t-on-click="props.close">Batal</button>
+                <button class="btn btn-primary fw-bold" t-att-disabled="state.isSubmitting" t-on-click="confirm">
+                    <i class="fa fa-check me-1"/> Simpan Perubahan (Admin)
+                </button>
+            </t>
+        </Dialog>
     </t>
 </templates>

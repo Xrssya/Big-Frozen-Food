@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
     <t t-name="bff_expiry_control.ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
-        <xpath expr="//article" position="inside">
+        <xpath expr="//*[self::article or contains(@class, 'product-card')]" position="inside">
             <t t-if="props.product">
                 <t t-if="props.product.expiry_level === 'danger' || (props.product.is_near_expiry &amp;&amp; props.product.days_to_expiry &lt;= 7)">
                     <div class="pos-expiry-badge danger" t-attf-title="Exp: {{props.product.earliest_expiry_date || '-'}}">

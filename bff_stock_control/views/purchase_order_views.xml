@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Purchase Order Form View Inherit: Add Dual Quantity (Box & Pack) -->
+    <record id="purchase_order_form_dual_qty" model="ir.ui.view">
+        <field name="name">purchase.order.form.dual.qty</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Insert qty_box column before product_qty in order_line list view -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_qty']" position="before">
+                <field name="qty_box" string="Jml Box/Kardus" optional="show"/>
+            </xpath>
+            
+            <!-- Update label string for product_qty for clarity -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_qty']" position="attributes">
+                <attribute name="string">Jml Pack/Satuan</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

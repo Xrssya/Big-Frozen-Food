@@ -217,6 +217,19 @@ class StockTransferRequestLine(models.Model):
         digits='Product Unit of Measure'
     )
 
+    qty_box = fields.Float(
+        string='Jml Box/Kardus',
+        digits='Product Unit of Measure',
+        default=0.0,
+        help='Jumlah kardus/box yang diminta.'
+    )
+
+    pcs_per_box = fields.Integer(
+        related='product_id.pcs_per_box',
+        string='Isi per Box',
+        readonly=True
+    )
+
     uom_id = fields.Many2one(
         'uom.uom',
         string='Satuan (UoM)',
@@ -230,6 +243,34 @@ class StockTransferRequestLine(models.Model):
         help='Jumlah stok fisik saat ini yang tersedia di gudang/lokasi asal.'
     )
 
+    @api.onchange('qty_box')
+    def _onchange_qty_box(self):
+        """When user inputs Box quantity, calculate total Pack/Satuan quantity."""
+        for line in self:
+            ratio = line.pcs_per_box or (line.product_id.pcs_per_box if line.product_id else 12) or 1
+            if line.qty_box and ratio > 0:
+                line.qty_requested = line.qty_box * ratio
+
+    @api.onchange('qty_requested')
+    def _onchange_qty_requested_sync_box(self):
+        """When user inputs Pack quantity, update Box quantity."""
+        for line in self:
+            ratio = line.pcs_per_box or (line.product_id.pcs_per_box if line.product_id else 12) or 1
+            if ratio > 0 and line.qty_requested:
+                line.qty_box = round(line.qty_requested / ratio, 2)
+
+    @api.onchange('product_id')
+    def _onchange_product_id_sync_box(self):
+        """Initialize Box quantity when selecting a product."""
+        for line in self:
+            if line.product_id:
+                ratio = line.product_id.pcs_per_box or 12
+                if line.qty_requested:
+                    line.qty_box = round(line.qty_requested / ratio, 2) if ratio > 0 else 0.0
+                else:
+                    line.qty_box = 1.0
+                    line.qty_requested = float(ratio)
+
     @api.depends('product_id', 'request_id.source_location_id')
     def _compute_qty_available_source(self):
         for line in self:
@@ -241,3 +282,4 @@ class StockTransferRequestLine(models.Model):
                 ('location_id', '=', line.request_id.source_location_id.id)
             ])
             line.qty_available_source = sum(quants.mapped('quantity'))
+

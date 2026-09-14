@@ -495,6 +495,78 @@
         }
     }
 
+    /* Floating Top-Right Low Stock Toast Notification */
+    .bff-toast-notification {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 9999;
+        width: 360px;
+        background: #ffffff;
+        border: 1px solid #fde68a;
+        border-left: 5px solid #f59e0b;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        padding: 16px;
+        animation: bff-slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+        .bff-toast-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #fef3c7;
+        }
+
+        .bff-toast-body {
+            font-size: 0.85rem;
+
+            .bff-toast-item-list {
+                max-height: 220px;
+                overflow-y: auto;
+                margin: 8px 0;
+
+                li {
+                    padding: 6px 4px;
+                    border-bottom: 1px dashed #f1f5f9;
+                    transition: background-color 0.15s ease;
+
+                    &:last-child {
+                        border-bottom: 0;
+                    }
+                    &:hover {
+                        background-color: #fffbeb;
+                        border-radius: 6px;
+                    }
+                }
+            }
+        }
+
+        .bff-toast-footer {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: flex-end;
+        }
+    }
+
+    .blink-icon {
+        animation: bff-pulse-glow 1.5s infinite;
+    }
+
+    @keyframes bff-pulse-glow {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.1); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes bff-slide-in-right {
+        from { opacity: 0; transform: translateX(80px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
     @keyframes bff-fade-in {
         from { opacity: 0; }
         to { opacity: 1; }

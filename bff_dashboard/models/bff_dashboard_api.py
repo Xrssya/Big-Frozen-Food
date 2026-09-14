@@ -191,11 +191,39 @@ class BffDashboardApi(models.AbstractModel):
         # ----------------------------------------------------
         # 2. STOCK & EXPIRY DASHBOARD DATA
         # ----------------------------------------------------
+        # Determine target warehouse / location domain
+        if company_id and company_id != 'all':
+            try:
+                comp_id = int(company_id)
+                wh = self.env['stock.warehouse'].search([('company_id', '=', comp_id)], limit=1)
+            except (ValueError, TypeError):
+                wh = self.env['stock.warehouse'].search([], limit=1)
+        else:
+            wh = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
+            if not wh:
+                wh = self.env['stock.warehouse'].search([], limit=1)
+
+        loc_domain = [('location_id.usage', '=', 'internal')]
+        if wh and wh.lot_stock_id:
+            loc_domain.append(('location_id', 'child_of', wh.lot_stock_id.id))
+
+        # Fast stock aggregation via stock.quant _read_group
+        quant_groups = self.env['stock.quant']._read_group(
+            domain=loc_domain,
+            groupby=['product_id'],
+            aggregates=['quantity:sum']
+        )
+        stock_by_product = {product.id: qty for product, qty in quant_groups if product}
+
+        # Calculate valuation directly
+        total_stock_value = 0.0
         quants = self.env['stock.quant'].search([
             ('location_id.usage', '=', 'internal'),
             ('quantity', '>', 0)
         ])
-        total_stock_value = sum(q.quantity * (q.product_id.standard_price or q.product_id.list_price * 0.7) for q in quants)
+        for q in quants:
+            price = q.product_id.standard_price or (q.product_id.list_price * 0.7)
+            total_stock_value += q.quantity * price
 
         if 'is_storable' in self.env['product.product']._fields:
             storable_products = self.env['product.product'].search([('is_storable', '=', True)])
@@ -203,13 +231,13 @@ class BffDashboardApi(models.AbstractModel):
             storable_products = self.env['product.product'].search([('type', '=', 'consu')])
         low_stock_list = []
         if storable_products:
-            read_fields = ['display_name', 'qty_available', 'uom_id']
+            read_fields = ['display_name', 'uom_id']
             if 'min_stock_alert_qty' in self.env['product.product']._fields:
                 read_fields.append('min_stock_alert_qty')
             prod_records = storable_products.read(read_fields)
             for p in prod_records:
                 min_alert = p.get('min_stock_alert_qty') or 10.0
-                on_hand = p.get('qty_available', 0.0)
+                on_hand = stock_by_product.get(p['id'], 0.0)
                 if on_hand <= min_alert:
                     uom_info = p.get('uom_id')
                     uom_name = uom_info[1] if uom_info and len(uom_info) > 1 else 'pcs'
@@ -221,8 +249,9 @@ class BffDashboardApi(models.AbstractModel):
                         'uom': uom_name,
                     })
 
+        low_stock_list = sorted(low_stock_list, key=lambda x: x['qty_available'])
         low_stock_count = len(low_stock_list)
-        low_stock_items = sorted(low_stock_list, key=lambda x: x['qty_available'])[:5]
+        low_stock_items = low_stock_list[:5]
 
         near_expiry_list = []
         near_expiry_count = 0
@@ -372,6 +401,7 @@ class BffDashboardApi(models.AbstractModel):
                 'total_valuation': round(total_stock_value, 2),
                 'low_stock_count': low_stock_count,
                 'low_stock_items': low_stock_items,
+                'low_stock_all': low_stock_list,
                 'low_stock_ids': [p['id'] for p in low_stock_list],
                 'near_expiry_count': near_expiry_count,
                 'near_expiry_items': near_expiry_items,

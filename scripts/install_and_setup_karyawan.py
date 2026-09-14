@@ -5,7 +5,7 @@ sys.path.insert(0, '/home/setyo/developer/odoo18')
 import odoo
 from odoo import api, SUPERUSER_ID
 
-DB_NAME = 'bigfrozenfood_db'
+DB_NAME = 'odoo-big-frozen'
 CONF_PATH = '/home/setyo/developer/odoo/odoo-BigFrozenFood/big_frozen_food.conf'
 
 def setup():
