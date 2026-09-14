@@ -1,3 +1,56 @@
 .o_main_navbar {
     border-bottom: none !important;
+
+    .o_menu_sections {
+        align-items: center !important;
+
+        .o_nav_entry,
+        .dropdown-toggle,
+        button {
+            transition: all 0.15s ease-in-out !important;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.18) !important;
+                color: #ffffff !important;
+            }
+
+            /* Highlight active or opened feature menu (e.g. "Order") */
+            &.show,
+            &[aria-expanded="true"],
+            &.active,
+            &.focus {
+                background-color: rgba(255, 255, 255, 0.28) !important;
+                color: #ffffff !important;
+                font-weight: 700 !important;
+                border-radius: 4px !important;
+            }
+        }
+    }
+}
+
+/* Dropdown Menu Items Active Highlight */
+.dropdown-menu {
+    border-radius: 8px !important;
+    padding: 6px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+
+    .dropdown-item {
+        border-radius: 6px !important;
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+        transition: all 0.15s ease-in-out !important;
+
+        &:hover {
+            background-color: #f1f5f9 !important;
+            color: #0284c7 !important;
+        }
+
+        &.active,
+        &.focus {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border-left: 4px solid #fbbf24 !important;
+        }
+    }
 }

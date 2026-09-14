@@ -128,6 +128,22 @@ patch(PosOrder.prototype, {
                 total_discount_num += discount_amount_num;
             }
 
+            // Dus / Pack calculation for wholesale/receipt
+            const pcs_per_dus = orig?.product_id?.pcs_per_dus || line.product_id?.pcs_per_dus || 10;
+            const rawQtyInt = Math.round(rawQty);
+            let dus_pack_str = "";
+            if (pcs_per_dus > 0 && rawQtyInt > 0) {
+                const dus = Math.floor(rawQtyInt / pcs_per_dus);
+                const sisa = rawQtyInt % pcs_per_dus;
+                if (dus > 0 && sisa > 0) {
+                    dus_pack_str = `${dus} Dus ${sisa} Pack`;
+                } else if (dus > 0) {
+                    dus_pack_str = `${dus} Dus`;
+                } else {
+                    dus_pack_str = `${sisa} Pack`;
+                }
+            }
+
             // Legacy string fallback (only if number not available)
             const price_display = typeof line.price === "string" ? line.price : null;
 
@@ -135,6 +151,8 @@ patch(PosOrder.prototype, {
                 ...line,
                 qty_str,
                 unit_name,
+                pcs_per_dus,
+                dus_pack_str,
                 unit_price_num: is_effective_discount ? unit_price_lst : unit_price_num,
                 line_total_num,
                 price_display,
@@ -143,6 +161,28 @@ patch(PosOrder.prototype, {
                 total_before_disc,
             };
         });
+
+        // Calculate total Dus & Pack summary
+        let order_total_dus = 0;
+        let order_total_pack = 0;
+        enriched_lines.forEach(l => {
+            const pcs_per_dus = l.pcs_per_dus || 10;
+            const qty_int = Math.round(parseFloat(l.qty_str || l.qty || 0));
+            if (pcs_per_dus > 0) {
+                order_total_dus += Math.floor(qty_int / pcs_per_dus);
+                order_total_pack += qty_int % pcs_per_dus;
+            } else {
+                order_total_pack += qty_int;
+            }
+        });
+        let total_dus_pack_summary = "";
+        if (order_total_dus > 0 && order_total_pack > 0) {
+            total_dus_pack_summary = `${order_total_dus} Dus ${order_total_pack} Pack`;
+        } else if (order_total_dus > 0) {
+            total_dus_pack_summary = `${order_total_dus} Dus`;
+        } else if (order_total_pack > 0) {
+            total_dus_pack_summary = `${order_total_pack} Pack`;
+        }
 
         // ─── Safe numbers for totals ─────────────────────────────────
         const amount_total_num = typeof result.amount_total === "number"
@@ -182,6 +222,7 @@ patch(PosOrder.prototype, {
             // Lines
             orderlines: enriched_lines,
             total_qty: total_qty_final,
+            total_dus_pack_summary,
             total_discount_num: Math.round(total_discount_num),
             // Totals (safe numbers)
             amount_total_num,

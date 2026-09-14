@@ -34,11 +34,15 @@
 			            </li>
 			    	</t>
 				</ul>
-				<div t-if="sidebarImageUrl" class="mk_apps_sidebar_logo p-2">
-					<img class="img-fluid mx-auto" t-att-src="sidebarImageUrl" alt="Logo"/>
+				<div t-if="sidebarImageUrl" class="mk_apps_sidebar_logo p-2 text-center">
+					<img class="img-fluid mx-auto d-block" t-att-src="sidebarImageUrl" alt="Logo" style="max-height: 80px; width: auto; max-width: 80%; object-fit: contain; margin: 0 auto; background: transparent;"/>
 				</div>
 			</div>
 		</div>
 	</t>
 	
 </templates>
+
+
+
+

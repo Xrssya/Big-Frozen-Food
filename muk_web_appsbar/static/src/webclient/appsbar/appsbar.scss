@@ -10,29 +10,64 @@
         justify-content: space-between;
 	    white-space: nowrap;
 	    .mk_apps_sidebar_menu {
-	    	padding: 0;
-		    > li > a {
-		        cursor: pointer;
-	            font-size: 13px;
-	            font-weight: 300;
-	            overflow: hidden;
-	            padding: 8px 11px;
-	            text-decoration: none;
-	            color: $mk-appbar-color;
-	            text-overflow: ellipsis;
-	            .mk_apps_sidebar_icon {
-				    width: 22px;
-				    height: 22px;
-	    			margin-right: 5px;
-				}
+	    	padding: 4px 0;
+		    > li {
+		        margin: 2px 4px;
+		        border-radius: 6px;
+		        transition: all 0.2s ease-in-out;
+		        
+		        > a {
+		            cursor: pointer;
+	                font-size: 13px;
+	                font-weight: 400;
+	                overflow: hidden;
+	                padding: 8px 11px;
+	                text-decoration: none;
+	                color: #cbd5e1;
+	                text-overflow: ellipsis;
+	                display: flex;
+	                align-items: center;
+	                border-radius: 6px;
+	                transition: all 0.2s ease-in-out;
+	                border-left: 3px solid transparent;
+
+	                .mk_apps_sidebar_icon {
+				        width: 22px;
+				        height: 22px;
+	    			    margin-right: 8px;
+	    			    transition: transform 0.2s ease;
+				    }
+		        }
+
+		        &:hover > a {
+			        background: rgba(255, 255, 255, 0.12) !important;
+			        color: #ffffff !important;
+			        .mk_apps_sidebar_icon {
+			            transform: scale(1.1);
+			        }
+	            }
+
+	            &.active > a,
+	            &.active:hover > a {
+			        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+			        color: #ffffff !important;
+			        font-weight: 700 !important;
+			        border-left: 4px solid #fbbf24 !important;
+			        box-shadow: 0 3px 8px rgba(2, 132, 199, 0.45) !important;
+			        
+			        .mk_apps_sidebar_icon {
+			            transform: scale(1.12);
+			            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+			        }
+			        .mk_apps_sidebar_name {
+			            color: #ffffff !important;
+			            font-weight: 700 !important;
+			            letter-spacing: 0.2px;
+			        }
+	            }
 		    }
-	        > li.active > a {
-			    background: $mk-appbar-active;
-	        }
-	        > li:hover > a {
-			    background: $mk-appbar-active;
-	        }
 	    }
+
 	}
 }
 
