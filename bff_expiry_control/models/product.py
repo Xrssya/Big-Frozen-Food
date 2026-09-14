@@ -120,13 +120,24 @@ class ProductTemplate(models.Model):
     @api.depends('near_expiry_alert_days')
     def _compute_expiry_info(self):
         today = fields.Date.today()
-        for template in self:
-            lots = self.env['stock.lot'].search([
-                ('product_id.product_tmpl_id', '=', template.id),
-                ('expiration_date', '!=', False)
-            ], order='expiration_date asc')
+        if not self:
+            return
 
-            if not lots:
+        tmpl_ids = self.ids
+        lots = self.env['stock.lot'].search([
+            ('product_id.product_tmpl_id', 'in', tmpl_ids),
+            ('expiration_date', '!=', False)
+        ], order='expiration_date asc')
+
+        lots_by_tmpl = {}
+        for lot in lots:
+            tmpl_id = lot.product_id.product_tmpl_id.id
+            if tmpl_id not in lots_by_tmpl:
+                lots_by_tmpl[tmpl_id] = lot
+
+        for template in self:
+            earliest_lot = lots_by_tmpl.get(template.id)
+            if not earliest_lot:
                 template.is_near_expiry = False
                 template.days_to_expiry = 999
                 template.expiry_level = 'safe'
@@ -134,13 +145,13 @@ class ProductTemplate(models.Model):
                 template.earliest_expiry_date = False
                 continue
 
-            earliest_lot = lots[0]
             exp_date = fields.Date.to_date(earliest_lot.expiration_date)
             template.earliest_expiry_date = exp_date
 
             days_left = (exp_date - today).days
             template.days_to_expiry = days_left
 
+            alert_days = template.near_expiry_alert_days or 30
             if days_left <= 0:
                 template.expiry_status = 'expired'
                 template.expiry_level = 'danger'
@@ -149,7 +160,7 @@ class ProductTemplate(models.Model):
                 template.expiry_status = 'near_expiry'
                 template.expiry_level = 'danger'
                 template.is_near_expiry = True
-            elif days_left <= template.near_expiry_alert_days:
+            elif days_left <= alert_days:
                 template.expiry_status = 'near_expiry'
                 template.expiry_level = 'warning'
                 template.is_near_expiry = True
@@ -161,16 +172,49 @@ class ProductTemplate(models.Model):
     def _search_is_near_expiry(self, operator, value):
         if operator not in ('=', '!='):
             return []
-        templates = self.search([])
-        matched_ids = [t.id for t in templates if (t.is_near_expiry and value) or (not t.is_near_expiry and not value)]
-        return [('id', 'in', matched_ids)]
+        query = """
+            SELECT DISTINCT pt.id
+            FROM stock_lot sl
+            JOIN product_product pp ON sl.product_id = pp.id
+            JOIN product_template pt ON pp.product_tmpl_id = pt.id
+            WHERE sl.expiration_date IS NOT NULL
+              AND sl.expiration_date <= (CURRENT_DATE + (COALESCE(pt.near_expiry_alert_days, 30) || ' days')::INTERVAL)
+        """
+        self.env.cr.execute(query)
+        near_expiry_ids = [row[0] for row in self.env.cr.fetchall()]
+        want_near = (operator == '=' and value) or (operator == '!=' and not value)
+        return [('id', 'in' if want_near else 'not in', near_expiry_ids)]
 
     def _search_expiry_status(self, operator, value):
         if operator not in ('=', '!='):
             return []
-        templates = self.search([])
-        matched_ids = [t.id for t in templates if (operator == '=' and t.expiry_status == value) or (operator == '!=' and t.expiry_status != value)]
-        return [('id', 'in', matched_ids)]
+        if value == 'safe':
+            # Safe means NOT near expiry and NOT expired
+            query = """
+                SELECT DISTINCT pt.id
+                FROM stock_lot sl
+                JOIN product_product pp ON sl.product_id = pp.id
+                JOIN product_template pt ON pp.product_tmpl_id = pt.id
+                WHERE sl.expiration_date IS NOT NULL
+                  AND sl.expiration_date <= (CURRENT_DATE + (COALESCE(pt.near_expiry_alert_days, 30) || ' days')::INTERVAL)
+            """
+            self.env.cr.execute(query)
+            non_safe_ids = [row[0] for row in self.env.cr.fetchall()]
+            want = (operator == '=')
+            return [('id', 'not in' if want else 'in', non_safe_ids)]
+        else:
+            query = """
+                SELECT DISTINCT pt.id
+                FROM stock_lot sl
+                JOIN product_product pp ON sl.product_id = pp.id
+                JOIN product_template pt ON pp.product_tmpl_id = pt.id
+                WHERE sl.expiration_date IS NOT NULL
+                  AND sl.expiration_date <= (CURRENT_DATE + (COALESCE(pt.near_expiry_alert_days, 30) || ' days')::INTERVAL)
+            """
+            self.env.cr.execute(query)
+            matched_ids = [row[0] for row in self.env.cr.fetchall()]
+            want = (operator == '=')
+            return [('id', 'in' if want else 'not in', matched_ids)]
 
     @api.model
     def cron_check_near_expiry_products(self):

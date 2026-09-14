@@ -12,7 +12,7 @@
         - Filter & Menu "Stok Menipis" pada modul Inventaris Odoo.
     """,
     'author': 'Big Frozen Food Team',
-    'depends': ['stock', 'point_of_sale', 'sale', 'purchase'],
+    'depends': ['stock', 'point_of_sale', 'sale', 'purchase', 'pos_theme_sapphire'],
     'data': [
         'security/ir.model.access.csv',
         'views/product_views.xml',
@@ -21,6 +21,7 @@
         'views/bff_spoilage_log_views.xml',
         'views/purchase_order_views.xml',
         'views/sale_order_views.xml',
+        'views/stock_picking_views.xml',
     ],
 
     'assets': {
@@ -28,6 +29,7 @@
             'bff_stock_control/static/src/css/pos_stock.css',
             'bff_stock_control/static/src/xml/pos_stock_badge.xml',
             'bff_stock_control/static/src/js/pos_stock_validation.js',
+            'bff_stock_control/static/src/js/pos_stock_add_popup.js',
         ],
     },
     'installable': True,
