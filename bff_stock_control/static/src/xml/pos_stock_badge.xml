@@ -4,17 +4,17 @@
     <t t-name="bff_stock_control.ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
         <xpath expr="//*[contains(@class, 'product-card') or self::article]" position="inside">
             <t t-if="props.product &amp;&amp; this.isAdmin">
-                <t t-set="productQty" t-value="this.getProductQty()"/>
+                <t t-set="stockQty" t-value="this.getProductQty()"/>
                 <t t-set="minAlert" t-value="props.product.min_stock_alert_qty || 10"/>
                 <div class="pos-stock-badge-wrapper position-absolute top-0 end-0 m-1 d-flex align-items-center gap-1 z-3">
                     <div class="pos-stock-badge shadow-sm"
                          t-att-class="{
-                            'pos-stock-danger': productQty &lt;= 0,
-                            'pos-stock-warning': productQty &gt; 0 &amp;&amp; productQty &lt;= minAlert,
-                            'pos-stock-safe': productQty &gt; minAlert
+                            'pos-stock-danger': stockQty &lt;= 0,
+                            'pos-stock-warning': stockQty &gt; 0 &amp;&amp; stockQty &lt;= minAlert,
+                            'pos-stock-safe': stockQty &gt; minAlert
                          }">
                         <i class="fa fa-cubes me-1"/>
-                        Stok: <t t-esc="productQty &lt;= 0 ? 0 : Math.floor(productQty)"/>
+                        Stok: <t t-esc="stockQty &lt;= 0 ? 0 : Math.floor(stockQty)"/>
                     </div>
                     <button class="pos-add-stock-btn btn btn-sm btn-primary shadow-sm"
                             t-on-click.stop="onAddStockClick"

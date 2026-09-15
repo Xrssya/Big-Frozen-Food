@@ -27,13 +27,17 @@ if (typeof CanvasRenderingContext2D !== "undefined" && !CanvasRenderingContext2D
 }
 
 // 2. Patch humanNumber in @web/core/utils/numbers (used by web views & float fields)
-if (numberUtils.humanNumber) {
-    patch(numberUtils, {
-        humanNumber(number, options) {
-            const res = super.humanNumber(number, options);
-            return indonesianUnits(res);
-        },
-    });
+if (numberUtils && numberUtils.humanNumber) {
+    try {
+        patch(numberUtils, {
+            humanNumber(number, options) {
+                const res = super.humanNumber(number, options);
+                return indonesianUnits(res);
+            },
+        });
+    } catch (e) {
+        console.warn("[BFF] Could not patch numberUtils.humanNumber:", e);
+    }
 }
 
 // 3. Patch o_spreadsheet ScorecardChart if present

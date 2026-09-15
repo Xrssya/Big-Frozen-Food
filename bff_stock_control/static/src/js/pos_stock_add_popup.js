@@ -134,7 +134,9 @@ export class AddStockPopup extends Component {
 
 patch(ProductCard.prototype, {
     setup() {
-        super.setup();
+        if (super.setup) {
+            super.setup();
+        }
         try {
             this.pos = usePos();
         } catch (e) {

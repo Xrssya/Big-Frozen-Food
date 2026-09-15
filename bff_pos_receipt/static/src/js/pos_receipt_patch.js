@@ -7,7 +7,9 @@ import { OrderReceipt } from "@point_of_sale/app/screens/receipt_screen/receipt/
 
 patch(OrderReceipt.prototype, {
     setup() {
-        super.setup();
+        if (super.setup) {
+            super.setup();
+        }
         this.receiptState = useState({
             mode: localStorage.getItem("bff_receipt_mode") || "thermal"
         });

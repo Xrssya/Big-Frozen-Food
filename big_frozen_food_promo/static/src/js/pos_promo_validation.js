@@ -294,7 +294,7 @@ patch(PosOrder.prototype, {
     recomputeOrderData() {
         const res = super.recomputeOrderData(...arguments);
         const pos = this.pos || this.models?.pos || (this.models ? this.models["pos.config"]?.getFirst()?.pos : null);
-        if (pos && typeof pos.recomputePromoDiscounts === "function") {
+        if (pos && !pos._isRecomputingPromos && typeof pos.recomputePromoDiscounts === "function") {
             pos.recomputePromoDiscounts(this);
         }
         return res;
@@ -304,8 +304,9 @@ patch(PosOrder.prototype, {
 patch(PosOrderline.prototype, {
     set_quantity(quantity, keep_price) {
         const res = super.set_quantity(...arguments);
-        if (this.order_id && this.order_id.pos && typeof this.order_id.pos.recomputePromoDiscounts === "function") {
-            this.order_id.pos.recomputePromoDiscounts(this.order_id);
+        const pos = this.order_id?.pos || this.order_id?.models?.pos;
+        if (pos && !pos._isRecomputingPromos && typeof pos.recomputePromoDiscounts === "function") {
+            pos.recomputePromoDiscounts(this.order_id);
         }
         return res;
     }

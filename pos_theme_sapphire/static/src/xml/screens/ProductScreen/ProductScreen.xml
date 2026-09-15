@@ -134,7 +134,7 @@
                                             imageUrl="pos.config.show_product_images and this.getProductImage(product)"
                                             onClick.bind="() => this.addProductToOrder(product)"
                                             productInfo="true"
-                                            productCartQty="this.state.quantityByProductTmplId[product.raw.product_tmpl_id]"
+                                            productCartQty="this.state.quantityByProductTmplId[product.raw ? product.raw.product_tmpl_id : (product.product_tmpl_id?.id || product.product_tmpl_id || product.id)]"
 											onProductInfoClick.bind="() => this.onProductInfoClick(product)"/>
 							</div>
                                 <div t-else=""
