@@ -45,5 +45,21 @@
 			</AppsMenu>
 		</xpath>
 	</t>
+
+	<!-- Patch SectionsMenu: add active class to current section button/naventry -->
+	<t 
+		t-name="muk_web_theme.NavBar.SectionsMenu"
+		t-inherit="web.NavBar.SectionsMenu"
+		t-inherit-mode="extension"
+	>
+		<!-- Target the button inside Dropdown (sections WITH children like "Order") -->
+		<xpath expr="//t[@t-else='']/Dropdown/button" position="attributes">
+			<attribute name="t-att-class">this.isSectionActive(section) ? 'active' : ''</attribute>
+		</xpath>
+		<!-- Target the DropdownItem (sections WITHOUT children) -->
+		<xpath expr="//t[@t-if='!section.childrenTree.length']/DropdownItem" position="attributes">
+			<attribute name="class">this.isSectionActive(section) ? 'o_nav_entry active' : 'o_nav_entry'</attribute>
+		</xpath>
+	</t>
 	
 </templates>

@@ -24,12 +24,34 @@ class ProductTemplate(models.Model):
         help='Jika diaktifkan, produk ini tetap dapat dijual meskipun stok di tangan habis/0.'
     )
 
+    pcs_per_dus = fields.Integer(
+        string='Jumlah Pack per Dus',
+        default=10,
+        help='Jumlah unit/pack dalam 1 Dus (Karton) untuk konversi grosir.'
+    )
+
     pcs_per_box = fields.Integer(
         string='Isi per Kardus / Box',
         default=12,
         help='Jumlah pack/pcs satuan dalam 1 box atau kardus.'
     )
 
+    def format_qty_dus_pack(self, qty):
+        self.ensure_one()
+        pcs_per_dus = self.pcs_per_dus or 10
+        qty_int = int(round(qty))
+        if pcs_per_dus <= 0 or qty_int <= 0:
+            return f"{qty_int} Pack"
+        
+        dus = qty_int // pcs_per_dus
+        sisa_pack = qty_int % pcs_per_dus
+        
+        if dus > 0 and sisa_pack > 0:
+            return f"{dus} Dus {sisa_pack} Pack"
+        elif dus > 0:
+            return f"{dus} Dus"
+        else:
+            return f"{sisa_pack} Pack"
     is_low_stock = fields.Boolean(
         string='Stok Menipis',
         compute='_compute_is_low_stock',
@@ -107,6 +129,11 @@ class ProductTemplate(models.Model):
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
+    pcs_per_dus = fields.Integer(
+        related='product_tmpl_id.pcs_per_dus',
+        readonly=False,
+        store=True
+    )
     min_stock_alert_qty = fields.Float(
         related='product_tmpl_id.min_stock_alert_qty',
         readonly=False,
@@ -136,10 +163,14 @@ class ProductProduct(models.Model):
         store=False
     )
 
+    def format_qty_dus_pack(self, qty):
+        self.ensure_one()
+        return self.product_tmpl_id.format_qty_dus_pack(qty)
+
     @api.model
     def _load_pos_data_fields(self, config_id):
         fields_list = super()._load_pos_data_fields(config_id)
-        for field_name in ['qty_available', 'min_stock_alert_qty', 'min_stock_reserve_qty', 'pcs_per_box', 'allow_negative_stock']:
+        for field_name in ['qty_available', 'min_stock_alert_qty', 'min_stock_reserve_qty', 'is_low_stock', 'stock_status', 'allow_negative_stock', 'pcs_per_dus', 'pcs_per_box']:
             if field_name not in fields_list:
                 fields_list.append(field_name)
         return fields_list
@@ -237,6 +268,4 @@ class ProductProduct(models.Model):
             'new_price': updated_price,
             'message': msg_str
         }
-
-
 

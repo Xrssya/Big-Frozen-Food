@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 import sys
 
-sys.path.insert(0, '/home/setyo/developer/odoo18')
+sys.path.insert(0, '/home/adi-purwanto/developer/odoo18')
 import odoo
 from odoo import api, SUPERUSER_ID
 
-DB_NAME = 'big_frozen_food'
+DB_NAME = 'odoo-big-frozen'
 
 def run():
-    odoo.tools.config.parse_config(['-c', '/home/setyo/developer/odoo/odoo-BigFrozenFood/big_frozen_food.conf', '-d', DB_NAME])
+    odoo.tools.config.parse_config(['-c', '/home/adi-purwanto/developer/odoo/ubig.food/Big-Frozen-Food/big_frozen_food.conf', '-d', DB_NAME])
     registry = odoo.registry(DB_NAME)
     with registry.cursor() as cr:
         env = api.Environment(cr, SUPERUSER_ID, {})
         print("=== APPLYING BULLETPROOF INDONESIAN STANDARD SALES INVOICE TEMPLATE ===")
 
         # 1. Update Tax ID 1 to PPN 11%
-        tax_11 = env['account.tax'].browse(1)
-        tax_11.write({'name': 'PPN 11%', 'amount': 11.0, 'description': 'PPN 11%'})
+        try:
+            tax_11 = env['account.tax'].browse(1)
+            tax_11.write({'name': 'PPN 11%', 'amount': 11.0, 'description': 'PPN 11%'})
+        except Exception as e:
+            print(f"Tax 1 write skipped: {e}")
+
 
         # 2. Update tax groups
         for tg in env['account.tax.group'].search([]):
@@ -25,17 +29,19 @@ def run():
 
         # 3. Update company details & bank
         comp = env['res.company'].search([], limit=1)
-        comp.write({
-            'name': 'PT Big Frozen Food',
-            'vat': '01.234.567.8-651.000',
-            'street': 'Jl. Industri Cold Storage No. 123',
-            'street2': 'Kawasan Industri PIER',
-            'city': 'Pasuruan',
-            'zip': '67111',
-            'phone': '0343-421999',
-            'email': 'info@bigfrozenfood.co.id',
-            'website': 'www.bigfrozenfood.co.id',
-        })
+        try:
+            comp.write({
+                'street': 'Jl. Industri Cold Storage No. 123',
+                'street2': 'Kawasan Industri PIER',
+                'city': 'Pasuruan',
+                'zip': '67111',
+                'phone': '0343-421999',
+                'email': 'info@bigfrozenfood.co.id',
+                'website': 'www.bigfrozenfood.co.id',
+            })
+        except Exception as e:
+            print(f"Company update warning: {e}")
+
 
         bca = env['res.bank'].search([('name', 'like', 'BCA')], limit=1)
         if not bca:
@@ -251,12 +257,12 @@ def run():
             <table class="item-table">
                 <thead>
                     <tr>
-                        <th style="width: 6%; text-align: center;">No.</th>
-                        <th style="width: 44%;">Nama Barang / Deskripsi</th>
-                        <th style="width: 10%; text-align: center;">Banyaknya</th>
-                        <th style="width: 10%; text-align: center;">Satuan</th>
-                        <th style="width: 15%; text-align: right;">Harga Satuan (Rp)</th>
-                        <th style="width: 15%; text-align: right;">Total Harga (Rp)</th>
+                        <th style="width: 5%; text-align: center;">No.</th>
+                        <th style="width: 38%;">Nama Barang / Deskripsi</th>
+                        <th style="width: 17%; text-align: center;">Banyaknya / Stok</th>
+                        <th style="width: 8%; text-align: center;">Satuan</th>
+                        <th style="width: 16%; text-align: right;">Harga Satuan (Rp)</th>
+                        <th style="width: 16%; text-align: right;">Total Harga (Rp)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -269,10 +275,17 @@ def run():
                             <span t-field="line.name"/>
                         </td>
                         <td style="text-align: center; vertical-align: middle;">
-                            <span t-field="line.quantity"/>
+                            <div style="font-weight: bold; font-size: 11px;">
+                                <t t-out="int(round(line.quantity))"/> <t t-out="line.product_uom_id.name or 'Pack'"/>
+                            </div>
+                            <t t-if="line.product_id">
+                                <div style="font-size: 9px; color: #1a365d; background-color: #edf2f7; border: 1px solid #cbd5e0; padding: 1px 4px; border-radius: 3px; margin-top: 2px; display: inline-block;">
+                                    📦 <span t-field="line.qty_dus_pack_str"/>
+                                </div>
+                            </t>
                         </td>
                         <td style="text-align: center; vertical-align: middle;">
-                            <span t-out="line.product_uom_id.name or 'Pcs'"/>
+                            <span t-out="line.product_uom_id.name or 'Pack'"/>
                         </td>
                         <td style="text-align: right; vertical-align: middle;">
                             <span t-field="line.price_unit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
@@ -294,6 +307,9 @@ def run():
                             <div><strong>Bank Central Asia (BCA)</strong>: 8730998877 a.n. PT Big Frozen Food</div>
                             <div><strong>Bank Mandiri</strong>: 1420099887700 a.n. PT Big Frozen Food</div>
                         </div>
+                    </div>
+                    <div style="margin-top: 6px; padding: 6px 10px; background-color: #ebf8ff; border: 1px solid #bee3f8; border-radius: 4px; font-size: 11px; font-weight: bold; color: #2b6cb0;">
+                        📦 Total Volume Barang Grosir: <span t-field="o.total_dus_pack_str"/>
                     </div>
                 </div>
 

@@ -9,13 +9,17 @@ export class AppsBar extends Component {
 	setup() {
 		this.companyService = useService('company');
         this.appMenuService = useService('app_menu');
-    	if (this.companyService.currentCompany.has_appsbar_image) {
+        
+        const company = this.companyService.currentCompany;
+        if (company && company.id) {
+            const fieldName = company.has_appsbar_image ? 'appbar_image' : 'logo';
             this.sidebarImageUrl = url('/web/image', {
                 model: 'res.company',
-                field: 'appbar_image',
-                id: this.companyService.currentCompany.id,
+                field: fieldName,
+                id: company.id,
             });
-    	}
+        }
+
     	const renderAfterMenuChange = () => {
             this.render();
         };
@@ -29,3 +33,4 @@ export class AppsBar extends Component {
         });
     }
 }
+

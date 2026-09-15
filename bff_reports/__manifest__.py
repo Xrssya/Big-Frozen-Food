@@ -36,6 +36,7 @@
         'views/purchase_reports_views.xml',
         'views/finance_reports_views.xml',
         'views/bff_waste_ratio_report_views.xml',
+        'views/nota_grosir_report.xml',
     ],
 
     'installable': True,

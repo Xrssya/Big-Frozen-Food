@@ -100,16 +100,20 @@
                                 </t>
                             </td>
                         </tr>
-                        <!-- Baris 2: Qty x Harga Satuan -->
+                        <!-- Baris 2: Qty x Harga Satuan + Konversi Dus/Pack -->
                         <tr class="bff-item-detail-row">
                             <td class="bff-item-detail" colspan="2">
                                 <t t-esc="line.qty_str || line.qty"/>
                                 <t t-if="line.unit_name"> <t t-esc="line.unit_name"/></t>
+                                <t t-else=""> Pack</t>
                                 × <t t-if="line.unit_price_num !== undefined">
                                     <t t-esc="props.formatCurrency(line.unit_price_num)"/>
                                 </t>
                                 <t t-else="">
                                     <t t-esc="line.unitPrice || ''"/>
+                                </t>
+                                <t t-if="line.dus_pack_str">
+                                    <span class="bff-dus-badge"> (📦 <t t-esc="line.dus_pack_str"/>)</span>
                                 </t>
                             </td>
                         </tr>
@@ -138,9 +142,12 @@
                      4. RINGKASAN PEMBAYARAN
                 ══════════════════════════════════════ -->
 
-                <!-- Total QTY -->
+                <!-- Total QTY & Volume Grosir -->
                 <div class="bff-total-qty">
-                    Total QTY : <t t-esc="props.data.total_qty || 0"/>
+                    Total QTY : <t t-esc="props.data.total_qty || 0"/> Pack
+                    <t t-if="props.data.total_dus_pack_summary">
+                        (<t t-esc="props.data.total_dus_pack_summary"/>)
+                    </t>
                 </div>
 
                 <!-- Tabel totals: 3 Kolom Fixed (Label | Rp | Angka) -->
