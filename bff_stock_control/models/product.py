@@ -48,9 +48,30 @@ class ProductTemplate(models.Model):
 
     def format_qty_dus_pack(self, qty):
         self.ensure_one()
-        pcs_per_dus = self.pcs_per_dus or 10
         qty_int = int(round(qty))
-        if pcs_per_dus <= 0 or qty_int <= 0:
+        if qty_int <= 0:
+            return "0 Pack"
+
+        # Dynamically check for defined product packagings sorted by qty descending
+        packagings = self.packaging_ids.filtered(lambda p: p.qty > 1).sorted(key=lambda p: p.qty, reverse=True)
+        if packagings:
+            parts = []
+            rem = qty_int
+            for pkg in packagings:
+                pkg_qty = int(pkg.qty)
+                if pkg_qty > 0:
+                    val = rem // pkg_qty
+                    rem = rem % pkg_qty
+                    if val > 0:
+                        parts.append(f"{val} {pkg.name}")
+            if rem > 0 or not parts:
+                base_uom_name = self.uom_id.name if self.uom_id else "Pack"
+                parts.append(f"{rem} {base_uom_name}")
+            return " ".join(parts)
+
+        # Fallback to legacy pcs_per_dus / pcs_per_box calculation
+        pcs_per_dus = self.pcs_per_dus or self.pcs_per_box or 10
+        if pcs_per_dus <= 0:
             return f"{qty_int} Pack"
         
         dus = qty_int // pcs_per_dus

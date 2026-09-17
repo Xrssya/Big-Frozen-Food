@@ -886,21 +886,29 @@
 
             <!-- LOW STOCK FLOATING TOP-RIGHT TOAST NOTIFICATION -->
             <t t-if="state.showLowStockModal">
-                <div class="bff-toast-notification">
-                    <div class="bff-toast-header">
+                <div class="bff-toast-notification shadow-lg border-0 rounded-3">
+                    <div class="bff-toast-header border-bottom py-2">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa fa-exclamation-triangle text-warning fs-6"/>
-                            <strong class="text-dark">Peringatan Stok Menipis!</strong>
+                            <strong class="text-dark">Peringatan Stok Menipis</strong>
+                            <span class="badge text-bg-warning text-dark rounded-pill ms-1" style="font-size:0.7rem;" t-if="lowStockCount &gt; 0">
+                                Total <t t-out="lowStockCount"/> Item
+                            </span>
                         </div>
                         <button type="button" class="btn-close ms-auto" style="font-size:0.75rem;" t-on-click="closeLowStockModal" title="Tutup"/>
                     </div>
-                    <div class="bff-toast-body">
-                        <div class="text-muted small">
-                            Stok produk berikut berada di bawah batas minimum:
+                    <div class="bff-toast-body py-2">
+                        <div class="text-muted small mb-2">
+                            <t t-if="lowStockCount &gt; 5">
+                                Top 5 produk terkritis dari total <strong><t t-out="lowStockCount"/> produk</strong> di bawah batas minimum:
+                            </t>
+                            <t t-else="">
+                                Produk berikut berada di bawah batas minimum stok:
+                            </t>
                         </div>
                         <ul class="bff-toast-item-list list-unstyled mb-0">
                             <t t-foreach="modalLowStockItems" t-as="item" t-key="item.id">
-                                <li class="d-flex justify-content-between align-items-center cursor-pointer" t-on-click="() => this.openProductDetail(item.id)" t-att-title="'Klik untuk lihat detail ' + item.name">
+                                <li class="d-flex justify-content-between align-items-center cursor-pointer py-1" t-on-click="() => this.openProductDetail(item.id)" t-att-title="'Klik untuk lihat detail ' + item.name">
                                     <span class="text-truncate me-2 text-dark fw-medium" style="max-width: 190px;">
                                         <t t-out="item.name"/>
                                     </span>
@@ -911,9 +919,9 @@
                             </t>
                         </ul>
                     </div>
-                    <div class="bff-toast-footer">
-                        <button type="button" class="btn btn-link btn-sm text-primary p-0 text-decoration-none fw-semibold" style="font-size:0.78rem;" t-on-click="viewAllLowStockFromModal">
-                            <span>Lihat Semua Stok Menipis</span>
+                    <div class="bff-toast-footer border-top pt-2">
+                        <button type="button" class="btn btn-link btn-sm text-primary p-0 text-decoration-none fw-semibold d-flex align-items-center justify-content-between w-100" style="font-size:0.78rem;" t-on-click="viewAllLowStockFromModal">
+                            <span>Lihat Semua</span>
                             <i class="fa fa-arrow-right ms-1"/>
                         </button>
                     </div>
