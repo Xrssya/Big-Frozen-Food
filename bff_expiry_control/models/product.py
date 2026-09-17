@@ -55,6 +55,13 @@ class ProductTemplate(models.Model):
         ('expired', 'Kadaluarsa / Expired')
     ], string='Status Kadaluarsa', compute='_compute_expiry_info', search='_search_expiry_status', store=False)
 
+    earliest_lot_id = fields.Many2one(
+        'stock.lot',
+        string='Lot Kadaluarsa Terdekat',
+        compute='_compute_expiry_info',
+        help='Nomor seri/lot produk dengan tanggal kadaluarsa paling dekat.'
+    )
+
     earliest_expiry_date = fields.Date(
         string='Kadaluarsa Terdekat',
         compute='_compute_expiry_info',
@@ -94,6 +101,7 @@ class ProductTemplate(models.Model):
                 template.days_to_expiry = 999
                 template.expiry_level = 'safe'
                 template.expiry_status = 'safe'
+                template.earliest_lot_id = False
                 continue
 
             days_left = (template.earliest_expiry_date - today).days
@@ -143,10 +151,12 @@ class ProductTemplate(models.Model):
                 template.expiry_level = 'safe'
                 template.expiry_status = 'safe'
                 template.earliest_expiry_date = False
+                template.earliest_lot_id = False
                 continue
 
             exp_date = fields.Date.to_date(earliest_lot.expiration_date)
             template.earliest_expiry_date = exp_date
+            template.earliest_lot_id = earliest_lot.id
 
             days_left = (exp_date - today).days
             template.days_to_expiry = days_left
@@ -238,7 +248,10 @@ class ProductTemplate(models.Model):
             for t in near_expiry_list:
                 status_badge = "🔴 Kritis (< 7 Hari)" if t.expiry_level == 'danger' else "🟡 Peringatan (H-30)"
                 exp_date_str = t.earliest_expiry_date.strftime('%d-%m-%Y') if t.earliest_expiry_date else "-"
-                msg += f"• <b>{t.name}</b>: {status_badge} — Exp: {exp_date_str} (Sisa {t.days_to_expiry} Hari)<br/>"
+                code_prefix = f"[{t.default_code}] " if t.default_code else ""
+                lot_name = t.earliest_lot_id.name if t.earliest_lot_id else ""
+                lot_info = f" (Lot: <b>{lot_name}</b>)" if lot_name else ""
+                msg += f"• <b>{code_prefix}{t.name}</b>{lot_info}: {status_badge} — Exp: {exp_date_str} (Sisa {t.days_to_expiry} Hari)<br/>"
 
             todo_activity_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
             activity_type_id = todo_activity_type.id if todo_activity_type else False
