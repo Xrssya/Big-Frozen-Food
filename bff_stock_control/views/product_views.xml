@@ -53,9 +53,9 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
+            <!-- 1. Insert Kontrol & Limit Stok in Col 1 and Description Picking in Col 2 after Logistik -->
             <xpath expr="//group[@name='group_lots_and_weight']" position="after">
                 <group string="Kontrol &amp; Limit Stok (Big Frozen Food)" name="group_stock_control">
-                    <field name="pcs_per_box" widget="integer"/>
                     <field name="min_stock_alert_qty" widget="integer"/>
                     <field name="min_stock_reserve_qty" widget="integer"/>
                     <field name="allow_negative_stock"/>
@@ -63,6 +63,33 @@
                            decoration-success="stock_status == 'available'"
                            decoration-warning="stock_status == 'low'"
                            decoration-danger="stock_status == 'empty'"/>
+                </group>
+                <group name="group_description_picking_side">
+                    <group string="Keterangan untuk Tanda Terima">
+                        <field name="description_pickingin" nolabel="1" placeholder="Catatan ini ditambahkan ke order tanda terima (contoh di mana untuk menyimpan produk di gudang)"/>
+                    </group>
+                    <group string="Deskripsi untuk Order Pengiriman">
+                        <field name="description_pickingout" nolabel="1" placeholder="Catatan ini ditambahkan ke pesanan pengiriman"/>
+                    </group>
+                </group>
+            </xpath>
+
+            <!-- 2. Remove original bottom description groups to prevent duplicate inputs -->
+            <xpath expr="//field[@name='description_pickingin']/parent::group" position="replace"/>
+            <xpath expr="//field[@name='description_pickingout']/parent::group" position="replace"/>
+
+            <!-- 3. Place Tabel Kemasan Produk at the bottom of Inventory page -->
+            <xpath expr="//page[@name='inventory']" position="inside">
+                <group string="Tabel Kemasan Produk (Multi-Kemasan: Bal / Slop / Box / Renteng)" name="group_product_packaging">
+                    <field name="packaging_ids" nolabel="1" context="{'default_product_tmpl_id': id}">
+                        <list editable="bottom">
+                            <field name="name" string="Nama Kemasan (Bal/Slop/Box/dll)"/>
+                            <field name="qty" string="Jumlah Isi (Satuan Dasar)"/>
+                            <field name="sales" string="Kemasan Jual"/>
+                            <field name="purchase" string="Kemasan Beli"/>
+                            <field name="barcode" string="Barcode Kemasan"/>
+                        </list>
+                    </field>
                 </group>
             </xpath>
         </field>

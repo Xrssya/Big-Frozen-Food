@@ -8,7 +8,9 @@
         <field name="arch" type="xml">
             <!-- Insert qty_box column before product_qty in order_line list view -->
             <xpath expr="//field[@name='order_line']/list/field[@name='product_qty']" position="before">
-                <field name="qty_box" string="Jml Box/Kardus" optional="show"/>
+                <field name="product_packaging_id" string="Jenis Kemasan" optional="show" domain="[('product_id', '=', product_id), ('purchase', '=', True)]"/>
+                <field name="product_packaging_qty" string="Jml Kemasan" optional="show"/>
+                <field name="qty_box" string="Jml Box/Kardus" optional="hide"/>
             </xpath>
             
             <!-- Update label string for product_qty for clarity -->

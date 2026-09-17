@@ -1084,8 +1084,12 @@ export class BffDashboardComponent extends Component {
         this.openLowStockAction();
     }
 
+    get lowStockCount() {
+        return (this.state.data && this.state.data.stock && this.state.data.stock.low_stock_count) || 0;
+    }
+
     get modalLowStockItems() {
-        return (this.state.data && this.state.data.stock && (this.state.data.stock.low_stock_all || this.state.data.stock.low_stock_items)) || [];
+        return (this.state.data && this.state.data.stock && (this.state.data.stock.low_stock_items || this.state.data.stock.low_stock_all)) || [];
     }
 
     executeCommand(cmd) {
