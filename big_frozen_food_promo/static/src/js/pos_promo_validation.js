@@ -297,6 +297,87 @@ patch(PosStore.prototype, {
                             line.discount = 100;
                         }
                     }
+                } else if (promo.promo_type === "wholesale") {
+                    const tierModel =
+                        (this.models && this.models["product.discount.promo.tier"]) ||
+                        (order && order.models && order.models["product.discount.promo.tier"]);
+                    const allTiers = getAllRecords(tierModel);
+                    const promoTiers = allTiers.filter((t) => extractId(t.promo_id) === promo.id);
+
+                    if (promoTiers.length > 0) {
+                        let totalMatchingQty = 0;
+                        for (const line of order.lines) {
+                            if (line._auto_promo_bonus) continue;
+                            const product = getLineProduct(this, line);
+                            if (!product) continue;
+                            const productTmplId = extractId(product.product_tmpl_id) || extractId(product.id);
+                            const productId = extractId(product.id);
+                            const categId = extractId(product.categ_id);
+
+                            let isMatch = false;
+                            if (promo.apply_on === "all") {
+                                isMatch = true;
+                            } else if (promo.apply_on === "product") {
+                                isMatch = promoProductIds.includes(productTmplId) || promoProductIds.includes(productId);
+                            } else if (promo.apply_on === "category" && categId && promo.category_id) {
+                                if (categId === extractId(promo.category_id)) isMatch = true;
+                            }
+                            if (isMatch) {
+                                totalMatchingQty += getLineQty(line);
+                            }
+                        }
+
+                        const eligibleTiers = promoTiers.filter((t) => totalMatchingQty >= (t.min_qty || 0));
+                        let bestTier = null;
+                        if (eligibleTiers.length > 0) {
+                            eligibleTiers.sort((a, b) => (b.min_qty || 0) - (a.min_qty || 0));
+                            bestTier = eligibleTiers[0];
+                        }
+
+                        for (const line of order.lines) {
+                            if (line._auto_promo_bonus) continue;
+                            const product = getLineProduct(this, line);
+                            if (!product) continue;
+                            const productTmplId = extractId(product.product_tmpl_id) || extractId(product.id);
+                            const productId = extractId(product.id);
+                            const categId = extractId(product.categ_id);
+
+                            let isMatch = false;
+                            if (promo.apply_on === "all") {
+                                isMatch = true;
+                            } else if (promo.apply_on === "product") {
+                                isMatch = promoProductIds.includes(productTmplId) || promoProductIds.includes(productId);
+                            } else if (promo.apply_on === "category" && categId && promo.category_id) {
+                                if (categId === extractId(promo.category_id)) isMatch = true;
+                            }
+
+                            const currentDisc = line.discount || 0;
+                            if (isMatch && (currentDisc === 0 || line._auto_promo_applied)) {
+                                let discPct = 0;
+                                if (bestTier) {
+                                    if (bestTier.discount_type === "percentage") {
+                                        discPct = bestTier.discount_value || 0;
+                                    } else if (bestTier.discount_type === "fixed" && line.price > 0) {
+                                        discPct = ((bestTier.discount_value || 0) / line.price) * 100;
+                                    } else if (bestTier.discount_type === "special_price" && line.price > bestTier.discount_value) {
+                                        discPct = ((line.price - bestTier.discount_value) / line.price) * 100;
+                                    }
+                                }
+                                if (product.is_near_expiry && product.auto_clearance_promo) {
+                                    const clearanceDisc = product.clearance_discount_percent || 25.0;
+                                    discPct = Math.max(discPct, clearanceDisc);
+                                }
+                                if (discPct > 0 || line._auto_promo_applied) {
+                                    if (typeof line.set_discount === "function") {
+                                        line.set_discount(discPct);
+                                    } else {
+                                        line.discount = discPct;
+                                    }
+                                    line._auto_promo_applied = discPct > 0;
+                                }
+                            }
+                        }
+                    }
                 }
             }
 

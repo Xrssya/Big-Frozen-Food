@@ -4,14 +4,20 @@ from odoo import models, fields, api
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
-    @api.onchange('product_id', 'product_uom_qty')
+    @api.onchange('product_id', 'product_uom_qty', 'price_unit')
     def _onchange_product_id_apply_promo_discount(self):
         if not self.product_id:
             return
         product_tmpl = self.product_id.product_tmpl_id
         now = fields.Datetime.now()
-        qty = self.product_uom_qty or 1.0
         
+        qty = self.product_uom_qty or 1.0
+        if self.order_id and self.order_id.order_line:
+            other_lines = self.order_id.order_line.filtered(
+                lambda l: l.product_id == self.product_id and l != self._origin and l != self
+            )
+            qty += sum(other_lines.mapped('product_uom_qty'))
+
         # Search active promos
         domain = [
             ('active', '=', True),

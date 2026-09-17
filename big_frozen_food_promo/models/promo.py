@@ -15,7 +15,7 @@ class ProductDiscountPromo(models.Model):
         return [
             'id', 'name', 'code', 'promo_type', 'discount_type', 'discount_value',
             'min_qty_buy', 'free_qty', 'reward_product_id', 'apply_on',
-            'product_ids', 'category_id', 'date_start', 'date_end'
+            'product_ids', 'category_id', 'date_start', 'date_end', 'tier_ids'
         ]
 
     name = fields.Char(string='Nama Diskon / Promo', required=True)
@@ -24,7 +24,8 @@ class ProductDiscountPromo(models.Model):
 
     promo_type = fields.Selection([
         ('discount', 'Diskon Reguler (% / Rp)'),
-        ('buy_x_get_y', 'Beli X Gratis Y')
+        ('buy_x_get_y', 'Beli X Gratis Y'),
+        ('wholesale', 'Harga Spesial Grosir (Bertingkat Qty)')
     ], string='Tipe Promo', default='discount', required=True)
 
     discount_type = fields.Selection([
@@ -50,6 +51,13 @@ class ProductDiscountPromo(models.Model):
         'product.template',
         string='Produk Hadiah / Gratisan',
         help='Kosongkan jika produk gratisan sama dengan produk yang dibeli.'
+    )
+
+    tier_ids = fields.One2many(
+        'product.discount.promo.tier',
+        'promo_id',
+        string='Tingkatan Qty & Diskon Grosir',
+        copy=True
     )
 
     apply_on = fields.Selection([
@@ -134,5 +142,40 @@ class ProductDiscountPromo(models.Model):
                     sets = int(qty // package_size)
                     total_free = sets * free_item
                     return (total_free / qty) * 100.0
+            elif self.promo_type == 'wholesale':
+                matching_tiers = self.tier_ids.filtered(lambda t: qty >= t.min_qty)
+                if matching_tiers:
+                    best_tier = max(matching_tiers, key=lambda t: t.min_qty)
+                    if best_tier.discount_type == 'percentage':
+                        return best_tier.discount_value
+                    elif best_tier.discount_type == 'fixed' and list_price > 0:
+                        return (best_tier.discount_value / list_price) * 100.0
+                    elif best_tier.discount_type == 'special_price' and list_price > best_tier.discount_value:
+                        return ((list_price - best_tier.discount_value) / list_price) * 100.0
         return 0.0
+
+
+class ProductDiscountPromoTier(models.Model):
+    _name = 'product.discount.promo.tier'
+    _inherit = ['pos.load.mixin']
+    _description = 'Tier Harga / Diskon Grosir'
+    _order = 'min_qty asc'
+
+    @api.model
+    def _load_pos_data_domain(self, data):
+        return [('promo_id.active', '=', True)]
+
+    @api.model
+    def _load_pos_data_fields(self, config_id):
+        return ['id', 'promo_id', 'min_qty', 'discount_type', 'discount_value']
+
+    promo_id = fields.Many2one('product.discount.promo', string='Promo', ondelete='cascade', required=True)
+    min_qty = fields.Float(string='Min. Kuantitas (Qty)', default=5.0, required=True, help='Jumlah minimum Qty untuk mengaktifkan tingkat diskon ini.')
+    discount_type = fields.Selection([
+        ('percentage', 'Persentase (%)'),
+        ('fixed', 'Nominal Potongan (Rp)'),
+        ('special_price', 'Harga Spesial Unit (Rp)')
+    ], string='Tipe Diskon/Harga', default='percentage', required=True)
+    discount_value = fields.Float(string='Nilai / Harga Spesial', digits=(16, 0), default=0.0, required=True)
+
 

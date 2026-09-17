@@ -9,8 +9,8 @@
                 <field name="code"/>
                 <field name="name"/>
                 <field name="promo_type"/>
-                <field name="discount_type" invisible="promo_type == 'buy_x_get_y'"/>
-                <field name="discount_value" digits="[16, 0]" invisible="promo_type == 'buy_x_get_y'"/>
+                <field name="discount_type" invisible="promo_type != 'discount'"/>
+                <field name="discount_value" digits="[16, 0]" invisible="promo_type != 'discount'"/>
                 <field name="min_qty_buy" digits="[16, 0]" invisible="promo_type != 'buy_x_get_y'"/>
                 <field name="free_qty" digits="[16, 0]" invisible="promo_type != 'buy_x_get_y'"/>
                 <field name="apply_on"/>
@@ -59,6 +59,15 @@
                         </group>
                     </group>
                     <notebook>
+                        <page string="Tingkatan Qty &amp; Diskon Grosir" invisible="promo_type != 'wholesale'">
+                            <field name="tier_ids">
+                                <list editable="bottom">
+                                    <field name="min_qty"/>
+                                    <field name="discount_type"/>
+                                    <field name="discount_value" digits="[16, 0]"/>
+                                </list>
+                            </field>
+                        </page>
                         <page string="Daftar Produk Promo" invisible="apply_on != 'product'">
                             <field name="product_ids" widget="many2many_tags" placeholder="Pilih produk yang mendapatkan diskon..."/>
                         </page>

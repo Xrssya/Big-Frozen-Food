@@ -32,9 +32,19 @@ class ProductTemplate(models.Model):
 
     pcs_per_box = fields.Integer(
         string='Isi per Kardus / Box',
-        default=12,
+        default=10,
         help='Jumlah pack/pcs satuan dalam 1 box atau kardus.'
     )
+
+    @api.onchange('pcs_per_dus')
+    def _onchange_pcs_per_dus(self):
+        if self.pcs_per_dus:
+            self.pcs_per_box = self.pcs_per_dus
+
+    @api.onchange('pcs_per_box')
+    def _onchange_pcs_per_box(self):
+        if self.pcs_per_box:
+            self.pcs_per_dus = self.pcs_per_box
 
     def format_qty_dus_pack(self, qty):
         self.ensure_one()
