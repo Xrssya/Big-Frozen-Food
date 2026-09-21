@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, tools
+from odoo.tools import sql
 
 class BffWasteRatioReport(models.Model):
     _name = 'bff.waste.ratio.report'
@@ -16,6 +17,8 @@ class BffWasteRatioReport(models.Model):
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
+        if not sql.table_exists(self.env.cr, 'bff_spoilage_log'):
+            return
         self.env.cr.execute("""
             CREATE OR REPLACE VIEW %s AS (
                 WITH sales_data AS (

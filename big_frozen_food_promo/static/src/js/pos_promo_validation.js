@@ -79,6 +79,18 @@ function getAllRecords(model) {
     return [];
 }
 
+function getModels(entity) {
+    if (!entity) return null;
+    if (entity.models) return entity.models;
+    if (entity.data && entity.data.models) return entity.data.models;
+    const pos = getPosInstance(entity);
+    if (pos) {
+        if (pos.models) return pos.models;
+        if (pos.data && pos.data.models) return pos.data.models;
+    }
+    return null;
+}
+
 function getLineProduct(pos, line) {
     if (!line) return null;
     let prod = line.product_id;
@@ -89,9 +101,9 @@ function getLineProduct(pos, line) {
     }
     if (typeof prod === "number" || typeof prod === "string") {
         const prodId = extractId(prod);
-        const pInstance = pos || getPosInstance(line);
-        if (pInstance && pInstance.models && pInstance.models["product.product"]) {
-            const productModel = pInstance.models["product.product"];
+        const models = getModels(pos || line);
+        if (models && models["product.product"]) {
+            const productModel = models["product.product"];
             if (typeof productModel.get === "function") {
                 const found = productModel.get(prodId);
                 if (found) return found;
@@ -105,12 +117,9 @@ function getLineProduct(pos, line) {
 }
 
 function getPromoModel(posOrOrder) {
-    const pos = getPosInstance(posOrOrder);
-    if (pos && pos.models && pos.models["product.discount.promo"]) {
-        return pos.models["product.discount.promo"];
-    }
-    if (posOrOrder && posOrOrder.models && posOrOrder.models["product.discount.promo"]) {
-        return posOrOrder.models["product.discount.promo"];
+    const models = getModels(posOrOrder);
+    if (models && models["product.discount.promo"]) {
+        return models["product.discount.promo"];
     }
     return null;
 }
@@ -156,9 +165,9 @@ function isLineTrigger(pos, line, promo, promoProductIds) {
 
 /** Cari produk di katalog POS berdasarkan product.template ID atau product.product ID */
 function findProductByTmplId(pos, tmplId) {
-    const pInstance = getPosInstance(pos);
-    if (!tmplId || !pInstance || !pInstance.models) return null;
-    const productModel = pInstance.models["product.product"];
+    const models = getModels(pos);
+    if (!tmplId || !models) return null;
+    const productModel = models["product.product"];
     if (!productModel) return null;
     const products = getAllRecords(productModel);
 
@@ -196,12 +205,22 @@ patch(PosStore.prototype, {
 
     async addLineToOrder(vals, order, opts = {}, configure = true) {
         currentPosStore = this;
-        const res = await super.addLineToOrder(...arguments);
+        let res;
+        try {
+            res = await super.addLineToOrder(...arguments);
+        } catch (e) {
+            console.error("[BFF PROMO] super.addLineToOrder error:", e);
+            throw e;
+        }
         const targetOrder = order || this.get_order();
         if (targetOrder) {
-            this.recomputePromoDiscounts(targetOrder);
-            if (!this._isAddingPromoBonus) {
-                await this._applyPromoBonus(targetOrder);
+            try {
+                this.recomputePromoDiscounts(targetOrder);
+                if (!this._isAddingPromoBonus) {
+                    await this._applyPromoBonus(targetOrder);
+                }
+            } catch (err) {
+                console.error("[BFF PROMO] Error in promo discount recompute:", err);
             }
         }
         return res;
@@ -209,12 +228,22 @@ patch(PosStore.prototype, {
 
     async addLineToCurrentOrder(vals, opts = {}, configure = true) {
         currentPosStore = this;
-        const res = super.addLineToCurrentOrder ? await super.addLineToCurrentOrder(...arguments) : undefined;
+        let res;
+        try {
+            res = super.addLineToCurrentOrder ? await super.addLineToCurrentOrder(...arguments) : undefined;
+        } catch (e) {
+            console.error("[BFF PROMO] super.addLineToCurrentOrder error:", e);
+            throw e;
+        }
         const currentOrder = this.get_order();
         if (currentOrder) {
-            this.recomputePromoDiscounts(currentOrder);
-            if (!this._isAddingPromoBonus) {
-                await this._applyPromoBonus(currentOrder);
+            try {
+                this.recomputePromoDiscounts(currentOrder);
+                if (!this._isAddingPromoBonus) {
+                    await this._applyPromoBonus(currentOrder);
+                }
+            } catch (err) {
+                console.error("[BFF PROMO] Error in promo discount recompute:", err);
             }
         }
         return res;
@@ -411,10 +440,8 @@ patch(PosStore.prototype, {
             return;
         }
 
-        const addFn = this.addLineToOrder || this.addLineToCurrentOrder;
-        if (typeof addFn === "function") {
-            await addFn.call(
-                this,
+        if (typeof this.addLineToOrder === "function") {
+            await this.addLineToOrder(
                 {
                     product_id: rewardProduct,
                     qty: bonusQtyNeeded,

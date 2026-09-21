@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View Khusus Penagihan Cicilan -->
+    <record id="view_account_move_cicilan_tree" model="ir.ui.view">
+        <field name="name">account.move.cicilan.list</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <list string="Penagihan Cicilan Pelanggan" create="false" delete="false"
+                  decoration-danger="installment_status == 'overdue'"
+                  decoration-warning="installment_status == 'ongoing'"
+                  decoration-success="installment_status == 'paid'">
+                <field name="currency_id" column_invisible="True"/>
+                <field name="name" string="No. Faktur"/>
+                <field name="partner_id" string="Pelanggan"/>
+                <field name="installment_pos_order_id" string="Order POS"/>
+                <field name="invoice_date" string="Tanggal Transaksi"/>
+                <field name="invoice_date_due" string="Tanggal Jatuh Tempo" class="fw-bold"/>
+                <field name="amount_total" string="Total Tagihan" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="amount_paid" string="Sudah Dibayar (DP)" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="amount_residual" string="Sisa Cicilan" widget="monetary" options="{'currency_field': 'currency_id'}" class="fw-bold"/>
+                <field name="installment_status" widget="badge"
+                       decoration-danger="installment_status == 'overdue'"
+                       decoration-warning="installment_status == 'ongoing'"
+                       decoration-success="installment_status == 'paid'"
+                       decoration-muted="installment_status == 'draft'"/>
+                <button name="action_register_installment_payment" type="object" string="Bayar Cicilan" class="btn-primary btn-sm" invisible="installment_status == 'paid'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View untuk Penagihan Cicilan -->
+    <record id="view_account_move_cicilan_search" model="ir.ui.view">
+        <field name="name">account.move.cicilan.search</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <search string="Cari Penagihan Cicilan">
+                <field name="name" string="Faktur / Ref"/>
+                <field name="partner_id" string="Pelanggan"/>
+                <field name="installment_pos_order_id" string="Order POS"/>
+                <filter string="Masih Nyicil" name="ongoing" domain="[('installment_status', 'in', ('ongoing', 'overdue'))]"/>
+                <filter string="⚠️ Sudah Jatuh Tempo / Terlambat" name="overdue" domain="[('installment_status', '=', 'overdue')]"/>
+                <filter string="Lunas" name="paid" domain="[('installment_status', '=', 'paid')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Pelanggan" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Status Cicilan" name="group_status" context="{'group_by': 'installment_status'}"/>
+                    <filter string="Bulan Jatuh Tempo" name="group_due_month" context="{'group_by': 'invoice_date_due:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Inherit Form View Faktur (account.move) -->
+    <record id="view_move_form_inherit_cicilan" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.cicilan</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_register_installment_payment" type="object" string="Bayar Cicilan" class="btn-primary" invisible="not is_installment or installment_status == 'paid'"/>
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-danger text-center mb-2" role="alert" invisible="not is_installment or installment_status != 'overdue'">
+                    <strong>⚠️ TERTUNGGAK / JATUH TEMPO:</strong> Faktur cicilan ini telah MELEWATI batas waktu pelunasan!
+                    <strong>Sisa Tagihan: <field name="amount_residual" readonly="1" widget="monetary"/></strong>
+                </div>
+                <div class="alert alert-warning text-center mb-2" role="alert" invisible="not is_installment or installment_status != 'ongoing'">
+                    <strong>📌 Transaksi Cicilan POS:</strong> Faktur ini adalah pembayaran bertahap dari POS.
+                    <strong>Sisa Cicilan yang Belum Dibayar: <field name="amount_residual" readonly="1" widget="monetary"/></strong>
+                </div>
+                <div class="alert alert-success text-center mb-2" role="alert" invisible="not is_installment or installment_status != 'paid'">
+                    <strong>✅ Cicilan Lunas:</strong> Seluruh tagihan transaksi cicilan POS ini telah LUNAS.
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='ref']" position="after">
+                <field name="is_installment" readonly="1" invisible="not is_installment"/>
+                <field name="installment_pos_order_id" readonly="1" invisible="not is_installment"/>
+                <field name="installment_status" readonly="1" invisible="not is_installment" widget="badge"
+                       decoration-danger="installment_status == 'overdue'"
+                       decoration-warning="installment_status == 'ongoing'"
+                       decoration-success="installment_status == 'paid'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action Window Penagihan Cicilan -->
+    <record id="action_account_move_cicilan" model="ir.actions.act_window">
+        <field name="name">Penagihan Cicilan Pelanggan</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_installment', '=', True), ('move_type', '=', 'out_invoice')]</field>
+        <field name="search_view_id" ref="view_account_move_cicilan_search"/>
+        <field name="context">{'search_default_ongoing': 1, 'default_move_type': 'out_invoice'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada tagihan cicilan pelanggan.
+            </p>
+            <p>
+                Semua transaksi POS yang menggunakan metode pembayaran "Cicilan" akan otomatis muncul di halaman ini beserta Tanggal Jatuh Tempo untuk dipantau dan dilunasi secara bertahap.
+            </p>
+        </field>
+    </record>
+
+    <!-- Specify View Order for Action Window -->
+    <record id="action_account_move_cicilan_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_account_move_cicilan_tree"/>
+        <field name="act_window_id" ref="action_account_move_cicilan"/>
+    </record>
+
+    <record id="action_account_move_cicilan_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account.view_move_form"/>
+        <field name="act_window_id" ref="action_account_move_cicilan"/>
+    </record>
+
+    <!-- Menu Item under Penagihan / Invoicing -->
+    <menuitem id="menu_account_move_cicilan"
+              name="Penagihan Cicilan"
+              parent="account.menu_finance_receivables"
+              action="action_account_move_cicilan"
+              sequence="15"/>
+</odoo>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="bff_pos_cicilan.CicilanDueDatePopup">
+        <Dialog title="props.title">
+            <div class="bff-cicilan-popup-body p-3">
+                <p class="text-muted mb-3 fs-6">
+                    Pilih jangka waktu pelunasan atau tentukan tanggal jatuh tempo secara manual untuk transaksi cicilan ini:
+                </p>
+
+                <!-- Preset Buttons -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold mb-2">Pilihan Cepat (Jangka Waktu):</label>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="button"
+                                class="btn btn-outline-primary flex-fill py-2 fw-semibold"
+                                t-att-class="state.activePreset == 7 ? 'active bg-primary text-white' : ''"
+                                t-on-click="() => this.selectPreset(7)">
+                            ⚡ 7 Hari (1 Wk)
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-primary flex-fill py-2 fw-semibold"
+                                t-att-class="state.activePreset == 14 ? 'active bg-primary text-white' : ''"
+                                t-on-click="() => this.selectPreset(14)">
+                            ⚡ 14 Hari (2 Wk)
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-primary flex-fill py-2 fw-semibold"
+                                t-att-class="state.activePreset == 30 ? 'active bg-primary text-white' : ''"
+                                t-on-click="() => this.selectPreset(30)">
+                            📅 30 Hari (1 Bln)
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-primary flex-fill py-2 fw-semibold"
+                                t-att-class="state.activePreset == 60 ? 'active bg-primary text-white' : ''"
+                                t-on-click="() => this.selectPreset(60)">
+                            📅 60 Hari (2 Bln)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom Date Input -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Atau Tentukan Tanggal Manual (dd/mm/yyyy):</label>
+                    <div class="input-group input-group-lg">
+                        <input type="text"
+                               class="form-control"
+                               placeholder="dd/mm/yyyy"
+                               t-att-value="formattedInputDate"
+                               t-on-change="(ev) => this.onTextDateInput(ev)"/>
+                        <button class="btn btn-outline-secondary position-relative overflow-hidden" type="button" title="Pilih Tanggal Kalender">
+                            📅
+                            <input type="date"
+                                   class="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer"
+                                   t-att-value="state.selectedDate"
+                                   t-att-min="_today()"
+                                   t-on-change="(ev) => this.onDateInput(ev)"/>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Date Preview Banner -->
+                <div class="alert alert-info text-center m-0 py-2 fw-bold">
+                    📌 Jatuh Tempo (dd/mm/yyyy): <span class="fs-5 text-primary ms-1" t-esc="formattedTargetDate"/>
+                </div>
+            </div>
+
+            <t t-slot="footer">
+                <button class="btn btn-primary px-4 fw-bold" t-on-click="confirm">
+                    <t t-esc="props.confirmLabel"/>
+                </button>
+                <button class="btn btn-secondary px-3" t-on-click="props.close">
+                    Batal
+                </button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

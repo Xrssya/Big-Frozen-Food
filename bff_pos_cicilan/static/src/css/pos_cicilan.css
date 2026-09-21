@@ -1,0 +1,25 @@
+/* Custom Styling for POS Cicilan Due Date Badge & Popup */
+.bff-cicilan-due-badge {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    border: 1px solid #90caf9;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bff-cicilan-due-badge:hover {
+    background-color: #bbdefb;
+    border-color: #64b5f6;
+    transform: translateY(-1px);
+}
+
+.bff-cicilan-popup-body {
+    min-width: 320px;
+}

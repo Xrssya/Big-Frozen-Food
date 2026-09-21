@@ -191,7 +191,7 @@ class ProductProduct(models.Model):
     @api.model
     def _load_pos_data_fields(self, config_id):
         fields_list = super()._load_pos_data_fields(config_id)
-        for field_name in ['qty_available', 'min_stock_alert_qty', 'min_stock_reserve_qty', 'is_low_stock', 'stock_status', 'allow_negative_stock', 'pcs_per_dus', 'pcs_per_box']:
+        for field_name in ['is_storable', 'qty_available', 'min_stock_alert_qty', 'min_stock_reserve_qty', 'is_low_stock', 'stock_status', 'allow_negative_stock', 'pcs_per_dus', 'pcs_per_box']:
             if field_name not in fields_list:
                 fields_list.append(field_name)
         return fields_list
