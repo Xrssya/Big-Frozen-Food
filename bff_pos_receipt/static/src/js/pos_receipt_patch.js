@@ -130,8 +130,8 @@ patch(PosOrder.prototype, {
                 total_discount_num += discount_amount_num;
             }
 
-            // Dus / Pack calculation for wholesale/receipt
-            const pcs_per_dus = orig?.product_id?.pcs_per_dus || line.product_id?.pcs_per_dus || 10;
+            // Dus / Pack calculation for wholesale/receipt (HANYA jika ada Dus > 0)
+            const pcs_per_dus = orig?.product_id?.pcs_per_dus || orig?.product_id?.pcs_per_box || line.product_id?.pcs_per_dus || line.product_id?.pcs_per_box || 10;
             const rawQtyInt = Math.round(rawQty);
             let dus_pack_str = "";
             if (pcs_per_dus > 0 && rawQtyInt > 0) {
@@ -141,9 +141,8 @@ patch(PosOrder.prototype, {
                     dus_pack_str = `${dus} Dus ${sisa} Pack`;
                 } else if (dus > 0) {
                     dus_pack_str = `${dus} Dus`;
-                } else {
-                    dus_pack_str = `${sisa} Pack`;
                 }
+                // Jika dus == 0, biarkan dus_pack_str kosongi ("") agar tidak redundan "(1 Pack)"
             }
 
             // Legacy string fallback (only if number not available)
@@ -164,11 +163,11 @@ patch(PosOrder.prototype, {
             };
         });
 
-        // Calculate total Dus & Pack summary
+        // Calculate total Dus & Pack summary (HANYA jika ada Dus > 0)
         let order_total_dus = 0;
         let order_total_pack = 0;
         enriched_lines.forEach(l => {
-            const pcs_per_dus = l.pcs_per_dus || 10;
+            const pcs_per_dus = l.pcs_per_dus || l.pcs_per_box || 10;
             const qty_int = Math.round(parseFloat(l.qty_str || l.qty || 0));
             if (pcs_per_dus > 0) {
                 order_total_dus += Math.floor(qty_int / pcs_per_dus);
@@ -182,9 +181,8 @@ patch(PosOrder.prototype, {
             total_dus_pack_summary = `${order_total_dus} Dus ${order_total_pack} Pack`;
         } else if (order_total_dus > 0) {
             total_dus_pack_summary = `${order_total_dus} Dus`;
-        } else if (order_total_pack > 0) {
-            total_dus_pack_summary = `${order_total_pack} Pack`;
         }
+        // Jika order_total_dus == 0, biarkan kosong agar tidak redundan "18 Pack (18 Pack)"
 
         // ─── Safe numbers for totals ─────────────────────────────────
         const amount_total_num = typeof result.amount_total === "number"

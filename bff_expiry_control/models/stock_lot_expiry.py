@@ -40,6 +40,17 @@ class StockLot(models.Model):
             else:
                 lot.expiry_status = 'safe'
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('ref') and vals.get('product_id'):
+                prod = self.env['product.product'].browse(vals['product_id'])
+                if prod:
+                    sku = prod.default_code or (prod.product_tmpl_id and prod.product_tmpl_id.default_code)
+                    if sku:
+                        vals['ref'] = sku
+        return super().create(vals_list)
+
     @api.model
     def get_fefo_lot_recommendation(self, product_id, location_id=False):
         """Returns the recommended FEFO lot for a given product based on earliest expiration_date"""

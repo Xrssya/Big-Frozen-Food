@@ -9,5 +9,7 @@ class PosSession(models.Model):
         data_models = super()._load_pos_data_models(config_id)
         if 'product.discount.promo' not in data_models:
             data_models.append('product.discount.promo')
+        if 'product.discount.promo.tier' not in data_models:
+            data_models.append('product.discount.promo.tier')
         return data_models
 

@@ -21,6 +21,7 @@
                     <group string="Status Kadaluarsa Terdekat">
                         <group>
                             <field name="earliest_expiry_date" readonly="0"/>
+                            <field name="earliest_lot_id" readonly="1"/>
                             <field name="days_to_expiry" readonly="1"/>
                         </group>
                         <group>

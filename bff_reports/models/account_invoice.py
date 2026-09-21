@@ -34,7 +34,7 @@ class AccountMove(models.Model):
             total_pack = 0
             lines = move.invoice_line_ids.filtered(lambda l: not l.display_type or l.display_type == 'product')
             for line in lines:
-                pcs_per_dus = (line.product_id and line.product_id.pcs_per_dus) or 10
+                pcs_per_dus = (line.product_id and (line.product_id.pcs_per_dus or line.product_id.pcs_per_box)) or 10
                 qty_int = int(round(line.quantity))
                 if pcs_per_dus > 0:
                     total_dus += qty_int // pcs_per_dus

@@ -32,9 +32,53 @@ class ProductTemplate(models.Model):
 
     pcs_per_box = fields.Integer(
         string='Isi per Kardus / Box',
-        default=12,
+        default=10,
         help='Jumlah pack/pcs satuan dalam 1 box atau kardus.'
     )
+
+    description_pickingin = fields.Text(
+        default='Simpan segera di Cold Storage / Freezer (-18°C). Pindai & catat nomor lot/expired date saat barang masuk.'
+    )
+
+    description_pickingout = fields.Text(
+        default='Pastikan pengiriman menggunakan Cool Box / Thermal Bag. Cek tanggal expired (FEFO) dan kondisi kemasan sebelum diserahkan ke kurir/pelanggan.'
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        templates = super().create(vals_list)
+        for tmpl in templates:
+            if not tmpl.packaging_ids:
+                variant = tmpl.product_variant_ids[:1]
+                if variant:
+                    pcs_dus = float(tmpl.pcs_per_dus or tmpl.pcs_per_box or 10)
+                    self.env['product.packaging'].create([
+                        {
+                            'name': 'Dus / Kardus',
+                            'qty': pcs_dus,
+                            'sales': True,
+                            'purchase': True,
+                            'product_id': variant.id,
+                        },
+                        {
+                            'name': 'Slop / Bal',
+                            'qty': 5.0,
+                            'sales': True,
+                            'purchase': False,
+                            'product_id': variant.id,
+                        }
+                    ])
+        return templates
+
+    @api.onchange('pcs_per_dus')
+    def _onchange_pcs_per_dus(self):
+        if self.pcs_per_dus:
+            self.pcs_per_box = self.pcs_per_dus
+
+    @api.onchange('pcs_per_box')
+    def _onchange_pcs_per_box(self):
+        if self.pcs_per_box:
+            self.pcs_per_dus = self.pcs_per_box
 
     def format_qty_dus_pack(self, qty):
         self.ensure_one()
