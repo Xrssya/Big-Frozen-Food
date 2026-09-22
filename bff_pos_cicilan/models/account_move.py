@@ -61,20 +61,26 @@ class AccountMove(models.Model):
             else:
                 move.amount_paid = 0.0
 
+    def action_register_payment(self):
+        self.ensure_one()
+        if self.is_installment and self.installment_status != 'paid':
+            return self.action_register_installment_payment()
+        return super(AccountMove, self).action_register_payment()
+
     def action_register_installment_payment(self):
         """
-        Action tombol 'Bayar Cicilan' untuk membuka wizard pembayaran angsuran.
+        Action tombol untuk membuka wizard khusus angsuran cicilan bertahap.
         """
         self.ensure_one()
         return {
-            'name': 'Bayar Angsuran / Cicilan',
+            'name': 'Bayar Angsuran / Cicilan Bertahap',
             'type': 'ir.actions.act_window',
-            'res_model': 'account.payment.register',
+            'res_model': 'bff.installment.payment.wizard',
             'view_mode': 'form',
             'target': 'new',
             'context': {
                 'active_model': 'account.move',
+                'active_id': self.id,
                 'active_ids': self.ids,
-                'default_amount': self.amount_residual,
             }
         }

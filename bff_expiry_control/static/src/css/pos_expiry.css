@@ -2,7 +2,7 @@
 .pos .product-card .pos-expiry-badge,
 article.product .pos-expiry-badge {
     position: absolute !important;
-    top: 6px !important;
+    top: 32px !important;
     left: 6px !important;
     bottom: auto !important;
     padding: 3px 8px !important;

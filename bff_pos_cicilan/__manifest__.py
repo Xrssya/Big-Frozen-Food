@@ -16,6 +16,8 @@
     'author': 'Big Frozen Food Team',
     'depends': ['point_of_sale', 'account'],
     'data': [
+        'security/ir.model.access.csv',
+        'wizard/bff_installment_payment_wizard_views.xml',
         'views/pos_payment_method_views.xml',
         'views/account_move_cicilan_views.xml',
         'views/res_partner_views.xml',

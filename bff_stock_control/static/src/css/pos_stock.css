@@ -85,44 +85,56 @@ article.product:active {
 }
 
 /* 4. Stock Badges & Admin Buttons Positioning & Micro-interactions */
-.pos-stock-badge-wrapper {
-    z-index: 20 !important;
-    top: 6px !important;
-    right: 6px !important;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
 
-.product-card:hover .pos-stock-badge-wrapper,
-article.product:hover .pos-stock-badge-wrapper {
-    transform: translateY(-2px) scale(1.04) !important;
+/* Hide native / duplicate theme stock badges if any */
+.product-card .qty-tag,
+.product-card .product-qty,
+.product-card [badge]:after {
+    display: none !important;
 }
 
 .pos-stock-badge {
-    padding: 3px 9px !important;
-    border-radius: 14px !important;
+    position: absolute !important;
+    top: 6px !important;
+    left: 6px !important;
+    z-index: 10 !important;
+    padding: 3px 8px !important;
+    border-radius: 12px !important;
     font-size: 11px !important;
     font-weight: 700 !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     letter-spacing: 0.3px !important;
     backdrop-filter: blur(4px) !important;
+    white-space: nowrap !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.product-card:hover .pos-stock-badge,
+article.product:hover .pos-stock-badge {
+    transform: translateY(-1px) scale(1.04) !important;
 }
 
 .pos-add-stock-btn {
+    position: absolute !important;
+    top: 6px !important;
+    right: 6px !important;
+    z-index: 20 !important;
     font-size: 11px !important;
     font-weight: 700 !important;
-    border-radius: 14px !important;
-    padding: 3px 9px !important;
+    border-radius: 12px !important;
+    padding: 3px 8px !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
     transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     border: none !important;
     background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
     color: #ffffff !important;
+    white-space: nowrap !important;
 }
 
 .pos-add-stock-btn:hover {
-    transform: scale(1.12) !important;
+    transform: scale(1.1) !important;
     box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4) !important;
     background: linear-gradient(135deg, #0b5ed7, #0a58ca) !important;
 }

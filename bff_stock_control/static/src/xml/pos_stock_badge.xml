@@ -3,25 +3,29 @@
     <!-- Extension to ProductCard component (compatible with default Odoo & pos_theme_sapphire) -->
     <t t-name="bff_stock_control.ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
         <xpath expr="//*[contains(@class, 'product-card') or self::article]" position="inside">
-            <t t-if="props.product &amp;&amp; this.isAdmin">
+            <t t-if="props.product">
                 <t t-set="stockQty" t-value="this.getProductQty()"/>
                 <t t-set="minAlert" t-value="props.product.min_stock_alert_qty || 10"/>
-                <div class="pos-stock-badge-wrapper position-absolute top-0 end-0 m-1 d-flex align-items-center gap-1 z-3">
-                    <div class="pos-stock-badge shadow-sm"
-                         t-att-class="{
-                            'pos-stock-danger': stockQty &lt;= 0,
-                            'pos-stock-warning': stockQty &gt; 0 &amp;&amp; stockQty &lt;= minAlert,
-                            'pos-stock-safe': stockQty &gt; minAlert
-                         }">
-                        <i class="fa fa-cubes me-1"/>
-                        Stok: <t t-esc="stockQty &lt;= 0 ? 0 : Math.floor(stockQty)"/>
-                    </div>
+                
+                <!-- Stock Badge (Top-Left) -->
+                <div class="pos-stock-badge shadow-sm"
+                     t-att-class="{
+                        'pos-stock-danger': stockQty &lt;= 0,
+                        'pos-stock-warning': stockQty &gt; 0 &amp;&amp; stockQty &lt;= minAlert,
+                        'pos-stock-safe': stockQty &gt; minAlert
+                     }">
+                    <i class="fa fa-cubes me-1"/>
+                    Stok: <t t-esc="stockQty &lt;= 0 ? 0 : Math.floor(stockQty)"/>
+                </div>
+
+                <!-- Quick Edit Admin Button (Top-Right) -->
+                <t t-if="this.isAdmin">
                     <button class="pos-add-stock-btn btn btn-sm btn-primary shadow-sm"
                             t-on-click.stop="onAddStockClick"
                             title="Edit Stok &amp; Harga Produk (Admin)">
                         <i class="fa fa-pencil me-1"/>Edit
                     </button>
-                </div>
+                </t>
             </t>
         </xpath>
     </t>

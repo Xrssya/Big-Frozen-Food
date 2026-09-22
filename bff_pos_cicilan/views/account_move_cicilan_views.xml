@@ -55,6 +55,15 @@
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
+            <!-- Hide standard Odoo payment buttons on installment invoices -->
+            <xpath expr="//button[@id='account_invoice_payment_btn']" position="attributes">
+                <attribute name="invisible">is_installment or state != 'posted' or payment_state not in ('not_paid', 'partial')</attribute>
+            </xpath>
+            <xpath expr="//button[@id='account_invoice_payment_secondary_btn']" position="attributes">
+                <attribute name="invisible">is_installment or state != 'posted' or payment_state not in ('not_paid', 'partial')</attribute>
+            </xpath>
+
+            <!-- Show single 'Bayar Cicilan' button specifically for installment invoices -->
             <xpath expr="//header" position="inside">
                 <button name="action_register_installment_payment" type="object" string="Bayar Cicilan" class="btn-primary" invisible="not is_installment or installment_status == 'paid'"/>
             </xpath>

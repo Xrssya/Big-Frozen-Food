@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_bff_installment_payment_wizard_form" model="ir.ui.view">
+        <field name="name">bff.installment.payment.wizard.form</field>
+        <field name="model">bff.installment.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="📦 Form Pembayaran Angsuran / Cicilan Bertahap">
+                <field name="currency_id" invisible="1"/>
+                <field name="move_id" invisible="1"/>
+
+                <!-- Header Summary Card -->
+                <div class="card mb-3 border-primary shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-bold fs-6">
+                            <i class="fa fa-calculator me-1"/> Ringkasan Tagihan Cicilan Pelanggan
+                        </span>
+                        <span class="badge bg-light text-primary fw-bold fs-6">
+                            <field name="partner_id" readonly="1"/>
+                        </span>
+                    </div>
+                    <div class="card-body bg-light py-2">
+                        <div class="row text-center g-2">
+                            <div class="col-4 border-end">
+                                <span class="text-muted small d-block">Total Tagihan Awal</span>
+                                <strong class="fs-6 text-dark">
+                                    <field name="amount_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </strong>
+                            </div>
+                            <div class="col-4 border-end">
+                                <span class="text-muted small d-block">Total Sudah Dibayar (DP)</span>
+                                <strong class="fs-6 text-success">
+                                    <field name="amount_paid" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </strong>
+                            </div>
+                            <div class="col-4">
+                                <span class="text-muted small d-block">Sisa Cicilan Belum Dibayar</span>
+                                <strong class="fs-5 text-danger fw-bolder">
+                                    <field name="amount_residual" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </strong>
+                            </div>
+                        </div>
+                        <div class="mt-2 pt-2 border-top text-center text-muted small">
+                            <i class="fa fa-calendar me-1 text-primary"/> Tanggal Jatuh Tempo Pelunasan Akhir: 
+                            <strong class="text-primary"><field name="invoice_date_due"/></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Options for Payment Amount Calculation -->
+                <group string="⚙️ Penentuan Nominal Angsuran Hari Ini">
+                    <field name="payment_type_choice" widget="radio" options="{'horizontal': true}"/>
+                    <field name="percent_preset" widget="radio" options="{'horizontal': true}"
+                           invisible="payment_type_choice != 'percent'"/>
+                    <field name="payment_amount" widget="monetary" options="{'currency_field': 'currency_id'}"
+                           class="fw-bold fs-5 text-primary" readonly="payment_type_choice == 'full'"/>
+                </group>
+
+                <!-- Live Preview Result Alert -->
+                <div class="alert alert-info d-flex align-items-center py-2 px-3 mb-3" role="alert">
+                    <i class="fa fa-info-circle fa-2x me-3 text-info" title="Informasi Sisa Cicilan"/>
+                    <div>
+                        <div class="fw-bold">Estimasi Status Setelah Angsuran Ini Disimpan:</div>
+                        <div>
+                            Sisa Cicilan Berjalan: 
+                            <strong class="text-danger fs-6 me-2">
+                                <field name="new_residual_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </strong>
+                            <t invisible="new_residual_amount &gt; 0">
+                                <span class="badge bg-success">Status Otomatis: LUNAS 🎉</span>
+                            </t>
+                            <t invisible="new_residual_amount &lt;= 0">
+                                <span class="badge bg-warning text-dark">Status Otomatis: MASIH NYICIL 🔄</span>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Payment Journal & Details -->
+                <group string="💳 Pembayaran &amp; Catatan">
+                    <group>
+                        <field name="journal_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="payment_date"/>
+                    </group>
+                    <group>
+                        <field name="memo" placeholder="Contoh: Angsuran Ke-2 dari Pelanggan A"/>
+                    </group>
+                </group>
+
+                <footer>
+                    <button string="Konfirmasi Pembayaran Angsuran"
+                            name="action_confirm_installment_payment"
+                            type="object"
+                            class="btn-primary fw-bold"/>
+                    <button string="Batal" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Installment Wizard -->
+    <record id="action_bff_installment_payment_wizard" model="ir.actions.act_window">
+        <field name="name">Bayar Angsuran / Cicilan Bertahap</field>
+        <field name="res_model">bff.installment.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
