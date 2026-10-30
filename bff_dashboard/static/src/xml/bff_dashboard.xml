@@ -15,6 +15,7 @@
                     <h2 class="fw-bold mb-0">
                         <t t-if="state.mode === 'sales'">Dashboard Penjualan B2B &amp; POS</t>
                         <t t-elif="state.mode === 'pos'">POS Toko Retail</t>
+                        <t t-elif="state.mode === 'installment'">Dashboard Penagihan &amp; Cicilan</t>
                         <t t-elif="state.mode === 'stock'">Dashboard Stok</t>
                         <t t-elif="state.mode === 'purchase'">Dashboard Pembelian</t>
                         <t t-else="">Dashboard</t>
@@ -29,13 +30,24 @@
                         <span class="badge bg-secondary-subtle text-secondary border px-1 font-monospace ms-1" style="font-size:0.65rem;">Ctrl K</span>
                     </button>
 
-                    <!-- Low Stock Alert Header Button (Tampil jika ada stok menipis) -->
+                    <!-- Header Notification Buttons (Notif Jatuh Tempo & Notif Stok Menipis) -->
+                    <t t-if="state.data &amp;&amp; state.data.installment &amp;&amp; state.data.installment.overdue_count &gt; 0">
+                        <t t-if="state.mode === 'all' || state.mode === 'installment'">
+                            <button type="button" class="btn btn-sm btn-outline-danger text-dark fw-medium d-flex align-items-center gap-2 px-3 py-1 rounded-pill shadow-sm" t-on-click="openOverdueModal" title="Lihat Peringatan Tagihan Jatuh Tempo">
+                                <i class="fa fa-exclamation-triangle text-danger blink-icon"/>
+                                <span>Jatuh Tempo</span>
+                                <span class="badge bg-danger text-white rounded-pill ms-1"><t t-out="state.data.installment.overdue_count"/></span>
+                            </button>
+                        </t>
+                    </t>
                     <t t-if="state.data &amp;&amp; state.data.stock &amp;&amp; state.data.stock.low_stock_count &gt; 0">
-                        <button type="button" class="btn btn-sm btn-outline-warning text-dark fw-medium d-flex align-items-center gap-2 px-3 py-1 rounded-pill shadow-sm" t-on-click="openLowStockModal" title="Lihat Peringatan Stok Menipis">
-                            <i class="fa fa-exclamation-triangle text-warning blink-icon"/>
-                            <span>Stok Menipis</span>
-                            <span class="badge bg-danger text-white rounded-pill ms-1"><t t-out="state.data.stock.low_stock_count"/></span>
-                        </button>
+                        <t t-if="state.mode === 'all' || state.mode === 'stock' || state.mode !== 'installment'">
+                            <button type="button" class="btn btn-sm btn-outline-warning text-dark fw-medium d-flex align-items-center gap-2 px-3 py-1 rounded-pill shadow-sm" t-on-click="openLowStockModal" title="Lihat Peringatan Stok Menipis">
+                                <i class="fa fa-exclamation-triangle text-warning blink-icon"/>
+                                <span>Stok Menipis</span>
+                                <span class="badge bg-danger text-white rounded-pill ms-1"><t t-out="state.data.stock.low_stock_count"/></span>
+                            </button>
+                        </t>
                     </t>
 
                     <!-- Mode Pills (Hanya tampil di Dashboard Eksekutif Utama, tersembunyi jika dibuka dari modul spesifik) -->
@@ -44,6 +56,7 @@
                             <button type="button" t-att-class="state.mode === 'all' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('all')">Semua</button>
                             <button type="button" t-att-class="state.mode === 'sales' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('sales')">Penjualan</button>
                             <button type="button" t-att-class="state.mode === 'pos' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('pos')">POS</button>
+                            <button type="button" t-att-class="state.mode === 'installment' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('installment')">Penagihan</button>
                             <button type="button" t-att-class="state.mode === 'stock' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('stock')">Stok</button>
                             <button type="button" t-att-class="state.mode === 'purchase' ? 'btn-pill active' : 'btn-pill'" t-on-click="() => this.changeMode('purchase')">Pembelian</button>
                         </div>
@@ -121,19 +134,14 @@
                 <!-- KPI CARDS -->
                 <div class="row g-3 mb-4">
 
-                    <!-- B2B Sales Revenue Card -->
+                    <!-- 1. B2B Sales Revenue Card -->
                     <t t-if="state.mode === 'all' || state.mode === 'sales'">
-                        <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3 cursor-pointer" t-on-click="openSalesAction">
+                        <div t-att-class="state.mode === 'all' ? 'col-12 col-sm-6 col-md-4 col-xl-2' : 'col-12 col-sm-6 col-md-4 col-xl'">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="openSalesAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Omset Sales B2B</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.sales?.so_revenue)"/>
-                                        <div class="mt-2 d-none">
-                                            <span class="trend-badge trend-badge-up">
-                                                <i class="fa fa-arrow-up me-1"/>Agen &amp; Reseller
-                                            </span>
-                                        </div>
                                     </div>
                                     <div class="icon-box icon-box-sales"><i class="fa fa-line-chart"/></div>
                                 </div>
@@ -141,19 +149,14 @@
                         </div>
                     </t>
 
-                    <!-- Retail POS Revenue Card -->
+                    <!-- 2. Retail POS Revenue Card -->
                     <t t-if="state.mode === 'all' || state.mode === 'sales'">
-                        <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPosAction">
+                        <div t-att-class="state.mode === 'all' ? 'col-12 col-sm-6 col-md-4 col-xl-2' : 'col-12 col-sm-6 col-md-4 col-xl'">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="openPosAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Omset POS Retail</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.sales?.pos_revenue)"/>
-                                        <div class="mt-2 d-none">
-                                            <span class="trend-badge trend-badge-up">
-                                                <i class="fa fa-shopping-bag me-1"/>Kasir Toko
-                                            </span>
-                                        </div>
                                     </div>
                                     <div class="icon-box icon-box-sales"><i class="fa fa-shopping-bag"/></div>
                                 </div>
@@ -163,27 +166,20 @@
 
                     <!-- Dedicated POS Mode KPI Cards -->
                     <t t-if="state.mode === 'pos'">
-                        <!-- POS Card 1: Total POS Omset -->
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPosAction">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="openPosAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total Omset POS Toko</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.pos?.total_revenue)"/>
-                                        <div class="mt-2 d-none">
-                                            <span class="trend-badge trend-badge-up">
-                                                <i class="fa fa-shopping-bag me-1"/>Retail Toko
-                                            </span>
-                                        </div>
                                     </div>
                                     <div class="icon-box icon-box-sales"><i class="fa fa-shopping-bag"/></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- POS Card 2: Total Transaksi -->
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPosAction">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="openPosAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Jumlah Transaksi POS</div>
@@ -191,49 +187,32 @@
                                             <t t-out="state.data?.pos?.orders_count"/>
                                             <small class="fw-normal text-muted fs-6"> Struk</small>
                                         </div>
-                                        <div class="mt-2 d-none">
-                                            <span class="trend-badge trend-badge-neutral">
-                                                <i class="fa fa-ticket me-1"/>Struk Kasir
-                                            </span>
-                                        </div>
                                     </div>
                                     <div class="icon-box icon-box-stock"><i class="fa fa-ticket"/></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- POS Card 3: Rata-Rata Keranjang (Basket Size) -->
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPosAction">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="openPosAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Rata-Rata per Struk</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.pos?.avg_basket_size)"/>
-                                        <div class="mt-2 d-none">
-                                            <span class="trend-badge trend-badge-neutral">
-                                                <i class="fa fa-calculator me-1"/>Basket Size
-                                            </span>
-                                        </div>
                                     </div>
                                     <div class="icon-box icon-box-warning"><i class="fa fa-calculator"/></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- POS Card 4: Sesi Kasir Aktif -->
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPosSessionAction">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="openPosSessionAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Sesi Kasir Aktif</div>
                                         <div class="fw-bold fs-4 text-dark">
                                             <t t-out="state.data?.pos?.active_sessions_count"/>
                                             <small class="fw-normal text-muted fs-6"> Sesi Open</small>
-                                        </div>
-                                        <div class="mt-2 d-none">
-                                            <span class="trend-badge trend-badge-up">
-                                                <i class="fa fa-circle text-success me-1"/>Kasir Buka
-                                            </span>
                                         </div>
                                     </div>
                                     <div class="icon-box icon-box-purchase"><i class="fa fa-user-circle-o"/></div>
@@ -242,18 +221,83 @@
                         </div>
                     </t>
 
+                    <!-- 3. Piutang Card in Mode 'all' -->
+                    <t t-if="state.mode === 'all'">
+                        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="() => this.openInstallmentAction('ongoing')">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total Piutang Aktif</div>
+                                        <div class="fw-bold fs-4 text-warning" t-out="formatCurrency(state.data?.installment?.total_outstanding)"/>
+                                    </div>
+                                    <div class="icon-box icon-box-warning"><i class="fa fa-credit-card"/></div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Dedicated Installment / Penagihan Mode Cards -->
+                    <t t-if="state.mode === 'installment'">
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="() => this.openInstallmentAction('ongoing')">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total Piutang Aktif</div>
+                                        <div class="fw-bold fs-4 text-warning" t-out="formatCurrency(state.data?.installment?.total_outstanding)"/>
+                                    </div>
+                                    <div class="icon-box icon-box-warning"><i class="fa fa-credit-card"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="() => this.openInstallmentAction('overdue')">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Piutang Jatuh Tempo</div>
+                                        <div class="fw-bold fs-4 text-danger" t-out="formatCurrency(state.data?.installment?.total_overdue)"/>
+                                    </div>
+                                    <div class="icon-box icon-box-expiry"><i class="fa fa-exclamation-triangle"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="() => this.openInstallmentAction('paid')">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Angsuran Terkumpul</div>
+                                        <div class="fw-bold fs-4 text-success" t-out="formatCurrency(state.data?.installment?.collected_this_month)"/>
+                                    </div>
+                                    <div class="icon-box icon-box-stock"><i class="fa fa-check-circle"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="() => this.openInstallmentAction('overdue')">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Pelanggan Menunggak</div>
+                                        <div class="fw-bold fs-4 text-danger">
+                                            <t t-out="state.data?.installment?.overdue_customers_count || 0"/>
+                                            <small class="fw-normal text-muted fs-6"> Orang</small>
+                                        </div>
+                                    </div>
+                                    <div class="icon-box icon-box-expiry"><i class="fa fa-users"/></div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- 4. Nilai Stok Fisik Card -->
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
-                        <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3 cursor-pointer" t-on-click="openStockValueAction">
+                        <div t-att-class="state.mode === 'all' ? 'col-12 col-sm-6 col-md-4 col-xl-2' : 'col-12 col-sm-6 col-md-4 col-xl'">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="openStockValueAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Nilai Stok Fisik</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.stock?.total_valuation)"/>
-                                        <div class="mt-2 d-none">
-                                            <span class="trend-badge trend-badge-neutral">
-                                                <i class="fa fa-database me-1"/>Cold-Chain
-                                            </span>
-                                        </div>
                                     </div>
                                     <div class="icon-box icon-box-stock"><i class="fa fa-cubes"/></div>
                                 </div>
@@ -261,20 +305,16 @@
                         </div>
                     </t>
 
+                    <!-- 5. Stok Menipis Card -->
                     <t t-if="state.mode === 'all' || state.mode === 'stock'">
-                        <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3 cursor-pointer" t-on-click="openLowStockAction">
+                        <div t-att-class="state.mode === 'all' ? 'col-12 col-sm-6 col-md-4 col-xl-2' : 'col-12 col-sm-6 col-md-4 col-xl'">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="openLowStockAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Stok Menipis</div>
                                         <div class="fw-bold fs-4 text-dark">
                                             <t t-out="state.data?.stock?.low_stock_count"/>
                                             <small class="fw-normal text-muted fs-6"> Item</small>
-                                        </div>
-                                        <div class="mt-2 d-none">
-                                            <span class="trend-badge trend-badge-warn">
-                                                <i class="fa fa-warning me-1"/>Reorder Alert
-                                            </span>
                                         </div>
                                     </div>
                                     <div class="icon-box icon-box-warning"><i class="fa fa-exclamation-triangle"/></div>
@@ -283,20 +323,16 @@
                         </div>
                     </t>
 
-                    <t t-if="state.mode === 'all' || state.mode === 'stock'">
+                    <!-- Dedicated Stock Mode Card: Near-Expiry -->
+                    <t t-if="state.mode === 'stock'">
                         <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3 cursor-pointer" t-on-click="openExpiryAction">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="openExpiryAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Near-Expiry</div>
                                         <div class="fw-bold fs-4 text-dark">
                                             <t t-out="state.data?.stock?.near_expiry_count"/>
                                             <small class="fw-normal text-muted fs-6"> Lot</small>
-                                        </div>
-                                        <div class="mt-2 d-none">
-                                            <span class="trend-badge trend-badge-warn">
-                                                <i class="fa fa-clock-o me-1"/>FEFO H-30
-                                            </span>
                                         </div>
                                     </div>
                                     <div class="icon-box icon-box-expiry"><i class="fa fa-calendar-times-o"/></div>
@@ -305,18 +341,14 @@
                         </div>
                     </t>
 
+                    <!-- 6. Belanja Supplier Card -->
                     <t t-if="state.mode === 'all' || state.mode === 'purchase'">
-                        <div class="col-12 col-sm-6 col-md-4 col-xl">
-                            <div class="bff-card p-3 cursor-pointer" t-on-click="openPurchaseAction">
+                        <div t-att-class="state.mode === 'all' ? 'col-12 col-sm-6 col-md-4 col-xl-2' : 'col-12 col-sm-6 col-md-4 col-xl'">
+                            <div class="bff-card p-3 cursor-pointer h-100" t-on-click="openPurchaseAction">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Belanja Supplier</div>
                                         <div class="fw-bold fs-4 text-dark" t-out="formatCurrency(state.data?.purchase?.monthly_total)"/>
-                                        <div class="mt-2 d-none">
-                                            <span class="trend-badge trend-badge-neutral">
-                                                <i class="fa fa-truck me-1"/>PO Supplier
-                                            </span>
-                                        </div>
                                     </div>
                                     <div class="icon-box icon-box-purchase"><i class="fa fa-shopping-cart"/></div>
                                 </div>
@@ -339,11 +371,6 @@
                                         <div>
                                             <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">🔴 Hari Paling Sepi</div>
                                             <div class="fw-bold fs-5 text-danger" t-out="state.popularTimesData.quietest_day.day_name"/>
-                                            <div class="mt-1 d-none">
-                                                <span class="trend-badge trend-badge-warn">
-                                                    Avg <t t-out="state.popularTimesData.quietest_day.avg_orders"/> Trx/Hari
-                                                </span>
-                                            </div>
                                         </div>
                                         <div class="icon-box icon-box-expiry"><i class="fa fa-moon-o"/></div>
                                     </div>
@@ -355,11 +382,6 @@
                                         <div>
                                             <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">🟢 Hari Paling Ramai</div>
                                             <div class="fw-bold fs-5 text-success" t-out="state.popularTimesData.busiest_day.day_name"/>
-                                            <div class="mt-1 d-none">
-                                                <span class="trend-badge trend-badge-up">
-                                                    Avg <t t-out="state.popularTimesData.busiest_day.avg_orders"/> Trx/Hari
-                                                </span>
-                                            </div>
                                         </div>
                                         <div class="icon-box icon-box-stock"><i class="fa fa-sun-o"/></div>
                                     </div>
@@ -371,9 +393,6 @@
                                         <div>
                                             <div class="text-muted mb-1" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">⏰ Jam Puncak</div>
                                             <div class="fw-bold fs-6 text-dark font-monospace" t-out="state.popularTimesData.peak_hours_label"/>
-                                            <div class="mt-1 d-none">
-                                                <span class="trend-badge trend-badge-neutral">WIB</span>
-                                            </div>
                                         </div>
                                         <div class="icon-box icon-box-sales"><i class="fa fa-clock-o"/></div>
                                     </div>
@@ -836,6 +855,103 @@
                     </div>
                 </t>
 
+                <!-- 6. INSTALLMENT / PENAGIHAN ANALYTICS SECTION -->
+                <t t-if="state.mode === 'all' || state.mode === 'installment'">
+                    <div class="row g-4 mb-4">
+                        <!-- Aging Piutang Bar Chart -->
+                        <div class="col-12 col-lg-8">
+                            <div class="bff-card p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold text-dark mb-0">Analisis Umur Piutang</h5>
+                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" t-on-click="() => this.openInstallmentAction('ongoing')">
+                                        Lihat Semua Cicilan <i class="fa fa-arrow-right ms-1"/>
+                                    </button>
+                                </div>
+                                <div style="height: 280px; position: relative;">
+                                    <canvas t-ref="installmentAgingCanvas"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Breakdown Doughnut Chart -->
+                        <div class="col-12 col-lg-4">
+                            <div class="bff-card p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold text-dark mb-0">Status Cicilan</h5>
+                                    <span class="badge text-bg-secondary">Status Total</span>
+                                </div>
+                                <div style="height: 280px; position: relative;">
+                                    <canvas t-ref="installmentStatusCanvas"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <!-- Top 5 Debtors Horizontal Bar Chart -->
+                        <div class="col-12 col-lg-5">
+                            <div class="bff-card p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold text-dark mb-0">Top 5 Pelanggan Piutang Terbesar</h5>
+                                </div>
+                                <div style="height: 300px; position: relative;">
+                                    <canvas t-ref="topDebtorsCanvas"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Urgent Overdue Table Widget -->
+                        <div class="col-12 col-lg-7">
+                            <div class="bff-card p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold text-dark mb-0">⚠️ Tagihan Jatuh Tempo Paling Mendesak</h5>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" t-on-click="() => this.openInstallmentAction('overdue')">
+                                        Lihat Terlambat <i class="fa fa-arrow-right ms-1"/>
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>No. Faktur</th>
+                                                <th>Pelanggan</th>
+                                                <th class="text-center">Jatuh Tempo</th>
+                                                <th class="text-end">Sisa Tagihan (Rp)</th>
+                                                <th class="text-center">Aksi Cepat</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="state.data?.installment?.urgent_overdue_list || []" t-as="item" t-key="item.id">
+                                                <tr class="bff-hover-row">
+                                                    <td class="fw-bold text-primary cursor-pointer" t-on-click="() => this.openInstallmentMoveDetail(item.id)" t-out="item.name"/>
+                                                    <td class="fw-semibold text-dark" t-out="item.partner_name"/>
+                                                    <td class="text-center text-danger fw-medium" style="font-size:0.85rem;">
+                                                        <span t-out="item.invoice_date_due"/>
+                                                        <br/><small class="badge text-bg-danger" style="font-size:0.65rem;"><t t-out="item.days_overdue"/> hari terlambat</small>
+                                                    </td>
+                                                    <td class="text-end fw-bold text-danger" t-out="formatCurrency(item.amount_residual)"/>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-sm btn-success fw-semibold px-2 py-1" style="font-size:0.75rem;" t-on-click="() => this.openInstallmentPaymentWizard(item.id)">
+                                                            <i class="fa fa-money me-1"/>Bayar Angsuran
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <t t-if="!state.data?.installment?.urgent_overdue_list?.length">
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted py-4">
+                                                        <i class="fa fa-check-circle text-success me-1"/> Tidak ada tagihan cicilan yang menunggak! Semua lancar.
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
             </t>
             <t t-else="">
                 <div class="alert alert-warning text-center my-4 p-4 rounded-3 shadow-sm">
@@ -884,49 +1000,108 @@
                 </div>
             </t>
 
-            <!-- LOW STOCK FLOATING TOP-RIGHT TOAST NOTIFICATION -->
-            <t t-if="state.showLowStockModal">
-                <div class="bff-toast-notification shadow-lg border-0 rounded-3">
-                    <div class="bff-toast-header border-bottom py-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="fa fa-exclamation-triangle text-warning fs-6"/>
-                            <strong class="text-dark">Peringatan Stok Menipis</strong>
-                            <span class="badge text-bg-warning text-dark rounded-pill ms-1" style="font-size:0.7rem;" t-if="lowStockCount &gt; 0">
-                                Total <t t-out="lowStockCount"/> Item
-                            </span>
+            <!-- FLOATING TOP-RIGHT TOAST NOTIFICATION CONTAINER -->
+            <div class="bff-toast-container" t-if="state.showLowStockModal || state.showOverdueModal">
+                <!-- OVERDUE INSTALLMENT FLOATING TOAST NOTIFICATION (Critical alert on top) -->
+                <t t-if="state.showOverdueModal">
+                    <div class="bff-toast-notification bff-toast-notification-danger shadow-lg border-0 rounded-3">
+                        <div class="bff-toast-header border-bottom py-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa fa-exclamation-triangle text-danger fs-6 blink-icon"/>
+                                <strong class="text-danger">Peringatan Tagihan Jatuh Tempo</strong>
+                                <span class="badge text-bg-danger rounded-pill ms-1" style="font-size:0.7rem;" t-if="overdueCount &gt; 0">
+                                    Total <t t-out="overdueCount"/> Faktur
+                                </span>
+                            </div>
+                            <button type="button" class="btn-close ms-auto" style="font-size:0.75rem;" t-on-click="closeOverdueModal" title="Tutup"/>
                         </div>
-                        <button type="button" class="btn-close ms-auto" style="font-size:0.75rem;" t-on-click="closeLowStockModal" title="Tutup"/>
-                    </div>
-                    <div class="bff-toast-body py-2">
-                        <div class="text-muted small mb-2">
-                            <t t-if="lowStockCount &gt; 5">
-                                Top 5 produk terkritis dari total <strong><t t-out="lowStockCount"/> produk</strong> di bawah batas minimum:
-                            </t>
-                            <t t-else="">
-                                Produk berikut berada di bawah batas minimum stok:
-                            </t>
+                        <div class="bff-toast-body py-2">
+                            <div class="text-muted small mb-2">
+                                <t t-if="overdueCount &gt; 5">
+                                    Top 5 tagihan paling mendesak dari total <strong><t t-out="overdueCount"/> faktur</strong> yang menunggak:
+                                </t>
+                                <t t-else="">
+                                    Tagihan berikut telah melewati batas waktu jatuh tempo:
+                                </t>
+                            </div>
+                            <ul class="bff-toast-item-list list-unstyled mb-0">
+                                <t t-foreach="modalOverdueItems" t-as="item" t-key="item.id">
+                                    <li class="py-2 border-bottom">
+                                        <div class="d-flex justify-content-between align-items-start mb-1">
+                                            <div class="cursor-pointer" t-on-click="() => this.openInstallmentMoveDetail(item.id)" t-att-title="'Klik untuk lihat detail ' + item.name">
+                                                <span class="fw-bold text-primary" style="font-size:0.85rem;"><t t-out="item.name"/></span>
+                                                <div class="text-dark fw-medium small text-truncate" style="max-width: 170px;"><t t-out="item.partner_name"/></div>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="fw-bold text-danger" style="font-size:0.85rem;"><t t-out="formatCurrency(item.amount_residual)"/></span>
+                                                <div>
+                                                    <span class="badge text-bg-danger" style="font-size:0.65rem;"><t t-out="item.days_overdue"/> hr terlambat</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <small class="text-muted" style="font-size:0.7rem;">Jatuh tempo: <t t-out="item.invoice_date_due"/></small>
+                                            <button type="button" class="btn btn-xs btn-success fw-semibold py-0 px-2" style="font-size:0.7rem;" t-on-click="() => this.openInstallmentPaymentWizard(item.id)" title="Bayar Angsuran">
+                                                <i class="fa fa-money me-1"/>Bayar
+                                            </button>
+                                        </div>
+                                    </li>
+                                </t>
+                            </ul>
                         </div>
-                        <ul class="bff-toast-item-list list-unstyled mb-0">
-                            <t t-foreach="modalLowStockItems" t-as="item" t-key="item.id">
-                                <li class="d-flex justify-content-between align-items-center cursor-pointer py-1" t-on-click="() => this.openProductDetail(item.id)" t-att-title="'Klik untuk lihat detail ' + item.name">
-                                    <span class="text-truncate me-2 text-dark fw-medium" style="max-width: 190px;">
-                                        <t t-out="item.name"/>
-                                    </span>
-                                    <span t-att-class="item.qty_available &lt;= 0 ? 'badge text-bg-danger' : 'badge text-bg-warning text-dark'">
-                                        Sisa <t t-out="item.qty_available"/> <t t-out="item.uom"/>
-                                    </span>
-                                </li>
-                            </t>
-                        </ul>
+                        <div class="bff-toast-footer border-top pt-2">
+                            <button type="button" class="btn btn-link btn-sm text-danger p-0 text-decoration-none fw-semibold d-flex align-items-center justify-content-between w-100" style="font-size:0.78rem;" t-on-click="viewAllOverdueFromModal">
+                                <span>Lihat Semua Tagihan Jatuh Tempo</span>
+                                <i class="fa fa-arrow-right ms-1"/>
+                            </button>
+                        </div>
                     </div>
-                    <div class="bff-toast-footer border-top pt-2">
-                        <button type="button" class="btn btn-link btn-sm text-primary p-0 text-decoration-none fw-semibold d-flex align-items-center justify-content-between w-100" style="font-size:0.78rem;" t-on-click="viewAllLowStockFromModal">
-                            <span>Lihat Semua</span>
-                            <i class="fa fa-arrow-right ms-1"/>
-                        </button>
+                </t>
+
+                <!-- LOW STOCK FLOATING TOAST NOTIFICATION -->
+                <t t-if="state.showLowStockModal">
+                    <div class="bff-toast-notification shadow-lg border-0 rounded-3">
+                        <div class="bff-toast-header border-bottom py-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa fa-exclamation-triangle text-warning fs-6"/>
+                                <strong class="text-dark">Peringatan Stok Menipis</strong>
+                                <span class="badge text-bg-warning text-dark rounded-pill ms-1" style="font-size:0.7rem;" t-if="lowStockCount &gt; 0">
+                                    Total <t t-out="lowStockCount"/> Item
+                                </span>
+                            </div>
+                            <button type="button" class="btn-close ms-auto" style="font-size:0.75rem;" t-on-click="closeLowStockModal" title="Tutup"/>
+                        </div>
+                        <div class="bff-toast-body py-2">
+                            <div class="text-muted small mb-2">
+                                <t t-if="lowStockCount &gt; 5">
+                                    Top 5 produk terkritis dari total <strong><t t-out="lowStockCount"/> produk</strong> di bawah batas minimum:
+                                </t>
+                                <t t-else="">
+                                    Produk berikut berada di bawah batas minimum stok:
+                                </t>
+                            </div>
+                            <ul class="bff-toast-item-list list-unstyled mb-0">
+                                <t t-foreach="modalLowStockItems" t-as="item" t-key="item.id">
+                                    <li class="d-flex justify-content-between align-items-center cursor-pointer py-1" t-on-click="() => this.openProductDetail(item.id)" t-att-title="'Klik untuk lihat detail ' + item.name">
+                                        <span class="text-truncate me-2 text-dark fw-medium" style="max-width: 190px;">
+                                            <t t-out="item.name"/>
+                                        </span>
+                                        <span t-att-class="item.qty_available &lt;= 0 ? 'badge text-bg-danger' : 'badge text-bg-warning text-dark'">
+                                            Sisa <t t-out="item.qty_available"/> <t t-out="item.uom"/>
+                                        </span>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                        <div class="bff-toast-footer border-top pt-2">
+                            <button type="button" class="btn btn-link btn-sm text-primary p-0 text-decoration-none fw-semibold d-flex align-items-center justify-content-between w-100" style="font-size:0.78rem;" t-on-click="viewAllLowStockFromModal">
+                                <span>Lihat Semua</span>
+                                <i class="fa fa-arrow-right ms-1"/>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </t>
+                </t>
+            </div>
         </div>
     </t>
 </templates>

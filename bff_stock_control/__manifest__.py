@@ -15,6 +15,8 @@
     'depends': ['stock', 'point_of_sale', 'sale', 'purchase', 'pos_theme_sapphire'],
     'data': [
         'security/ir.model.access.csv',
+        'data/bff_stock_opname_sequence.xml',
+        'views/bff_stock_opname_views.xml',
         'views/product_views.xml',
         'views/inventory_low_stock_views.xml',
         'views/stock_transfer_request_views.xml',

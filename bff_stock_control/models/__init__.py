@@ -6,3 +6,4 @@ from . import stock_transfer_request
 from . import bff_spoilage_log
 from . import purchase_order
 from . import sale_order
+from . import bff_stock_opname

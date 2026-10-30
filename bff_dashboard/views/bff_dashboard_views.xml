@@ -40,6 +40,14 @@
         <field name="context">{'default_mode': 'pos'}</field>
     </record>
 
+    <!-- 6. Installment & Penagihan Dashboard Client Action -->
+    <record id="action_bff_dashboard_installment" model="ir.actions.client">
+        <field name="name">Dashboard Penagihan</field>
+        <field name="tag">bff_dashboard_installment</field>
+        <field name="target">main</field>
+        <field name="context">{'default_mode': 'installment'}</field>
+    </record>
+
     <!-- 6. Stock Valuation Quant Tree View for Cold-Chain Drilldown -->
     <record id="view_bff_stock_quant_tree" model="ir.ui.view">
         <field name="name">bff.stock.quant.tree</field>
@@ -105,6 +113,13 @@
               name="Dashboard"
               parent="point_of_sale.menu_point_root"
               action="action_bff_dashboard_pos"
+              sequence="-10"/>
+
+    <!-- Dashboard Penagihan & Cicilan in Invoicing Module (account.menu_finance) -->
+    <menuitem id="menu_bff_dashboard_installment_item"
+              name="Dashboard"
+              parent="account.menu_finance"
+              action="action_bff_dashboard_installment"
               sequence="-10"/>
 
     <!-- Ubah Nama Menu Dashboard Default Odoo POS Menjadi 'POS' -->

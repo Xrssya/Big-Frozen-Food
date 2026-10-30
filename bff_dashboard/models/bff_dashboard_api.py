@@ -376,6 +376,127 @@ class BffDashboardApi(models.AbstractModel):
             'uom': p['uom']
         } for p in sorted_pos_prods]
 
+        # ----------------------------------------------------
+        # 5. INSTALLMENT & PENAGIHAN DASHBOARD SPECIFIC DATA
+        # ----------------------------------------------------
+        inst_domain = [('is_installment', '=', True), ('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]
+        if company_domain:
+            inst_domain += company_domain
+
+        all_inst_moves = self.env['account.move'].search(inst_domain)
+
+        total_inst_outstanding = 0.0
+        total_inst_overdue = 0.0
+        ongoing_count = 0
+        overdue_count = 0
+        paid_count = 0
+
+        aging_current = 0.0
+        aging_1_15 = 0.0
+        aging_16_30 = 0.0
+        aging_31_60 = 0.0
+        aging_over_60 = 0.0
+
+        debtors_map = {}
+        overdue_partners = set()
+
+        # Monthly collected calculation (payments on installment moves within the start_date..end_date period)
+        month_start_date = date(today.year, today.month, 1)
+        collected_this_month = 0.0
+
+        for move in all_inst_moves:
+            status = move.installment_status
+            residual = move.amount_residual
+            total = move.amount_total
+            paid = move.amount_paid
+
+            if status == 'paid':
+                paid_count += 1
+            elif status == 'overdue':
+                overdue_count += 1
+                total_inst_outstanding += residual
+                total_inst_overdue += residual
+                overdue_partners.add(move.partner_id.id)
+            else: # ongoing or draft
+                ongoing_count += 1
+                total_inst_outstanding += residual
+
+            # Aging breakdown for unpaid invoices
+            if residual > 0:
+                due_dt = move.invoice_date_due or move.invoice_date or today
+                days_overdue = (today - due_dt).days
+                if days_overdue <= 0:
+                    aging_current += residual
+                elif days_overdue <= 15:
+                    aging_1_15 += residual
+                elif days_overdue <= 30:
+                    aging_16_30 += residual
+                elif days_overdue <= 60:
+                    aging_31_60 += residual
+                else:
+                    aging_over_60 += residual
+
+                # Top Debtors grouping
+                pid = move.partner_id.id
+                pname = move.partner_id.display_name or move.partner_id.name or 'Umum'
+                if pid not in debtors_map:
+                    debtors_map[pid] = {
+                        'partner_id': pid,
+                        'name': pname,
+                        'total_residual': 0.0,
+                        'invoice_count': 0,
+                    }
+                debtors_map[pid]['total_residual'] += residual
+                debtors_map[pid]['invoice_count'] += 1
+
+            # Estimate payments in selected period
+            if move.payment_state in ('paid', 'in_payment', 'partial'):
+                try:
+                    res_partials = move._get_reconciled_invoices_partials()
+                    if res_partials and isinstance(res_partials, tuple):
+                        invoice_partials = res_partials[0]
+                        for item in invoice_partials:
+                            if isinstance(item, tuple) and len(item) >= 3:
+                                partial_rec, p_amount, counterpart_line = item[0], item[1], item[2]
+                                pay_date = counterpart_line.date or (counterpart_line.move_id and counterpart_line.move_id.date)
+                                if pay_date and start_date <= pay_date <= end_date:
+                                    collected_this_month += (p_amount or partial_rec.amount or 0.0)
+                except Exception:
+                    pass
+
+        # Top 5 Debtors list
+        sorted_debtors = sorted(debtors_map.values(), key=lambda x: x['total_residual'], reverse=True)[:5]
+        top_5_debtors = [{
+            'partner_id': d['partner_id'],
+            'name': d['name'],
+            'total_residual': round(d['total_residual'], 2),
+            'invoice_count': d['invoice_count'],
+        } for d in sorted_debtors]
+
+        # Urgent & All Overdue List
+        all_overdue_moves = self.env['account.move'].search([
+            ('is_installment', '=', True),
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('installment_status', '=', 'overdue'),
+        ] + company_domain, order='invoice_date_due asc')
+
+        overdue_list = []
+        for m in all_overdue_moves:
+            due_dt = m.invoice_date_due or today
+            days_overdue = (today - due_dt).days
+            overdue_list.append({
+                'id': m.id,
+                'name': m.name,
+                'partner_id': m.partner_id.id,
+                'partner_name': m.partner_id.display_name or m.partner_id.name or 'Umum',
+                'invoice_date_due': due_dt.strftime('%d/%m/%Y'),
+                'days_overdue': days_overdue,
+                'amount_total': round(m.amount_total, 2),
+                'amount_paid': round(m.amount_paid, 2),
+                'amount_residual': round(m.amount_residual, 2),
+            })
+
         return {
             'period': period,
             'date_from': start_date.strftime('%Y-%m-%d'),
@@ -425,6 +546,25 @@ class BffDashboardApi(models.AbstractModel):
                 'daily_values': daily_pos_values,
                 'monthly_labels': monthly_labels,
                 'monthly_values': monthly_pos_values,
+            },
+            'installment': {
+                'total_outstanding': round(total_inst_outstanding, 2),
+                'total_overdue': round(total_inst_overdue, 2),
+                'collected_this_month': round(collected_this_month, 2),
+                'overdue_customers_count': len(overdue_partners),
+                'ongoing_count': ongoing_count,
+                'overdue_count': overdue_count,
+                'paid_count': paid_count,
+                'aging': {
+                    'current': round(aging_current, 2),
+                    'days_1_15': round(aging_1_15, 2),
+                    'days_16_30': round(aging_16_30, 2),
+                    'days_31_60': round(aging_31_60, 2),
+                    'over_60': round(aging_over_60, 2),
+                },
+                'top_5_debtors': top_5_debtors,
+                'urgent_overdue_list': overdue_list[:5],
+                'overdue_all': overdue_list,
             }
         }
 

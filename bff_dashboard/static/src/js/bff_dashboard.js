@@ -30,6 +30,7 @@ export class BffDashboardComponent extends Component {
                 bff_dashboard_stock: "stock",
                 bff_dashboard_purchase: "purchase",
                 bff_dashboard_pos: "pos",
+                bff_dashboard_installment: "installment",
             };
             if (tagMap[this.props.action.tag]) {
                 defaultMode = tagMap[this.props.action.tag];
@@ -87,6 +88,7 @@ export class BffDashboardComponent extends Component {
             showCommandPalette: false,
             commandQuery: "",
             showLowStockModal: false,
+            showOverdueModal: false,
         });
 
         this.onGlobalKeydown = (ev) => {
@@ -98,6 +100,8 @@ export class BffDashboardComponent extends Component {
                     this.closeCommandPalette();
                 } else if (this.state.showLowStockModal) {
                     this.closeLowStockModal();
+                } else if (this.state.showOverdueModal) {
+                    this.closeOverdueModal();
                 }
             }
         };
@@ -106,11 +110,17 @@ export class BffDashboardComponent extends Component {
         this.channelChartCanvas = useRef("channelChartCanvas");
         this.supplierChartCanvas = useRef("supplierChartCanvas");
         this.popularTimesCanvas = useRef("popularTimesCanvas");
+        this.installmentAgingCanvas = useRef("installmentAgingCanvas");
+        this.installmentStatusCanvas = useRef("installmentStatusCanvas");
+        this.topDebtorsCanvas = useRef("topDebtorsCanvas");
 
         this.salesChartInstance = null;
         this.channelChartInstance = null;
         this.supplierChartInstance = null;
         this.popularTimesChartInstance = null;
+        this.installmentAgingChartInstance = null;
+        this.installmentStatusChartInstance = null;
+        this.topDebtorsChartInstance = null;
 
         this.autoRefreshInterval = null;
 
@@ -180,6 +190,15 @@ export class BffDashboardComponent extends Component {
                 if (!sessionStorage.getItem(sessionAlertKey)) {
                     this.state.showLowStockModal = true;
                     sessionStorage.setItem(sessionAlertKey, "true");
+                }
+            }
+
+            // Trigger Overdue Installment Popup Notification on session launch if in installment mode or overdue invoices exist
+            if (data && data.installment && data.installment.overdue_count > 0 && (this.state.mode === "installment" || this.state.mode === "all")) {
+                const sessionOverdueKey = "bff_overdue_alert_shown";
+                if (!sessionStorage.getItem(sessionOverdueKey)) {
+                    this.state.showOverdueModal = true;
+                    sessionStorage.setItem(sessionOverdueKey, "true");
                 }
             }
         } catch (err) {
@@ -295,7 +314,7 @@ export class BffDashboardComponent extends Component {
     }
 
     destroyCharts() {
-        ["sales", "channel", "supplier", "popularTimes"].forEach((t) => this.destroyChartInstance(t));
+        ["sales", "channel", "supplier", "popularTimes", "installmentAging", "installmentStatus", "topDebtors"].forEach((t) => this.destroyChartInstance(t));
     }
 
     renderCharts() {
@@ -312,6 +331,216 @@ export class BffDashboardComponent extends Component {
         }
         if (mode === "all" || mode === "purchase") {
             this.renderSupplierChart();
+        }
+        if (mode === "all" || mode === "installment") {
+            this.renderInstallmentAgingChart();
+            this.renderInstallmentStatusChart();
+            this.renderTopDebtorsChart();
+        }
+    }
+
+    renderInstallmentAgingChart() {
+        const Chart = this._getChart();
+        if (!Chart) return;
+        const canvas = this.installmentAgingCanvas.el;
+        if (!canvas || !canvas.isConnected || !document.body.contains(canvas)) return;
+
+        if (this.installmentAgingChartInstance) {
+            const c = this.installmentAgingChartInstance.canvas;
+            if (!c || c !== canvas || !c.isConnected || !document.body.contains(c)) {
+                this.destroyChartInstance("installmentAging");
+            }
+        }
+
+        const aging = this.state.data?.installment?.aging || {};
+        const labels = ["Belum Jatuh Tempo", "1 - 15 Hari", "16 - 30 Hari", "31 - 60 Hari", "> 60 Hari"];
+        const values = [aging.current || 0, aging.days_1_15 || 0, aging.days_16_30 || 0, aging.days_31_60 || 0, aging.over_60 || 0];
+        const colors = ["#10b981", "#f59e0b", "#f97316", "#ef4444", "#991b1b"];
+
+        if (this.installmentAgingChartInstance) {
+            try {
+                this.installmentAgingChartInstance.data.datasets[0].data = values;
+                this.installmentAgingChartInstance.update("none");
+                return;
+            } catch (e) {
+                this.destroyChartInstance("installmentAging");
+            }
+        }
+
+        try {
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            this.installmentAgingChartInstance = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Nominal Piutang (Rp)",
+                        data: values,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        barThickness: 28,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => "Piutang: Rp " + (ctx.raw || 0).toLocaleString("id-ID")
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (v) => v >= 1000000 ? "Rp " + (v/1000000).toFixed(1) + " Jt" : "Rp " + v.toLocaleString("id-ID")
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("BFF Dashboard: Failed creating installment aging chart", e);
+            this.installmentAgingChartInstance = null;
+        }
+    }
+
+    renderInstallmentStatusChart() {
+        const Chart = this._getChart();
+        if (!Chart) return;
+        const canvas = this.installmentStatusCanvas.el;
+        if (!canvas || !canvas.isConnected || !document.body.contains(canvas)) return;
+
+        if (this.installmentStatusChartInstance) {
+            const c = this.installmentStatusChartInstance.canvas;
+            if (!c || c !== canvas || !c.isConnected || !document.body.contains(c)) {
+                this.destroyChartInstance("installmentStatus");
+            }
+        }
+
+        const inst = this.state.data?.installment || {};
+        const labels = ["Masih Nyicil", "Sudah Jatuh Tempo", "Lunas"];
+        const values = [inst.ongoing_count || 0, inst.overdue_count || 0, inst.paid_count || 0];
+        const colors = ["#f59e0b", "#ef4444", "#10b981"];
+
+        if (this.installmentStatusChartInstance) {
+            try {
+                this.installmentStatusChartInstance.data.datasets[0].data = values;
+                this.installmentStatusChartInstance.update("none");
+                return;
+            } catch (e) {
+                this.destroyChartInstance("installmentStatus");
+            }
+        }
+
+        try {
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            this.installmentStatusChartInstance = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: "#ffffff",
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.label}: ${ctx.raw || 0} Faktur`
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("BFF Dashboard: Failed creating installment status chart", e);
+            this.installmentStatusChartInstance = null;
+        }
+    }
+
+    renderTopDebtorsChart() {
+        const Chart = this._getChart();
+        if (!Chart) return;
+        const canvas = this.topDebtorsCanvas.el;
+        if (!canvas || !canvas.isConnected || !document.body.contains(canvas)) return;
+
+        if (this.topDebtorsChartInstance) {
+            const c = this.topDebtorsChartInstance.canvas;
+            if (!c || c !== canvas || !c.isConnected || !document.body.contains(c)) {
+                this.destroyChartInstance("topDebtors");
+            }
+        }
+
+        const debtors = this.state.data?.installment?.top_5_debtors || [];
+        const labels = debtors.map(d => d.name);
+        const values = debtors.map(d => d.total_residual);
+
+        if (this.topDebtorsChartInstance) {
+            try {
+                this.topDebtorsChartInstance.data.labels = labels;
+                this.topDebtorsChartInstance.data.datasets[0].data = values;
+                this.topDebtorsChartInstance.update("none");
+                return;
+            } catch (e) {
+                this.destroyChartInstance("topDebtors");
+            }
+        }
+
+        try {
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            this.topDebtorsChartInstance = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        axis: 'y',
+                        label: "Sisa Piutang (Rp)",
+                        data: values,
+                        backgroundColor: "#8b5cf6",
+                        borderRadius: 6,
+                        barThickness: 20,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => "Sisa Tagihan: Rp " + (ctx.raw || 0).toLocaleString("id-ID")
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (v) => v >= 1000000 ? "Rp " + (v/1000000).toFixed(1) + " Jt" : "Rp " + v.toLocaleString("id-ID")
+                            }
+                        },
+                        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("BFF Dashboard: Failed creating top debtors chart", e);
+            this.topDebtorsChartInstance = null;
         }
     }
 
@@ -1072,7 +1301,7 @@ export class BffDashboardComponent extends Component {
     }
 
     openLowStockModal() {
-        this.state.showLowStockModal = true;
+        this.state.showLowStockModal = !this.state.showLowStockModal;
     }
 
     closeLowStockModal() {
@@ -1092,6 +1321,77 @@ export class BffDashboardComponent extends Component {
         return (this.state.data && this.state.data.stock && (this.state.data.stock.low_stock_items || this.state.data.stock.low_stock_all)) || [];
     }
 
+    openOverdueModal() {
+        this.state.showOverdueModal = !this.state.showOverdueModal;
+    }
+
+    closeOverdueModal() {
+        this.state.showOverdueModal = false;
+    }
+
+    viewAllOverdueFromModal() {
+        this.closeOverdueModal();
+        this.openInstallmentAction("overdue");
+    }
+
+    get overdueCount() {
+        return (this.state.data && this.state.data.installment && this.state.data.installment.overdue_count) || 0;
+    }
+
+    get modalOverdueItems() {
+        return (this.state.data && this.state.data.installment && (this.state.data.installment.urgent_overdue_list || this.state.data.installment.overdue_all)) || [];
+    }
+
+    openInstallmentAction(filter = "all") {
+        let domain = [["is_installment", "=", true], ["move_type", "=", "out_invoice"]];
+        let context = { search_default_ongoing: 1, default_move_type: "out_invoice" };
+        if (filter === "overdue") {
+            domain.push(["installment_status", "=", "overdue"]);
+            context = { search_default_overdue: 1, default_move_type: "out_invoice" };
+        } else if (filter === "ongoing") {
+            domain.push(["installment_status", "=", "ongoing"]);
+        } else if (filter === "paid") {
+            domain.push(["installment_status", "=", "paid"]);
+            context = { search_default_paid: 1, default_move_type: "out_invoice" };
+        }
+        this.actionService.doAction({
+            name: "Penagihan Cicilan Pelanggan",
+            type: "ir.actions.act_window",
+            res_model: "account.move",
+            views: [[false, "list"], [false, "form"]],
+            domain: domain,
+            context: context,
+        });
+    }
+
+    openInstallmentMoveDetail(moveId) {
+        if (!moveId) return;
+        this.actionService.doAction({
+            name: "Faktur Cicilan POS",
+            type: "ir.actions.act_window",
+            res_model: "account.move",
+            res_id: moveId,
+            views: [[false, "form"]],
+            target: "current",
+        });
+    }
+
+    openInstallmentPaymentWizard(moveId) {
+        if (!moveId) return;
+        this.actionService.doAction({
+            name: "Bayar Angsuran / Cicilan Bertahap",
+            type: "ir.actions.act_window",
+            res_model: "bff.installment.payment.wizard",
+            views: [[false, "form"]],
+            target: "new",
+            context: {
+                active_model: "account.move",
+                active_id: moveId,
+                active_ids: [moveId],
+            },
+        });
+    }
+
     executeCommand(cmd) {
         this.closeCommandPalette();
         if (cmd && typeof cmd.action === "function") {
@@ -1103,11 +1403,13 @@ export class BffDashboardComponent extends Component {
         return [
             { id: "pos", icon: "fa-shopping-bag", color: "text-primary", title: "Sesi Kasir POS Toko", desc: "Buka halaman transaksi retail kasir", action: () => this.openPosAction() },
             { id: "sales", icon: "fa-line-chart", color: "text-success", title: "Omset Sales B2B", desc: "Lihat laporan order penjualan agen & reseller", action: () => this.openSalesAction() },
+            { id: "installment", icon: "fa-credit-card", color: "text-warning", title: "Dashboard Penagihan & Cicilan", desc: "Pantau piutang pelanggan & angsuran POS", action: () => this.openInstallmentAction() },
             { id: "low_stock", icon: "fa-exclamation-triangle", color: "text-warning", title: "Cek Stok Menipis & Reorder Alert", desc: "Daftar produk di bawah batas minimum stok", action: () => this.openLowStockAction() },
             { id: "expiry", icon: "fa-calendar-times-o", color: "text-danger", title: "Kontrol FEFO Near-Expiry", desc: "Daftar lot produk mendekati tanggal kadaluarsa", action: () => this.openExpiryAction() },
             { id: "purchase", icon: "fa-truck", color: "text-info", title: "Order Pembelian (PO) Supplier", desc: "Kelola order pembelian ke vendor supplier", action: () => this.openPurchaseAction() },
             { id: "mode_all", icon: "fa-dashboard", color: "text-secondary", title: "Tampilan Dashboard Utama (Semua)", desc: "Ringkasan lengkap performa bisnis", action: () => this.changeMode('all') },
             { id: "mode_pos", icon: "fa-shopping-cart", color: "text-primary", title: "Filter Dashboard Penjualan POS", desc: "Analisis transaksi toko retail", action: () => this.changeMode('pos') },
+            { id: "mode_installment", icon: "fa-credit-card", color: "text-warning", title: "Filter Dashboard Penagihan", desc: "Analisis umur piutang & kelancaran cicilan", action: () => this.changeMode('installment') },
             { id: "mode_stock", icon: "fa-cubes", color: "text-success", title: "Filter Dashboard Pergudangan & Stok", desc: "Analisis stok fisik & nilai persediaan", action: () => this.changeMode('stock') },
         ];
     }
@@ -1127,3 +1429,5 @@ registry.category("actions").add("bff_dashboard_sales", BffDashboardComponent);
 registry.category("actions").add("bff_dashboard_stock", BffDashboardComponent);
 registry.category("actions").add("bff_dashboard_purchase", BffDashboardComponent);
 registry.category("actions").add("bff_dashboard_pos", BffDashboardComponent);
+registry.category("actions").add("bff_dashboard_installment", BffDashboardComponent);
+

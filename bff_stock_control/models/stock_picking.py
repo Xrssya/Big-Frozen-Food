@@ -35,7 +35,29 @@ class StockPicking(models.Model):
                                 int(min_reserve)
                             ))
 
-        return super().button_validate()
+        res = super().button_validate()
+        for picking in self:
+            reqs = self.env['stock.transfer.request'].search([
+                '|',
+                ('out_picking_id', '=', picking.id),
+                ('in_picking_id', '=', picking.id)
+            ])
+            if reqs:
+                reqs._sync_transfer_request_state()
+        return res
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'state' in vals:
+            for picking in self:
+                reqs = self.env['stock.transfer.request'].search([
+                    '|',
+                    ('out_picking_id', '=', picking.id),
+                    ('in_picking_id', '=', picking.id)
+                ])
+                if reqs:
+                    reqs._sync_transfer_request_state()
+        return res
 
 
 class StockMove(models.Model):
